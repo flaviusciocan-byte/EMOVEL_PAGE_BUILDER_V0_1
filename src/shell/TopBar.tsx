@@ -1,0 +1,287 @@
+// TopBar — top bar of the editor. Mounted via overrides.header.
+// Contains: EMOVEL wordmark · PAGE BUILDER label · collection selector · Export · Publish.
+// Gold is used ONLY for the EMOVEL wordmark and the Publish button (via chrome.css
+// [class*="_Button--primary_"] rule). Nothing else here uses gold.
+
+import { useState, type ReactNode } from 'react';
+import { usePuck } from '@puckeditor/core';
+import type { Data } from '@puckeditor/core';
+import { useTheme } from '../builder/theme';
+import { themes } from '../builder/themes';
+
+interface TopBarProps {
+  actions: ReactNode;  // Puck's native header actions (Publish / Save buttons)
+  children: ReactNode;
+}
+
+// Abbreviated theme label for the collection selector chip.
+function shortLabel(label: string): string {
+  return label.split(' ').slice(0, 2).join(' ').toUpperCase();
+}
+
+export function TopBar({ actions }: TopBarProps) {
+  const { themeId, setTheme } = useTheme();
+  const { appState, dispatch } = usePuck();
+  const [collectionOpen, setCollectionOpen] = useState(false);
+
+  const currentTheme = themes[themeId];
+
+  function handleExport() {
+    try {
+      const data = (appState as { data: Data }).data;
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'page.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // dispatch is not used here; export reads appState only
+      void dispatch;
+    }
+  }
+
+  return (
+    <header className="emovel-topbar">
+      <style>{`
+        .emovel-topbar {
+          display: flex;
+          align-items: center;
+          height: 48px;
+          padding: 0 16px;
+          background: var(--shell-s1);
+          border-bottom: 1px solid var(--shell-b1);
+          gap: 0;
+          box-sizing: border-box;
+          font-family: "Hanken Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          flex-shrink: 0;
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Wordmark: gold = brand rule applies here */
+        .emovel-topbar__wordmark {
+          font-family: "Cinzel", serif;
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 3px;
+          color: var(--shell-gold);
+          user-select: none;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .emovel-topbar__sep-v {
+          width: 1px;
+          height: 16px;
+          background: var(--shell-b2);
+          flex-shrink: 0;
+          margin: 0 12px;
+        }
+
+        .emovel-topbar__label {
+          font-family: var(--shell-mono);
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--shell-text3);
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .emovel-topbar__spacer {
+          flex: 1;
+        }
+
+        /* Collection selector */
+        .emovel-topbar__collection {
+          position: relative;
+          flex-shrink: 0;
+        }
+
+        .emovel-topbar__collection-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 4px 10px;
+          background: transparent;
+          border: 1px solid var(--shell-b2);
+          border-radius: 4px;
+          color: var(--shell-text2);
+          font-family: var(--shell-mono);
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: border-color 120ms ease, color 120ms ease;
+        }
+
+        .emovel-topbar__collection-btn:hover {
+          border-color: var(--shell-b3);
+          color: var(--shell-text);
+        }
+
+        .emovel-topbar__collection-chevron {
+          font-size: 8px;
+          opacity: 0.7;
+        }
+
+        .emovel-topbar__collection-drop {
+          position: absolute;
+          top: calc(100% + 4px);
+          right: 0;
+          z-index: 200;
+          background: var(--shell-s1);
+          border: 1px solid var(--shell-b2);
+          border-radius: 6px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+          overflow: hidden;
+          min-width: 180px;
+        }
+
+        .emovel-topbar__collection-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          padding: 8px 12px;
+          background: transparent;
+          border: none;
+          color: var(--shell-text2);
+          font-family: var(--shell-mono);
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          cursor: pointer;
+          text-align: left;
+          transition: background 100ms ease, color 100ms ease;
+        }
+
+        .emovel-topbar__collection-item:hover {
+          background: var(--shell-blue-fill);
+          color: var(--shell-text);
+        }
+
+        .emovel-topbar__collection-item--active {
+          color: var(--shell-blue);
+        }
+
+        .emovel-topbar__collection-swatch {
+          display: flex;
+          width: 24px;
+          height: 14px;
+          border-radius: 3px;
+          overflow: hidden;
+          flex-shrink: 0;
+          border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Export button — outline style */
+        .emovel-topbar__export-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 4px 10px;
+          background: transparent;
+          border: 1px solid var(--shell-b2);
+          border-radius: 4px;
+          color: var(--shell-text2);
+          font-family: var(--shell-mono);
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          white-space: nowrap;
+          margin-right: 6px;
+          transition: border-color 120ms ease, color 120ms ease;
+        }
+
+        .emovel-topbar__export-btn:hover {
+          border-color: var(--shell-b3);
+          color: var(--shell-text);
+        }
+
+        /* Puck native actions area (Publish button is styled gold via chrome.css) */
+        .emovel-topbar__actions {
+          display: flex;
+          align-items: center;
+          margin-left: 6px;
+        }
+      `}</style>
+
+      {/* EMOVEL wordmark — gold per brand rule */}
+      <span className="emovel-topbar__wordmark">EMOVEL</span>
+
+      {/* Separator */}
+      <div className="emovel-topbar__sep-v" />
+
+      {/* PAGE BUILDER label — monospace, small */}
+      <span className="emovel-topbar__label">Page Builder</span>
+
+      {/* Push right */}
+      <div className="emovel-topbar__spacer" />
+
+      {/* Collection selector */}
+      <div className="emovel-topbar__collection">
+        <button
+          type="button"
+          className="emovel-topbar__collection-btn"
+          onClick={() => setCollectionOpen(!collectionOpen)}
+          aria-haspopup="listbox"
+          aria-expanded={collectionOpen}
+        >
+          {shortLabel(currentTheme?.label ?? 'EMOVEL')}
+          <span className="emovel-topbar__collection-chevron">▾</span>
+        </button>
+
+        {collectionOpen && (
+          <div className="emovel-topbar__collection-drop" role="listbox">
+            {Object.values(themes).map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="option"
+                aria-selected={t.id === themeId}
+                className={`emovel-topbar__collection-item${t.id === themeId ? ' emovel-topbar__collection-item--active' : ''}`}
+                onClick={() => { setTheme(t.id); setCollectionOpen(false); }}
+              >
+                <span className="emovel-topbar__collection-swatch">
+                  {t.swatches.map((c, i) => (
+                    <span key={i} style={{ flex: 1, background: c }} />
+                  ))}
+                </span>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Separator */}
+      <div style={{ width: 1, height: 16, background: 'var(--shell-b2)', margin: '0 10px', flexShrink: 0 }} />
+
+      {/* Export button */}
+      <button
+        type="button"
+        className="emovel-topbar__export-btn"
+        onClick={handleExport}
+        title="Download page JSON"
+      >
+        Export
+      </button>
+
+      {/* Puck native actions — Publish button styled via chrome.css [class*="_Button--primary_"] */}
+      <div className="emovel-topbar__actions">
+        {actions}
+      </div>
+    </header>
+  );
+}
