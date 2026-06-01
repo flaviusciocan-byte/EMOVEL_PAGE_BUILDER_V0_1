@@ -1,52 +1,9 @@
 import { useRef } from 'react';
 import { motion, useInView, useReducedMotion } from 'motion/react';
-import type { Variants, Transition } from 'motion/react';
-import type { HeroSectionProps, MotionPattern } from '../../types/sections';
+import type { HeroSectionProps } from '../../types/sections';
+import { PATTERNS } from '../../motion/patterns';
 import { CinematicWings } from './CinematicWings';
 import { useCinematicLogo } from '../../hooks/useCinematicLogo';
-
-// ── Animation variant factories ───────────────────────────────────────────────
-
-function buildPanelVariants(pattern: MotionPattern, reduced: boolean): Variants {
-  if (reduced) return { hidden: {}, visible: {} };
-
-  switch (pattern) {
-    case 'slide-fade':
-      return {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 },
-      };
-    case 'depth-push':
-      return {
-        hidden: { opacity: 0, scale: 0.96, rotateX: 6, z: -40 },
-        visible: { opacity: 1, scale: 1, rotateX: 0, z: 0 },
-      };
-    case 'parallax-reveal':
-      return {
-        hidden: { opacity: 0, y: -12, scale: 1.02 },
-        visible: { opacity: 1, y: 0, scale: 1 },
-      };
-    case 'staggered-rise':
-      return {
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-      };
-  }
-}
-
-const CHILD_VARIANTS: Variants = {
-  hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const TRANSITION: Record<MotionPattern, Transition> = {
-  'slide-fade':      { duration: 0.60, ease: EASE },
-  'depth-push':      { duration: 0.70, ease: EASE },
-  'parallax-reveal': { duration: 0.80, ease: EASE },
-  'staggered-rise':  { duration: 0.55, ease: EASE },
-};
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -68,20 +25,28 @@ export function HeroSection({
 
   useCinematicLogo(logoRef, enableCinematicLogo);
 
-  const isStaggered     = motionPattern === 'staggered-rise';
-  const panelVariants   = buildPanelVariants(motionPattern, reduced);
-  const panelTransition = !isStaggered ? TRANSITION[motionPattern] : undefined;
-  const childVariants   = isStaggered && !reduced ? CHILD_VARIANTS : undefined;
-  const childTransition = isStaggered && !reduced ? TRANSITION['staggered-rise'] : undefined;
+  const pat = PATTERNS[motionPattern];
+  const { isStaggered } = pat.framer;
+
+  // Reduced-motion: collapse all variants to no-op so Framer renders final state immediately.
+  const panelVariants   = reduced ? { hidden: {}, visible: {} } : pat.framer.panelVariants;
+  const panelTransition = !isStaggered ? pat.framer.transition : undefined;
+  const childVariants   = isStaggered && !reduced ? pat.framer.childVariants : undefined;
+  const childTransition = isStaggered && !reduced ? pat.framer.transition    : undefined;
 
   return (
-    <section className="emovel-hero" id={id} ref={sectionRef}>
+    <section
+      className="emovel-hero"
+      id={id}
+      ref={sectionRef}
+      data-emovel-motion={motionPattern}
+    >
       <style>{HERO_CSS}</style>
 
       {/* Ambient glow — derived from theme --color-glow token */}
       <div className="emovel-hero__glow" aria-hidden="true" />
 
-      {/* perspective is set on inner so the panel's 3D transforms render correctly */}
+      {/* perspective is set on inner so the panel's 3D transforms render with depth */}
       <div className="emovel-hero__inner">
         <motion.div
           className="emovel-hero__panel"

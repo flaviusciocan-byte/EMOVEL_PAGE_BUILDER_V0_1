@@ -1,10 +1,11 @@
 // publish.ts — Static site export for EMOVEL Page Builder.
 // Renders the current page to HTML using Puck's Render component +
-// renderToStaticMarkup, inlines theme-derived CSS, and bundles it
-// into a downloadable .zip (jszip).
+// renderToStaticMarkup, inlines theme-derived CSS + motion animation CSS,
+// and injects a vanilla IntersectionObserver script that triggers entrances
+// on scroll (matching useInView behaviour in the React preview).
 //
-// Called from App.tsx's onPublish callback via the AppInner component,
-// which has access to the active ThemeConfig through useTheme().
+// Called from App.tsx's onPublish callback via AppInner (which has access
+// to the active ThemeConfig through useTheme()).
 
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -22,18 +23,195 @@ import {
   space,
   motion,
 } from './tokens';
+import {
+  PATTERNS,
+  WINGS,
+  EASE_CSS,
+  MOTION_TOKEN_CSS_VARS,
+  MOTION_REDUCED_CSS_VARS,
+} from '../motion/patterns';
+import type { KeyframeState, KeyframesDescriptor } from '../motion/patterns';
+
+// ─── CSS helpers ──────────────────────────────────────────────────────────────
+
+function keyframeStateToTransform(s: KeyframeState): string {
+  const t: string[] = [];
+  if (s.scale     !== undefined) t.push(`scale(${s.scale})`);
+  if (s.rotateX   !== undefined) t.push(`rotateX(${s.rotateX}deg)`);
+  if (s.translateX !== undefined) t.push(`translateX(${s.translateX}px)`);
+  if (s.translateY !== undefined) t.push(`translateY(${s.translateY}px)`);
+  if (s.translateZ !== undefined) t.push(`translateZ(${s.translateZ}px)`);
+  return t.length > 0 ? t.join(' ') : 'none';
+}
+
+function keyframesToAtRule(name: string, desc: KeyframesDescriptor): string {
+  return [
+    `@keyframes ${name} {`,
+    `  from { opacity: ${desc.from.opacity ?? 0}; transform: ${keyframeStateToTransform(desc.from)}; }`,
+    `  to   { opacity: ${desc.to.opacity ?? 1}; transform: ${keyframeStateToTransform(desc.to)}; }`,
+    '}',
+  ].join('\n');
+}
+
+// ─── Motion CSS block ─────────────────────────────────────────────────────────
+
+function buildMotionCSS(): string {
+  const lines: string[] = ['/* ── Hero motion entrance ───────────────────────────────────────── */'];
+
+  // @keyframes for the 3 non-staggered patterns
+  for (const [pattern, def] of Object.entries(PATTERNS)) {
+    if (def.keyframes) {
+      lines.push(keyframesToAtRule(`emovel-${pattern}`, def.keyframes));
+    }
+  }
+  // @keyframes for the staggered-rise child
+  const staggerDef = PATTERNS['staggered-rise'];
+  if (staggerDef.staggeredChild) {
+    lines.push(keyframesToAtRule('emovel-staggered-rise', staggerDef.staggeredChild.keyframes));
+  }
+
+  // Panel-level triggers for non-staggered patterns
+  for (const [pattern, def] of Object.entries(PATTERNS)) {
+    if (!def.framer.isStaggered && def.keyframes) {
+      const kf = def.keyframes;
+      lines.push(
+        `[data-emovel-motion="${pattern}"] .emovel-hero__panel {`,
+        `  animation: emovel-${pattern} ${kf.duration}s ${kf.easing} both paused;`,
+        `}`,
+        `.is-inview[data-emovel-motion="${pattern}"] .emovel-hero__panel {`,
+        `  animation-play-state: running;`,
+        `}`,
+      );
+    }
+  }
+
+  // Staggered-rise: per-child triggers
+  if (staggerDef.staggeredChild) {
+    const { keyframes: kf, itemDelays } = staggerDef.staggeredChild;
+    const childSelectors = [
+      '.emovel-hero__eyebrow',
+      '.emovel-hero__title',
+      '.emovel-hero__subtitle',
+      '.emovel-hero__actions',
+    ];
+    lines.push(
+      childSelectors.map(s => `[data-emovel-motion="staggered-rise"] ${s}`).join(',\n') + ' {',
+      `  animation: emovel-staggered-rise ${kf.duration}s ${kf.easing} both paused;`,
+      `}`,
+    );
+    for (let i = 0; i < childSelectors.length; i++) {
+      const delay = itemDelays[i] ?? 0;
+      lines.push(
+        `.is-inview[data-emovel-motion="staggered-rise"] ${childSelectors[i]} {`,
+        `  animation-play-state: running;`,
+        `  animation-delay: ${delay}s;`,
+        `}`,
+      );
+    }
+  }
+
+  // Wings @keyframes
+  lines.push(
+    `@keyframes emovel-wings-rise {`,
+    `  from { opacity: 0; transform: translateY(${WINGS.containerInitY}px); }`,
+    `  to   { opacity: 1; transform: translateY(0); }`,
+    `}`,
+    `@keyframes emovel-wings-left {`,
+    `  from { opacity: 0; transform: translateX(-${WINGS.pathInitX}px); }`,
+    `  to   { opacity: 1; transform: translateX(0); }`,
+    `}`,
+    `@keyframes emovel-wings-right {`,
+    `  from { opacity: 0; transform: translateX(${WINGS.pathInitX}px); }`,
+    `  to   { opacity: 1; transform: translateX(0); }`,
+    `}`,
+  );
+
+  // Wings: paused initial state
+  lines.push(
+    `.emovel-hero__logo {`,
+    `  animation: emovel-wings-rise ${WINGS.containerDuration}s ${EASE_CSS} both paused;`,
+    `}`,
+    `.emovel-hero__logo .wing-left path {`,
+    `  animation: emovel-wings-left ${WINGS.pathDuration}s ${EASE_CSS} both paused;`,
+    `}`,
+    `.emovel-hero__logo .wing-right path {`,
+    `  animation: emovel-wings-right ${WINGS.pathDuration}s ${EASE_CSS} both paused;`,
+    `}`,
+  );
+
+  // Wings: play on .is-inview (on the parent section, which has data-emovel-motion)
+  const wL = WINGS.leftStaggerStart;
+  const wR = WINGS.rightStaggerStart;
+  const wS = WINGS.staggerStep;
+  lines.push(
+    `.is-inview[data-emovel-motion] .emovel-hero__logo { animation-play-state: running; }`,
+    `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-left path:nth-child(1) { animation-play-state:running; animation-delay:${wL}s; }`,
+    `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-left path:nth-child(2) { animation-play-state:running; animation-delay:${(wL + wS).toFixed(3)}s; }`,
+    `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-left path:nth-child(3) { animation-play-state:running; animation-delay:${(wL + wS * 2).toFixed(3)}s; }`,
+    `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-right path:nth-child(1) { animation-play-state:running; animation-delay:${wR}s; }`,
+    `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-right path:nth-child(2) { animation-play-state:running; animation-delay:${(wR + wS).toFixed(3)}s; }`,
+    `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-right path:nth-child(3) { animation-play-state:running; animation-delay:${(wR + wS * 2).toFixed(3)}s; }`,
+  );
+
+  // prefers-reduced-motion: disable all Hero motion, force final state
+  lines.push(
+    `@media (prefers-reduced-motion: reduce) {`,
+    `  [data-emovel-motion] .emovel-hero__panel,`,
+    `  [data-emovel-motion] .emovel-hero__eyebrow,`,
+    `  [data-emovel-motion] .emovel-hero__title,`,
+    `  [data-emovel-motion] .emovel-hero__subtitle,`,
+    `  [data-emovel-motion] .emovel-hero__actions,`,
+    `  .emovel-hero__logo,`,
+    `  .emovel-hero__logo .wing-left path,`,
+    `  .emovel-hero__logo .wing-right path {`,
+    `    animation: none;`,
+    `    opacity: 1;`,
+    `    transform: none;`,
+    `  }`,
+    `}`,
+  );
+
+  return lines.join('\n');
+}
+
+// ─── IntersectionObserver micro-script ───────────────────────────────────────
+// ~20 lines of vanilla JS, zero dependencies.
+// Replicates useInView({ once: true, amount: 0.1 }) from the React preview.
+// Guard: if prefers-reduced-motion, all targets receive .is-inview immediately
+// so CSS renders them at their final visible state with animation:none.
+
+function buildIOScript(): string {
+  return `(function(){` +
+    `if(matchMedia('(prefers-reduced-motion:reduce)').matches){` +
+      `document.querySelectorAll('[data-emovel-motion]').forEach(function(el){` +
+        `el.classList.add('is-inview');` +
+      `});` +
+      `return;` +
+    `}` +
+    `var io=new IntersectionObserver(function(entries){` +
+      `entries.forEach(function(entry){` +
+        `if(entry.isIntersecting){` +
+          `entry.target.classList.add('is-inview');` +
+          `io.unobserve(entry.target);` +
+        `}` +
+      `});` +
+    `},{threshold:0.1});` +
+    `document.querySelectorAll('[data-emovel-motion]').forEach(function(el){` +
+      `io.observe(el);` +
+    `});` +
+  `})();`;
+}
 
 // ─── CSS generation ───────────────────────────────────────────────────────────
 
-/** Full page CSS for the exported page: font imports + token vars + base reset. */
+/** Full page CSS for the exported page: font imports + token vars + base reset + motion. */
 export function buildStyleCSS(theme: ThemeConfig): string {
-  // Map all color tokens to CSS custom properties
+  // Color tokens
   const colorVars = COLOR_KEYS.map(
     (key) => `  ${colorVar(key)}: ${theme.colors[key]};`,
   );
 
-  // System tokens (radius, space, motion) — these are theme-independent but
-  // must be present for the section inline styles to resolve correctly.
+  // System tokens (radius, space, base motion)
   const systemVars = [
     `  ${cssVarNames.radiusSm}:      ${radius.sm};`,
     `  ${cssVarNames.radiusMd}:      ${radius.md};`,
@@ -47,6 +225,16 @@ export function buildStyleCSS(theme: ThemeConfig): string {
     `  ${cssVarNames.motionDuration}:${motion.duration};`,
   ];
 
+  // Extended motion tokens (T5 — full set from tokens.motion.css)
+  const motionExtVars = MOTION_TOKEN_CSS_VARS.map(
+    ([name, value]) => `  ${name}: ${value};`,
+  );
+
+  // Reduced-motion token overrides
+  const motionReducedVars = MOTION_REDUCED_CSS_VARS.map(
+    ([name, value]) => `    ${name}: ${value};`,
+  );
+
   return [
     '/* Generated by EMOVEL Page Builder */',
     `/* Theme: ${theme.label} */`,
@@ -58,6 +246,13 @@ export function buildStyleCSS(theme: ThemeConfig): string {
     ':root {',
     ...colorVars,
     ...systemVars,
+    ...motionExtVars,
+    '}',
+    '',
+    '@media (prefers-reduced-motion: reduce) {',
+    '  :root {',
+    ...motionReducedVars,
+    '  }',
     '}',
     '',
     '/* Base reset */',
@@ -74,6 +269,8 @@ export function buildStyleCSS(theme: ThemeConfig): string {
     '}',
     'img, svg, video { display: block; max-width: 100%; }',
     'a { color: inherit; }',
+    '',
+    buildMotionCSS(),
   ].join('\n');
 }
 
@@ -94,17 +291,20 @@ function slugify(str: string): string {
     .replace(/^-|-$/g, '') || 'page';
 }
 
-/** Render the page sections to an HTML string using Puck's Render component.
- *  The config's render functions handle all normalizations (benefits, footer links, etc.)
- *  just as they do in the live editor. */
+/** Render page sections to HTML via Puck's Render component. */
 function renderBody(data: Data): string {
   return renderToStaticMarkup(
     createElement(Render, { config, data }),
   );
 }
 
-/** Full index.html document. */
-function buildIndexHTML(bodyHTML: string, title: string, styleCSS: string): string {
+/** Full index.html document with inline styles and IO micro-script. */
+function buildIndexHTML(
+  bodyHTML:  string,
+  title:     string,
+  styleCSS:  string,
+  ioScript:  string,
+): string {
   const safeTitle = escapeHTML(title);
   return `<!DOCTYPE html>
 <html lang="en">
@@ -118,6 +318,7 @@ ${styleCSS}
 </head>
 <body>
 ${bodyHTML}
+<script>${ioScript}</script>
 </body>
 </html>`;
 }
@@ -126,10 +327,9 @@ ${bodyHTML}
 
 /** Render the page to a .zip containing a self-contained index.html and trigger download. */
 export async function publishToZip(
-  data: Data,
+  data:  Data,
   theme: ThemeConfig,
 ): Promise<void> {
-  // Extract page title from Puck root props; fall back to 'page'
   const title =
     typeof (data.root as { props?: { title?: string } })?.props?.title === 'string'
       ? ((data.root as { props: { title: string } }).props.title || 'page')
@@ -137,7 +337,8 @@ export async function publishToZip(
 
   const bodyHTML  = renderBody(data);
   const styleCSS  = buildStyleCSS(theme);
-  const indexHTML = buildIndexHTML(bodyHTML, title, styleCSS);
+  const ioScript  = buildIOScript();
+  const indexHTML = buildIndexHTML(bodyHTML, title, styleCSS, ioScript);
 
   const zip = new JSZip();
   zip.file('index.html', indexHTML);
