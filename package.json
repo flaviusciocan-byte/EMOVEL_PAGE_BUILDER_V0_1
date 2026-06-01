@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@puckeditor/core": "0.21.2",
+    "animejs": "^4.4.1",
     "jszip": "^3.10.1",
+    "motion": "^12.40.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

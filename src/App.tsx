@@ -1,5 +1,6 @@
 import { Puck, legacySideBarPlugin } from '@puckeditor/core';
 import type { Data } from '@puckeditor/core';
+import { useRef } from 'react';
 import '@puckeditor/core/puck.css';
 import './shell/chrome.css';
 import { config, initialData } from './builder/puck.config';
@@ -26,6 +27,8 @@ const legacySideBar = legacySideBarPlugin();
 // This gives onPublish access to the current ThemeConfig for CSS generation.
 function AppInner() {
   const { theme } = useTheme();
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
 
   return (
     <Puck
@@ -43,7 +46,7 @@ function AppInner() {
       onPublish={(data) => {
         // publishToZip renders the page to static HTML, wraps it with the
         // active theme's CSS token definitions, and downloads a .zip.
-        publishToZip(data, theme).catch((err) => {
+        publishToZip(data, themeRef.current).catch((err) => {
           console.error('[EMOVEL] Publish failed:', err);
         });
       }}

@@ -3,7 +3,6 @@
 
 import type { Config } from '@puckeditor/core';
 import type {
-  HeroProps,
   ProductCard,
   ProductGridProps,
   OfferProps,
@@ -35,7 +34,12 @@ import type {
   FooterLinkGroup,
 } from './section-contract';
 
-import { HeroSection }              from './sections/HeroSection';
+import {
+  heroFields,
+  heroDefaultProps,
+  renderHero,
+  type HeroStoredProps,
+} from '../puck/config/hero.config';
 import { ProductGridSection }       from './sections/ProductGridSection';
 import { OfferSection }             from './sections/OfferSection';
 import { ScreenshotGallerySection } from './sections/ScreenshotGallerySection';
@@ -93,7 +97,7 @@ function parseFooterLinks(raw: string): CTALink[] {
 // Explicit type annotation (not satisfies) so config's type is Config<{...}>, which extends
 // the base Config and satisfies Puck<UserConfig extends Config>'s prop constraint.
 export const config: Config<{
-  'Hero':               HeroProps;
+  'Hero':               HeroStoredProps;
   'Product Grid':       ProductGridProps;
   'Offer Section':      OfferStoredProps;
   'Screenshot Gallery': ScreenshotGalleryProps;
@@ -116,21 +120,9 @@ export const config: Config<{
 
     // ── Hero ────────────────────────────────────────────────────────────────
     'Hero': {
-      fields: {
-        eyebrow:      { type: 'text'     as const, label: 'Eyebrow' },
-        headline:     { type: 'text'     as const, label: 'Headline' },
-        description:  { type: 'textarea' as const, label: 'Description' },
-        primaryCTA:   { type: 'text'     as const, label: 'Primary CTA' },
-        secondaryCTA: { type: 'text'     as const, label: 'Secondary CTA' },
-      },
-      defaultProps: {
-        eyebrow:      'Your brand',
-        headline:     'A headline that earns attention.',
-        description:  'One or two sentences that frame what you offer and who it is for.',
-        primaryCTA:   'Get started',
-        secondaryCTA: 'Learn more',
-      } satisfies HeroProps,
-      render: (props: HeroProps) => <HeroSection {...props} />,
+      fields:       heroFields,
+      defaultProps: heroDefaultProps,
+      render:       renderHero,
     },
 
     // ── Product Grid ────────────────────────────────────────────────────────

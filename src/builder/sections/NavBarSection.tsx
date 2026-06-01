@@ -27,6 +27,7 @@ export function NavBarSection(props: NavBarProps) {
           border-bottom: 1px solid var(--color-border);
           position: relative;
           z-index: 100;
+          container-type: inline-size;
         }
 
         .emovel-navbar[data-position="sticky"] {
@@ -258,15 +259,15 @@ export function NavBarSection(props: NavBarProps) {
           align-self: flex-start;
         }
 
-        /* ── Responsive breakpoints ── */
-        @media (max-width: 47.999rem) {
+        /* ── Responsive breakpoints (container queries — work in Puck iframe + export) ── */
+        @container (max-width: 47.999rem) {
           /* Mobile: hide desktop links, show hamburger */
           .emovel-navbar__links { display: none; }
           .emovel-navbar__cta   { display: none; }
           .emovel-navbar__hamburger { display: flex; }
         }
 
-        @media (min-width: 48rem) {
+        @container (min-width: 48rem) {
           /* Desktop: always hide panel and hamburger regardless of checkbox state */
           .emovel-navbar__panel     { max-height: 0 !important; border-top-width: 0 !important; }
           .emovel-navbar__hamburger { display: none !important; }

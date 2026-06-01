@@ -1,0 +1,48 @@
+/*
+ * Motion + depth + lighting tokens for the EMOVEL Hero system.
+ * Canonical reference for the static export pipeline.
+ * Inside the Puck canvas iframe, the critical values are
+ * defined inline inside HeroSection.tsx via a <style> tag.
+ */
+
+:root {
+  /* ── Duration scale ──────────────────────────────────────────────────── */
+  --motion-duration-fast:      0.20s;
+  --motion-duration-base:      0.40s;
+  --motion-duration-slow:      0.70s;
+  --motion-duration-cinematic: 1.10s;
+
+  /* ── Easing ──────────────────────────────────────────────────────────── */
+  --motion-ease-out:    cubic-bezier(.22, 1, .36, 1);
+  --motion-ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+
+  /* ── Distance scale ──────────────────────────────────────────────────── */
+  --motion-distance-sm:  12px;
+  --motion-distance-md:  24px;
+  --motion-distance-lg:  40px;
+
+  /* ── 2.5D depth tokens ───────────────────────────────────────────────── */
+  --depth-perspective:   1200px;
+  --depth-tilt-enter-x:    6deg;
+  --depth-tilt-enter-y:   -2deg;
+  --depth-z-enter:        -40px;
+
+  /* ── Lighting (derived from theme glow token, with hex fallback) ─────── */
+  --lighting-rim:     var(--color-glow, rgba(212,175,55,.14));
+  --lighting-ambient: var(--color-surface, #0E0E10);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast:      0.01ms;
+    --motion-duration-base:      0.01ms;
+    --motion-duration-slow:      0.01ms;
+    --motion-duration-cinematic: 0.01ms;
+    --motion-distance-sm:  0;
+    --motion-distance-md:  0;
+    --motion-distance-lg:  0;
+    --depth-tilt-enter-x:  0deg;
+    --depth-tilt-enter-y:  0deg;
+    --depth-z-enter:       0px;
+  }
+}
