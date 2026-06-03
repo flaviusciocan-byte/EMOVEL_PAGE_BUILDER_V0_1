@@ -1,5 +1,6 @@
 import { useEffect, type RefObject } from 'react';
 import { createTimeline, stagger } from 'animejs';
+import { WINGS } from '../motion/patterns';
 
 export function useCinematicLogo(
   containerRef: RefObject<HTMLDivElement | null>,
@@ -27,35 +28,37 @@ export function useCinematicLogo(
     );
     if (!leftPaths.length || !rightPaths.length) return;
 
-    // Set initial hidden states before animation starts
+    const w = WINGS.anime;
+
+    // Set initial hidden states
     container.style.opacity = '0';
-    container.style.transform = 'translateY(20px)';
+    container.style.transform = `translateY(${w.containerInitY}px)`;
     for (const el of leftPaths) {
       el.style.opacity = '0';
-      el.style.transform = 'translateX(-16px)';
+      el.style.transform = `translateX(-${w.pathInitX}px)`;
     }
     for (const el of rightPaths) {
       el.style.opacity = '0';
-      el.style.transform = 'translateX(16px)';
+      el.style.transform = `translateX(${w.pathInitX}px)`;
     }
 
     const tl = createTimeline({ defaults: { ease: 'outExpo' } });
 
     // Phase 1: container fade + rise (absolute 0ms)
-    tl.add(container, { opacity: 1, translateY: 0, duration: 600 }, 0);
+    tl.add(container, { opacity: 1, translateY: 0, duration: w.containerDuration }, 0);
 
-    // Phase 2: left wing paths fan in (staggered from 200ms, overlap with phase 1)
+    // Phase 2: left wing paths fan in (staggered, overlap with phase 1)
     tl.add(
       leftPaths,
-      { opacity: 1, translateX: 0, duration: 440 },
-      stagger(55, { start: 200 }),
+      { opacity: 1, translateX: 0, duration: w.pathDuration },
+      stagger(w.staggerStep, { start: w.leftStaggerStart }),
     );
 
-    // Phase 3: right wing paths fan in (staggered from 240ms, overlap with phase 2)
+    // Phase 3: right wing paths fan in (staggered, overlap with phase 2)
     tl.add(
       rightPaths,
-      { opacity: 1, translateX: 0, duration: 440 },
-      stagger(55, { start: 240 }),
+      { opacity: 1, translateX: 0, duration: w.pathDuration },
+      stagger(w.staggerStep, { start: w.rightStaggerStart }),
     );
 
     return () => {

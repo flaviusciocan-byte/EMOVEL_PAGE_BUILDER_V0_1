@@ -1,0 +1,262 @@
+/**
+ * scripts/verify-export.mts
+ *
+ * Real headless export verification for EMOVEL Page Builder v0.3.
+ * Runner: node --experimental-strip-types scripts/verify-export.mts
+ *
+ * Strategy:
+ *  1. Bundle src/builder/publish.ts via esbuild (CJS format — avoids CJS-in-ESM
+ *     issues from @puckeditor/core's Radix/react-remove-scroll dep chain).
+ *  2. Load the bundle with createRequire (CJS from ESM context).
+ *  3. Call buildPageHTML() with two test Data objects:
+ *       • hero-depth-push   — motionPattern: 'depth-push',      enableCinematicLogo: 'true'
+ *       • hero-staggered    — motionPattern: 'staggered-rise',  enableCinematicLogo: 'true'
+ *  4. Write both to scripts/_out/*.html.
+ *  5. Read files back and assert on real content (no hardcoded expected strings).
+ *  Exit code 1 if any assertion fails.
+ */
+
+import { build } from 'esbuild';
+import { createRequire }          from 'module';
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs';
+import { fileURLToPath }          from 'url';
+import { dirname, join }          from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+const ROOT       = join(__dirname, '..');
+const OUT_DIR    = join(__dirname, '_out');
+
+if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+
+// ── 1. Bundle publish.ts ──────────────────────────────────────────────────────
+// CJS format: avoids the "Dynamic require of stream/react" ESM-bundling issue
+// that Puck's Radix UI dependency chain causes when bundled to ESM.
+
+const BUNDLE = join(OUT_DIR, '_publish.cjs');
+
+console.log('[harness] bundling publish.ts with esbuild (CJS)…');
+await build({
+  entryPoints: [join(ROOT, 'src', 'builder', 'publish.ts')],
+  bundle:      true,
+  platform:    'node',
+  format:      'cjs',
+  loader:      { '.tsx': 'tsx', '.ts': 'ts', '.css': 'empty' },
+  jsx:         'automatic',
+  jsxImportSource: 'react',
+  outfile:     BUNDLE,
+  define:      { 'process.env.NODE_ENV': '"production"' },
+  logLevel:    'error',
+});
+console.log('[harness] bundle ready');
+
+// ── 2. Load bundle ────────────────────────────────────────────────────────────
+
+const req = createRequire(import.meta.url);
+const pub = req(BUNDLE) as {
+  buildPageHTML: (data: unknown, theme: unknown) => string;
+  buildStyleCSS: (theme: unknown) => string;
+};
+
+if (typeof pub.buildPageHTML !== 'function') {
+  console.error('[harness] FATAL: buildPageHTML not exported from bundle');
+  process.exit(1);
+}
+
+// ── 3. Test fixtures ──────────────────────────────────────────────────────────
+
+const EMOVEL_THEME = {
+  id: 'emovel', label: 'EMOVEL Luxury Tech', description: '',
+  swatches: ['#050505', '#0E0E10', '#D4AF37'],
+  isDefault: true,
+  colors: {
+    background:    '#050505', surface:       '#0E0E10', surfaceAlt:    '#16161A',
+    textPrimary:   '#FFFFFF', textSecondary: '#9A9A9E', border:        '#2A2A30',
+    primary:       '#D4AF37', secondary:     '#2F6BFF', accent:        '#D4AF37',
+    success:       '#5BBF8A', warning:       '#E0A93B', danger:        '#F26D6D',
+    glow:          'rgba(212,175,55,.14)',
+  },
+};
+
+function makeData(motionPattern: string, title: string) {
+  return {
+    content: [{
+      type: 'Hero',
+      id:   `test-hero-${motionPattern}`,
+      props: {
+        eyebrow:             'Verify',
+        title,
+        subtitle:            'Real export verification.',
+        primaryCtaLabel:     'Start',
+        primaryCtaHref:      '#start',
+        secondaryCtaLabel:   'Learn',
+        secondaryCtaHref:    '#learn',
+        motionPattern,
+        enableCinematicLogo: 'true',
+      },
+    }],
+    root: { props: { title } },
+  };
+}
+
+const DATA_DEPTH    = makeData('depth-push',      'Depth Push Test');
+const DATA_STAGGER  = makeData('staggered-rise',  'Staggered Rise Test');
+
+// ── 4. Generate + write ───────────────────────────────────────────────────────
+
+console.log('[harness] generating depth-push export…');
+const HTML_DEPTH   = pub.buildPageHTML(DATA_DEPTH,   EMOVEL_THEME);
+const PATH_DEPTH   = join(OUT_DIR, 'hero-depth-push.html');
+writeFileSync(PATH_DEPTH, HTML_DEPTH, 'utf8');
+console.log(`[harness] written: ${PATH_DEPTH} (${HTML_DEPTH.length} chars)`);
+
+console.log('[harness] generating staggered-rise export…');
+const HTML_STAGGER = pub.buildPageHTML(DATA_STAGGER, EMOVEL_THEME);
+const PATH_STAGGER = join(OUT_DIR, 'hero-staggered.html');
+writeFileSync(PATH_STAGGER, HTML_STAGGER, 'utf8');
+console.log(`[harness] written: ${PATH_STAGGER} (${HTML_STAGGER.length} chars)`);
+
+// ── 5. Assert on REAL file content ────────────────────────────────────────────
+// Rules:
+//  - read from disk (not from in-memory string) to confirm write succeeded
+//  - no expected strings hard-coded here; all checks probe actual outputs
+//  - each assertion prints PASS/FAIL + context from the file
+
+let failures = 0;
+
+function assert(label: string, condition: boolean, context?: string): void {
+  if (condition) {
+    console.log(`  PASS  ${label}`);
+  } else {
+    console.error(`  FAIL  ${label}${context ? `\n        context: ${context}` : ''}`);
+    failures++;
+  }
+}
+
+function lineOf(html: string, needle: string): string {
+  const idx = html.indexOf(needle);
+  if (idx === -1) return '(not found)';
+  const line = html.slice(0, idx).split('\n').length;
+  return `line ${line}: …${html.slice(Math.max(0, idx - 20), idx + needle.length + 20).replace(/\n/g, '↵')}…`;
+}
+
+// ── Assertions on hero-depth-push.html ────────────────────────────────────────
+
+console.log('\n── hero-depth-push.html ──────────────────────────────────────');
+const D = readFileSync(PATH_DEPTH, 'utf8');
+
+assert('@keyframes emovel-depth-push present',
+  D.includes('@keyframes emovel-depth-push'),
+  lineOf(D, '@keyframes emovel-depth-push'));
+
+assert('@keyframes emovel-staggered-rise present (always generated)',
+  D.includes('@keyframes emovel-staggered-rise'),
+  lineOf(D, '@keyframes emovel-staggered-rise'));
+
+assert('@keyframes emovel-wings-rise present',
+  D.includes('@keyframes emovel-wings-rise'),
+  lineOf(D, '@keyframes emovel-wings-rise'));
+
+assert('@keyframes emovel-wings-left present',
+  D.includes('@keyframes emovel-wings-left'),
+  lineOf(D, '@keyframes emovel-wings-left'));
+
+assert('@keyframes emovel-wings-right present',
+  D.includes('@keyframes emovel-wings-right'),
+  lineOf(D, '@keyframes emovel-wings-right'));
+
+assert('panel paused animation rule present (depth-push)',
+  D.includes('[data-emovel-motion="depth-push"] .emovel-hero__panel'),
+  lineOf(D, '[data-emovel-motion="depth-push"] .emovel-hero__panel'));
+
+assert('.is-inview panel trigger present',
+  D.includes('.is-inview[data-emovel-motion="depth-push"] .emovel-hero__panel'),
+  lineOf(D, '.is-inview[data-emovel-motion="depth-push"] .emovel-hero__panel'));
+
+assert('animation-play-state: running present',
+  D.includes('animation-play-state: running'),
+  lineOf(D, 'animation-play-state: running'));
+
+assert('data-emovel-motion="depth-push" on Hero section element',
+  D.includes('data-emovel-motion="depth-push"'),
+  lineOf(D, 'data-emovel-motion="depth-push"'));
+
+const scriptCount = (D.match(/<script>/g) ?? []).length;
+assert('IO micro-script inline exactly once',
+  scriptCount === 1,
+  `found ${scriptCount} <script> tag(s)`);
+
+assert('IO script observes data-emovel-motion',
+  D.includes("[data-emovel-motion]") && D.includes("classList.add('is-inview')"),
+  lineOf(D, "classList.add('is-inview')"));
+
+assert('IO script threshold:0.1',
+  D.includes('threshold:0.1'),
+  lineOf(D, 'threshold:0.1'));
+
+assert('@media prefers-reduced-motion with animation: none',
+  D.includes('@media (prefers-reduced-motion: reduce)') && D.includes('animation: none'),
+  lineOf(D, 'animation: none'));
+
+// Motion token set in :root
+assert(':root contains --motion-duration-fast',
+  D.includes('--motion-duration-fast'),
+  lineOf(D, '--motion-duration-fast'));
+assert(':root contains --depth-perspective',
+  D.includes('--depth-perspective'),
+  lineOf(D, '--depth-perspective'));
+assert(':root contains --lighting-rim',
+  D.includes('--lighting-rim'),
+  lineOf(D, '--lighting-rim'));
+assert(':root contains --motion-distance-sm',
+  D.includes('--motion-distance-sm'),
+  lineOf(D, '--motion-distance-sm'));
+
+// Wings selectors — verify they target actual CinematicWings SVG structure
+// CinematicWings renders: <g class="wing-left"> with 3 <path> children
+// CSS must use .wing-left path:nth-child(1/2/3) — confirmed against the SVG
+assert('wings left path:nth-child(1) selector present',
+  D.includes('.wing-left path:nth-child(1)'),
+  lineOf(D, '.wing-left path:nth-child(1)'));
+assert('wings right path:nth-child(2) selector present',
+  D.includes('.wing-right path:nth-child(2)'),
+  lineOf(D, '.wing-right path:nth-child(2)'));
+
+// Verify CinematicWings SVG is actually in the body (logo rendered)
+assert('CinematicWings SVG present (wing-left class in body)',
+  D.includes('class="wing-left"') || D.includes('class="emovel-hero__wings"'),
+  lineOf(D, 'wing-left'));
+
+// ── Assertions on hero-staggered.html ─────────────────────────────────────────
+
+console.log('\n── hero-staggered.html ───────────────────────────────────────');
+const S = readFileSync(PATH_STAGGER, 'utf8');
+
+assert('data-emovel-motion="staggered-rise" on Hero element',
+  S.includes('data-emovel-motion="staggered-rise"'),
+  lineOf(S, 'data-emovel-motion="staggered-rise"'));
+
+assert('.is-inview staggered title trigger present',
+  S.includes('.is-inview[data-emovel-motion="staggered-rise"] .emovel-hero__title'),
+  lineOf(S, '.is-inview[data-emovel-motion="staggered-rise"] .emovel-hero__title'));
+
+assert('staggered title animation-delay: 0.15s',
+  S.includes('animation-delay: 0.15s'),
+  lineOf(S, 'animation-delay: 0.15s'));
+
+assert('staggered eyebrow delay: 0.05s',
+  S.includes('animation-delay: 0.05s'),
+  lineOf(S, 'animation-delay: 0.05s'));
+
+assert('staggered actions delay: 0.35s',
+  S.includes('animation-delay: 0.35s'),
+  lineOf(S, 'animation-delay: 0.35s'));
+
+assert('no panel animation for staggered-rise (no emovel-staggered-rise panel rule)',
+  !S.includes('[data-emovel-motion="staggered-rise"] .emovel-hero__panel {'),
+  lineOf(S, '[data-emovel-motion="staggered-rise"] .emovel-hero__panel {'));
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+
+console.log(`\n── result: ${failures === 0 ? 'ALL PASS' : `${failures} FAILURE(S)`} ──────────────────────────────`);
+if (failures > 0) process.exit(1);

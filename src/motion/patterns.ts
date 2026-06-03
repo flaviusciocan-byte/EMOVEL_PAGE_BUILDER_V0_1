@@ -34,20 +34,41 @@ const DEPTH = {
 } as const;
 
 // ── Wing animation timings ────────────────────────────────────────────────────
-// Mirrors the Anime.js choreography in useCinematicLogo.ts.
-// Used by publish.ts to generate the CSS-equivalent wing animation.
-// Note: useCinematicLogo.ts is outside this spec's scope and keeps its own
-// hardcoded values; WINGS here is the export-side representation of the same
-// choreography (accepted duplication per scope constraint).
+// Single source values (ms / px). Both runtime consumers derive from here:
+//   WINGS.anime → Anime.js v4 (useCinematicLogo.ts), values in ms
+//   WINGS.css   → CSS export  (publish.ts buildMotionCSS), durations in s
+
+const WINGS_RAW = {
+  containerMs:   600,   // ms — container fade + rise
+  containerInitY:  20,  // px — initial translateY
+  pathMs:        440,   // ms — each feather path
+  pathInitX:      16,   // px — initial translateX magnitude
+  leftStartMs:   200,   // ms — absolute timeline position of first left path
+  rightStartMs:  240,   // ms — absolute timeline position of first right path
+  staggerMs:      55,   // ms — between successive paths (Anime.js stagger)
+} as const;
 
 export const WINGS = {
-  containerDuration:  0.600,  // s — container fade + rise
-  containerInitY:        20,  // px — initial translateY
-  pathDuration:       0.440,  // s — each feather path
-  pathInitX:             16,  // px — initial translateX magnitude
-  leftStaggerStart:   0.200,  // s — absolute start of first left path
-  rightStaggerStart:  0.240,  // s — absolute start of first right path
-  staggerStep:        0.055,  // s — between successive paths
+  /** Anime.js v4 parameters — consumed by useCinematicLogo.ts */
+  anime: {
+    containerDuration: WINGS_RAW.containerMs,
+    containerInitY:    WINGS_RAW.containerInitY,
+    pathDuration:      WINGS_RAW.pathMs,
+    pathInitX:         WINGS_RAW.pathInitX,
+    leftStaggerStart:  WINGS_RAW.leftStartMs,
+    rightStaggerStart: WINGS_RAW.rightStartMs,
+    staggerStep:       WINGS_RAW.staggerMs,
+  },
+  /** CSS descriptor — consumed by publish.ts buildMotionCSS (durations in s) */
+  css: {
+    containerDuration: WINGS_RAW.containerMs   / 1000,
+    containerInitY:    WINGS_RAW.containerInitY,
+    pathDuration:      WINGS_RAW.pathMs        / 1000,
+    pathInitX:         WINGS_RAW.pathInitX,
+    leftStaggerStart:  WINGS_RAW.leftStartMs   / 1000,
+    rightStaggerStart: WINGS_RAW.rightStartMs  / 1000,
+    staggerStep:       WINGS_RAW.staggerMs     / 1000,
+  },
 } as const;
 
 // ── CSS var injection sets (for publish.ts :root block) ───────────────────────

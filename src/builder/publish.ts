@@ -113,15 +113,15 @@ function buildMotionCSS(): string {
   // Wings @keyframes
   lines.push(
     `@keyframes emovel-wings-rise {`,
-    `  from { opacity: 0; transform: translateY(${WINGS.containerInitY}px); }`,
+    `  from { opacity: 0; transform: translateY(${WINGS.css.containerInitY}px); }`,
     `  to   { opacity: 1; transform: translateY(0); }`,
     `}`,
     `@keyframes emovel-wings-left {`,
-    `  from { opacity: 0; transform: translateX(-${WINGS.pathInitX}px); }`,
+    `  from { opacity: 0; transform: translateX(-${WINGS.css.pathInitX}px); }`,
     `  to   { opacity: 1; transform: translateX(0); }`,
     `}`,
     `@keyframes emovel-wings-right {`,
-    `  from { opacity: 0; transform: translateX(${WINGS.pathInitX}px); }`,
+    `  from { opacity: 0; transform: translateX(${WINGS.css.pathInitX}px); }`,
     `  to   { opacity: 1; transform: translateX(0); }`,
     `}`,
   );
@@ -129,20 +129,20 @@ function buildMotionCSS(): string {
   // Wings: paused initial state
   lines.push(
     `.emovel-hero__logo {`,
-    `  animation: emovel-wings-rise ${WINGS.containerDuration}s ${EASE_CSS} both paused;`,
+    `  animation: emovel-wings-rise ${WINGS.css.containerDuration}s ${EASE_CSS} both paused;`,
     `}`,
     `.emovel-hero__logo .wing-left path {`,
-    `  animation: emovel-wings-left ${WINGS.pathDuration}s ${EASE_CSS} both paused;`,
+    `  animation: emovel-wings-left ${WINGS.css.pathDuration}s ${EASE_CSS} both paused;`,
     `}`,
     `.emovel-hero__logo .wing-right path {`,
-    `  animation: emovel-wings-right ${WINGS.pathDuration}s ${EASE_CSS} both paused;`,
+    `  animation: emovel-wings-right ${WINGS.css.pathDuration}s ${EASE_CSS} both paused;`,
     `}`,
   );
 
   // Wings: play on .is-inview (on the parent section, which has data-emovel-motion)
-  const wL = WINGS.leftStaggerStart;
-  const wR = WINGS.rightStaggerStart;
-  const wS = WINGS.staggerStep;
+  const wL = WINGS.css.leftStaggerStart;
+  const wR = WINGS.css.rightStaggerStart;
+  const wS = WINGS.css.staggerStep;
   lines.push(
     `.is-inview[data-emovel-motion] .emovel-hero__logo { animation-play-state: running; }`,
     `.is-inview[data-emovel-motion] .emovel-hero__logo .wing-left path:nth-child(1) { animation-play-state:running; animation-delay:${wL}s; }`,
@@ -321,6 +321,18 @@ ${bodyHTML}
 <script>${ioScript}</script>
 </body>
 </html>`;
+}
+
+// ─── Named export for headless/test usage ────────────────────────────────────
+
+/** Returns the full index.html string without triggering a download.
+ *  Used by the verify-export harness; no browser APIs required. */
+export function buildPageHTML(data: Data, theme: ThemeConfig): string {
+  const title =
+    typeof (data.root as { props?: { title?: string } })?.props?.title === 'string'
+      ? ((data.root as { props: { title: string } }).props.title || 'page')
+      : 'page';
+  return buildIndexHTML(renderBody(data), title, buildStyleCSS(theme), buildIOScript());
 }
 
 // ─── ZIP download ─────────────────────────────────────────────────────────────
