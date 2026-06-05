@@ -316,7 +316,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
         kind: 'nav',
         props: {
           logoText: 'EMOVEL',
-          logoImageUrl: 'emovel-brand/source-transparent/emovel-logo-gold-on-dark.png',
+          logoImageUrl: 'assets/source-transparent/emovel-logo-gold-on-dark.png',
           links: [
             makeLink('Home', '#'),
             makeLink('Ecosystem', '#ecosystem'),
@@ -344,7 +344,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
           secondaryCtaHref: '#ecosystem',
           motionPattern: 'depth-push',
           enableCinematicLogo: 'true',
-          brandImageUrl: 'emovel-brand/emovel-logo-3d-gold.png',
+          brandImageUrl: 'assets/emovel-logo-3d-gold.png',
           brandImageAlt: 'EMOVEL gold 3D logo',
         },
       },

@@ -1,9 +1,19 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { usePuck } from '@puckeditor/core';
 import type { Data } from '@puckeditor/core';
 
 // ExportPanel — mounted inside Puck's component tree (via InspectorShell Export tab).
 // Uses usePuck() to read current data and dispatch setData for import.
+
+// Scan page data JSON for asset path strings that look broken (old emovel-brand/ prefix,
+// or bare filenames that aren't under the canonical assets/ prefix).
+function findBrokenAssetPaths(json: string): string[] {
+  const broken: string[] = [];
+  // Flag legacy emovel-brand/ prefix — always wrong now
+  const legacyMatches = json.match(/"emovel-brand\/[^"]+"/g);
+  if (legacyMatches) broken.push(...legacyMatches.map(m => m.slice(1, -1)));
+  return [...new Set(broken)];
+}
 
 export function ExportPanel() {
   const { appState, dispatch } = usePuck();
@@ -16,6 +26,8 @@ export function ExportPanel() {
   // Access current page data via appState.data (AppState.data: Data)
   const data = (appState as { data: Data }).data;
   const jsonString = JSON.stringify(data, null, 2);
+
+  const brokenPaths = useMemo(() => findBrokenAssetPaths(jsonString), [jsonString]);
 
   function handleCopy() {
     navigator.clipboard.writeText(jsonString).then(() => {
@@ -195,6 +207,25 @@ export function ExportPanel() {
           {data.content.length} section{data.content.length !== 1 ? 's' : ''}
         </div>
         <pre style={S.jsonPreview}>{jsonString.slice(0, 280)}{jsonString.length > 280 ? '\n…' : ''}</pre>
+        {brokenPaths.length > 0 && (
+          <div style={{
+            marginBottom: 8,
+            padding: '6px 8px',
+            borderRadius: 6,
+            background: 'rgba(234,179,8,0.08)',
+            border: '1px solid rgba(212,175,55,0.35)',
+            color: '#D4AF37',
+            fontSize: 10,
+            lineHeight: 1.5,
+            fontFamily: '"Menlo","Consolas",monospace',
+          }}>
+            ⚠ Asset paths will 404 after export:<br />
+            {brokenPaths.map(p => <span key={p} style={{ display: 'block', marginLeft: 8 }}>• {p}</span>)}
+            <span style={{ display: 'block', marginTop: 4, color: '#9CA3AF' }}>
+              Use <strong>assets/</strong> prefix (e.g. assets/emovel-logo-3d-gold.png)
+            </span>
+          </div>
+        )}
         <div style={S.row}>
           <button
             type="button"

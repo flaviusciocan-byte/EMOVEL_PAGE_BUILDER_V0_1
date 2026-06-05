@@ -32,32 +32,30 @@ import {
 } from '../motion/patterns';
 import type { KeyframeState, KeyframesDescriptor } from '../motion/patterns';
 
+// Canonical asset location: public/assets/...
+// Page data references them as "assets/..." (root-relative, resolved by Vite / the exported HTML).
 const BRAND_EXPORT_ASSETS: ReadonlyArray<{ sourcePath: string; zipPath: string }> = [
-  { sourcePath: 'emovel-brand/app-icon-1024.png', zipPath: 'app-icon/app-icon-1024.png' },
-  { sourcePath: 'emovel-brand/avatar-on-dark-1024.png', zipPath: 'social-avatar/avatar-on-dark-1024.png' },
-  { sourcePath: 'emovel-brand/favicon/favicon.ico', zipPath: 'favicon/favicon.ico' },
-  { sourcePath: 'emovel-brand/favicon-gold-256.png', zipPath: 'favicon/favicon-gold-256.png' },
-  { sourcePath: 'emovel-brand/favicon.ico', zipPath: 'favicon/favicon.ico' },
-  { sourcePath: 'emovel-brand/og-image-3d.png', zipPath: 'og-image/og-image-3d.png' },
-  {
-    sourcePath: 'emovel-brand/source-transparent/emovel-logo-3d-gold.png',
-    zipPath: 'source-transparent/emovel-logo-3d-gold.png',
-  },
-  {
-    sourcePath: 'emovel-brand/source-transparent/emovel-logo-gold-on-dark.png',
-    zipPath: 'source-transparent/emovel-logo-gold-on-dark.png',
-  },
+  { sourcePath: 'assets/app-icon-1024.png',          zipPath: 'app-icon/app-icon-1024.png'                              },
+  { sourcePath: 'assets/avatar-on-dark-1024.png',    zipPath: 'social-avatar/avatar-on-dark-1024.png'                  },
+  { sourcePath: 'assets/favicon/favicon.ico',        zipPath: 'favicon/favicon.ico'                                    },
+  { sourcePath: 'assets/favicon-gold-256.png',       zipPath: 'favicon/favicon-gold-256.png'                           },
+  { sourcePath: 'assets/favicon.ico',                zipPath: 'favicon/favicon.ico'                                    },
+  { sourcePath: 'assets/og-image-3d.png',            zipPath: 'og-image/og-image-3d.png'                               },
+  { sourcePath: 'assets/source-transparent/emovel-logo-3d-gold.png',      zipPath: 'assets/source-transparent/emovel-logo-3d-gold.png'      },
+  { sourcePath: 'assets/source-transparent/emovel-logo-gold-on-dark.png', zipPath: 'assets/source-transparent/emovel-logo-gold-on-dark.png' },
 ];
 
+// Rewrite table: builder-time paths → export-time paths.
+// Only legacy "emovel-brand/" paths need rewriting; canonical "assets/" paths pass through as-is.
 const EXPORT_ASSET_PATHS: ReadonlyArray<readonly [string, string]> = [
-  ['emovel-brand/source-transparent/emovel-logo-gold-on-dark.png', 'source-transparent/emovel-logo-gold-on-dark.png'],
-  ['emovel-brand/source-transparent/emovel-logo-3d-gold.png', 'source-transparent/emovel-logo-3d-gold.png'],
-  ['emovel-brand/emovel-logo-gold-on-dark.png', 'source-transparent/emovel-logo-gold-on-dark.png'],
-  ['emovel-brand/emovel-logo-3d-gold.png', 'source-transparent/emovel-logo-3d-gold.png'],
-  ['/emovel-brand/favicon/favicon.ico', 'favicon/favicon.ico'],
-  ['emovel-brand/favicon/favicon.ico', 'favicon/favicon.ico'],
-  ['/emovel-brand/og-image-3d.png', 'og-image/og-image-3d.png'],
-  ['emovel-brand/og-image-3d.png', 'og-image/og-image-3d.png'],
+  ['emovel-brand/source-transparent/emovel-logo-gold-on-dark.png', 'assets/source-transparent/emovel-logo-gold-on-dark.png'],
+  ['emovel-brand/source-transparent/emovel-logo-3d-gold.png',      'assets/source-transparent/emovel-logo-3d-gold.png'     ],
+  ['emovel-brand/emovel-logo-gold-on-dark.png',                    'assets/source-transparent/emovel-logo-gold-on-dark.png'],
+  ['emovel-brand/emovel-logo-3d-gold.png',                         'assets/source-transparent/emovel-logo-3d-gold.png'     ],
+  ['/emovel-brand/favicon/favicon.ico',                            'favicon/favicon.ico'                                  ],
+  ['emovel-brand/favicon/favicon.ico',                             'favicon/favicon.ico'                                  ],
+  ['/emovel-brand/og-image-3d.png',                                'og-image/og-image-3d.png'                             ],
+  ['emovel-brand/og-image-3d.png',                                 'og-image/og-image-3d.png'                             ],
 ];
 
 // ─── CSS helpers ──────────────────────────────────────────────────────────────
