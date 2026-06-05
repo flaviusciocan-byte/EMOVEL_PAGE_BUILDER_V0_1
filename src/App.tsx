@@ -7,6 +7,7 @@ import { config, initialData } from './builder/puck.config';
 import { ThemeProvider, useTheme, buildThemeCSSText } from './builder/theme';
 import { puckOverrides } from './shell/puck-overrides';
 import { publishToZip } from './builder/publish';
+import { PageContextProvider } from './storage/PageContext';
 
 const STORAGE_KEY = 'emovel-page-data';
 
@@ -63,6 +64,8 @@ function AppInner() {
       plugins={[legacySideBar]}
       overrides={puckOverrides}
       onAction={(_, newState) => {
+        // localStorage = fast autosave buffer. The authoritative copy is the file on disk
+        // (saved explicitly via the Save button in TopBar / PageListPanel).
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(newState.data));
         } catch {
@@ -70,8 +73,7 @@ function AppInner() {
         }
       }}
       onPublish={(data) => {
-        // publishToZip renders the page to static HTML, wraps it with the
-        // active theme's CSS token definitions, and downloads a .zip.
+        // onPublish = ZIP static export. Saving to disk uses the Save button in TopBar.
         publishToZip(data, themeRef.current).catch((err) => {
           console.error('[EMOVEL] Publish failed:', err);
         });
@@ -82,8 +84,10 @@ function AppInner() {
 
 export function App() {
   return (
-    <ThemeProvider>
-      <AppInner />
-    </ThemeProvider>
+    <PageContextProvider>
+      <ThemeProvider>
+        <AppInner />
+      </ThemeProvider>
+    </PageContextProvider>
   );
 }

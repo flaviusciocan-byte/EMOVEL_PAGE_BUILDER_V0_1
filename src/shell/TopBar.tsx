@@ -1,5 +1,5 @@
 // TopBar — top bar of the editor. Mounted via overrides.header.
-// Contains: EMOVEL wordmark · PAGE BUILDER label · collection selector · Export · Publish.
+// Contains: EMOVEL wordmark · PAGE BUILDER label · collection selector · Save · Publish.
 // Gold is used ONLY for the EMOVEL wordmark and the Publish button (via chrome.css
 // [class*="_Button--primary_"] rule). Nothing else here uses gold.
 
@@ -8,6 +8,7 @@ import { usePuck } from '@puckeditor/core';
 import type { Data } from '@puckeditor/core';
 import { useTheme } from '../builder/theme';
 import { themes } from '../builder/themes';
+import { usePageContext } from '../storage/PageContext';
 
 interface TopBarProps {
   actions: ReactNode;  // Puck's native header actions (Publish / Save buttons)
@@ -21,26 +22,28 @@ function shortLabel(label: string): string {
 
 export function TopBar({ actions }: TopBarProps) {
   const { themeId, setTheme } = useTheme();
-  const { appState, dispatch } = usePuck();
+  const { appState } = usePuck();
+  const { isSaving, savedAt, saveError, saveCurrent } = usePageContext();
   const [collectionOpen, setCollectionOpen] = useState(false);
 
   const currentTheme = themes[themeId];
 
-  function handleExport() {
-    try {
-      const data = (appState as { data: Data }).data;
-      const json = JSON.stringify(data, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href     = url;
-      a.download = 'page.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      // dispatch is not used here; export reads appState only
-      void dispatch;
+  async function handleSave() {
+    const data = (appState as { data: Data }).data;
+    const title =
+      (data.root as { props?: { title?: string } })?.props?.title ?? 'Untitled Page';
+    await saveCurrent(data, title);
+  }
+
+  function saveLabel(): string {
+    if (isSaving) return 'Saving…';
+    if (saveError) return 'Error';
+    if (savedAt) {
+      const h = savedAt.getHours().toString().padStart(2, '0');
+      const m = savedAt.getMinutes().toString().padStart(2, '0');
+      return `Saved ${h}:${m}`;
     }
+    return 'Save';
   }
 
   return (
@@ -187,8 +190,8 @@ export function TopBar({ actions }: TopBarProps) {
           border: 1px solid rgba(255,255,255,0.06);
         }
 
-        /* Export button — outline style */
-        .emovel-topbar__export-btn {
+        /* Save button */
+        .emovel-topbar__save-btn {
           display: inline-flex;
           align-items: center;
           gap: 5px;
@@ -206,15 +209,27 @@ export function TopBar({ actions }: TopBarProps) {
           white-space: nowrap;
           margin-right: 6px;
           transition: border-color 120ms ease, color 120ms ease;
+          min-width: 68px;
+          justify-content: center;
         }
 
-        .emovel-topbar__export-btn:hover {
+        .emovel-topbar__save-btn:hover {
           border-color: var(--shell-b3);
           color: var(--shell-text);
         }
 
-        .emovel-topbar__export-btn:active {
+        .emovel-topbar__save-btn:active {
           transform: scale(0.97);
+        }
+
+        .emovel-topbar__save-btn--saved {
+          border-color: #D4AF37;
+          color: #D4AF37;
+        }
+
+        .emovel-topbar__save-btn--error {
+          border-color: #f87171;
+          color: #f87171;
         }
 
         /* Puck native actions area (Publish button is styled gold via chrome.css) */
@@ -276,14 +291,15 @@ export function TopBar({ actions }: TopBarProps) {
       {/* Separator */}
       <div style={{ width: 1, height: 16, background: 'var(--shell-b2)', margin: '0 10px', flexShrink: 0 }} />
 
-      {/* Export button */}
+      {/* Save button — writes page to pages/<slug>.page.json */}
       <button
         type="button"
-        className="emovel-topbar__export-btn"
-        onClick={handleExport}
-        title="Download page JSON"
+        className={`emovel-topbar__save-btn${savedAt && !isSaving ? ' emovel-topbar__save-btn--saved' : ''}${saveError ? ' emovel-topbar__save-btn--error' : ''}`}
+        onClick={() => { void handleSave(); }}
+        disabled={isSaving}
+        title={saveError ?? 'Save page to disk (pages/ folder)'}
       >
-        Export
+        {saveLabel()}
       </button>
 
       {/* Puck native actions — Publish button styled via chrome.css [class*="_Button--primary_"] */}

@@ -1,18 +1,21 @@
 // InspectorShell — inspector right panel with tab strip.
-// Tabs: Content (Puck fields) · Generate (PromptPanel) · Style · Theme.
+// Tabs: Content (Puck fields) · Generate (PromptPanel) · Theme · Pages.
 // Active tab underline = electric blue.
 
 import { useState, type ReactNode } from 'react';
 import { ThemeSwitcher } from '../builder/theme';
 import { PromptPanel } from './PromptPanel';
+import { PageListPanel } from './PageListPanel';
+import { ExportPanel } from './ExportPanel';
 
-type Tab = 'content' | 'generate' | 'style' | 'theme';
+type Tab = 'content' | 'generate' | 'theme' | 'pages' | 'export';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'content',  label: 'Content'  },
   { id: 'generate', label: 'Generate' },
-  { id: 'style',    label: 'Style'    },
   { id: 'theme',    label: 'Theme'    },
+  { id: 'pages',    label: 'Pages'    },
+  { id: 'export',   label: 'Export'   },
 ];
 
 interface InspectorShellProps {
@@ -37,17 +40,21 @@ export function InspectorShell({ children }: InspectorShellProps) {
         .emovel-insp__tabs {
           display: flex;
           align-items: flex-end;
-          padding: 0 12px;
+          padding: 0 8px;
           border-bottom: 1px solid var(--shell-b1);
           flex-shrink: 0;
           background: var(--shell-s1);
           height: 40px;
+          overflow-x: auto;
+          scrollbar-width: none;
         }
+
+        .emovel-insp__tabs::-webkit-scrollbar { display: none; }
 
         .emovel-insp__tab {
           display: inline-flex;
           align-items: center;
-          padding: 0 8px 8px;
+          padding: 0 7px 8px;
           height: 100%;
           font-family: var(--shell-mono);
           font-size: 9px;
@@ -63,6 +70,7 @@ export function InspectorShell({ children }: InspectorShellProps) {
           transition: color 120ms ease, border-color 120ms ease;
           white-space: nowrap;
           user-select: none;
+          flex-shrink: 0;
         }
 
         .emovel-insp__tab:hover {
@@ -119,18 +127,6 @@ export function InspectorShell({ children }: InspectorShellProps) {
           border-radius: 50%;
           flex-shrink: 0;
         }
-
-        /* Style placeholder */
-        .emovel-insp__placeholder {
-          padding: 32px 16px;
-          text-align: center;
-          color: var(--shell-text3);
-          font-family: var(--shell-mono);
-          font-size: 9px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          line-height: 2;
-        }
       `}</style>
 
       {/* Tab strip */}
@@ -155,22 +151,16 @@ export function InspectorShell({ children }: InspectorShellProps) {
         role="tabpanel"
         aria-label={`${active} panel`}
       >
-        {active === 'content' && children}
-
+        {active === 'content'  && children}
         {active === 'generate' && <PromptPanel />}
-
-        {active === 'style' && (
-          <div className="emovel-insp__placeholder">
-            Style overrides<br />Phase 6
-          </div>
-        )}
-
-        {active === 'theme' && (
+        {active === 'theme'    && (
           <div className="emovel-insp__theme">
             <p className="emovel-insp__theme-lbl">Visual collection</p>
             <ThemeSwitcher />
           </div>
         )}
+        {active === 'pages'  && <PageListPanel />}
+        {active === 'export' && <ExportPanel />}
       </div>
     </div>
   );
