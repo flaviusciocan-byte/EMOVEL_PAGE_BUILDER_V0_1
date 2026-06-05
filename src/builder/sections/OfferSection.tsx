@@ -10,12 +10,11 @@ export function OfferSection(props: OfferProps) {
         .emovel-offer {
           position: relative;
           overflow: hidden;
-          background:
-            radial-gradient(circle at 12% 12%, var(--color-glow), transparent 28rem),
-            linear-gradient(180deg, var(--color-background), var(--color-surface));
+          background: var(--color-background);
           color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
           border-bottom: 1px solid var(--color-border);
+          container-type: inline-size;
         }
 
         .emovel-offer__inner {
@@ -34,13 +33,26 @@ export function OfferSection(props: OfferProps) {
         }
 
         .emovel-offer__kicker {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
           margin: 0 0 0.9rem;
-          color: var(--color-secondary);
-          font-size: 0.74rem;
-          font-weight: 800;
-          letter-spacing: 0.16em;
+          color: var(--color-textSecondary);
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.14em;
           line-height: 1.35;
           text-transform: uppercase;
+        }
+
+        .emovel-offer__kicker::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-offer__title {
@@ -68,10 +80,17 @@ export function OfferSection(props: OfferProps) {
         .emovel-offer__benefits {
           border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--color-surfaceAlt) 70%, transparent), var(--color-surface)),
-            var(--color-surface);
-          box-shadow: 0 1.25rem 3.5rem color-mix(in srgb, var(--color-background) 52%, transparent);
+          background: var(--color-surface);
+          box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 8px 24px rgba(0,0,0,.06);
+          transition:
+            box-shadow var(--motion-duration) var(--motion-ease),
+            border-color var(--motion-duration) var(--motion-ease);
+        }
+
+        .emovel-offer__panel:hover,
+        .emovel-offer__benefits:hover {
+          border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+          box-shadow: 0 2px 8px rgba(0,0,0,.14), 0 16px 40px rgba(0,0,0,.08);
         }
 
         .emovel-offer__panel {
@@ -98,7 +117,6 @@ export function OfferSection(props: OfferProps) {
           height: 0.45rem;
           border-radius: var(--radius-pill);
           background: var(--label-color, var(--color-primary));
-          box-shadow: 0 0 1rem color-mix(in srgb, var(--label-color, var(--color-primary)) 48%, transparent);
         }
 
         .emovel-offer__label--problem {
@@ -152,6 +170,14 @@ export function OfferSection(props: OfferProps) {
           color: var(--color-textSecondary);
           font-size: 0.95rem;
           line-height: 1.55;
+          transition:
+            border-color var(--motion-duration) var(--motion-ease),
+            transform var(--motion-duration) var(--motion-ease);
+        }
+
+        .emovel-offer__benefit:hover {
+          border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+          transform: translateY(-1px);
         }
 
         .emovel-offer__check {
@@ -177,7 +203,7 @@ export function OfferSection(props: OfferProps) {
           transform: translateY(-0.06rem) rotate(38deg);
         }
 
-        @media (max-width: 58rem) {
+        @container (max-width: 58rem) {
           .emovel-offer__inner {
             grid-template-columns: 1fr;
           }
@@ -188,7 +214,7 @@ export function OfferSection(props: OfferProps) {
           }
         }
 
-        @media (max-width: 42rem) {
+        @container (max-width: 42rem) {
           .emovel-offer__inner {
             padding-block: 4rem;
           }

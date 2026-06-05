@@ -10,6 +10,7 @@ export function StatsBarSection(props: StatsBarProps) {
           background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
+          container-type: inline-size;
         }
 
         .emovel-statsbar__inner {
@@ -21,13 +22,27 @@ export function StatsBarSection(props: StatsBarProps) {
         }
 
         .emovel-statsbar__eyebrow {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.45rem;
           text-align: center;
           margin: 0 0 1.75rem;
-          font-size: clamp(0.7rem, 1vw, 0.8rem);
-          font-weight: 700;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: clamp(0.68rem, 1vw, 0.78rem);
+          font-weight: 600;
           letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-secondary);
+          color: var(--color-textSecondary);
+        }
+
+        .emovel-statsbar__eyebrow::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-statsbar__grid {
@@ -74,7 +89,7 @@ export function StatsBarSection(props: StatsBarProps) {
           line-height: 1.4;
         }
 
-        @media (max-width: 48rem) {
+        @container (max-width: 48rem) {
           .emovel-statsbar__grid {
             grid-template-columns: 1fr 1fr;
           }
@@ -86,7 +101,7 @@ export function StatsBarSection(props: StatsBarProps) {
           }
         }
 
-        @media (max-width: 28rem) {
+        @container (max-width: 28rem) {
           .emovel-statsbar__grid {
             grid-template-columns: 1fr;
           }

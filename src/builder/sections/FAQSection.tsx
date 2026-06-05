@@ -11,6 +11,7 @@ export function FAQSection(props: FAQProps) {
           background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
+          container-type: inline-size;
         }
 
         .emovel-faq__inner {
@@ -28,12 +29,25 @@ export function FAQSection(props: FAQProps) {
         }
 
         .emovel-faq__eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
           margin: 0 0 0.75rem;
-          font-size: clamp(0.7rem, 1vw, 0.8rem);
-          font-weight: 700;
-          letter-spacing: 0.16em;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: clamp(0.68rem, 1vw, 0.78rem);
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-secondary);
+          color: var(--color-textSecondary);
+        }
+
+        .emovel-faq__eyebrow::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-faq__headline {
@@ -76,7 +90,15 @@ export function FAQSection(props: FAQProps) {
           border-radius: var(--radius-md);
           background: var(--color-surface);
           overflow: hidden;
-          transition: border-color var(--motion-duration) var(--motion-ease);
+          box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+          transition:
+            border-color var(--motion-duration) var(--motion-ease),
+            box-shadow var(--motion-duration) var(--motion-ease);
+        }
+
+        .emovel-faq__item:hover {
+          border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
+          box-shadow: 0 1px 3px rgba(0,0,0,.10), 0 4px 16px rgba(0,0,0,.06);
         }
 
         .emovel-faq__item[open] {
@@ -122,7 +144,7 @@ export function FAQSection(props: FAQProps) {
           color: var(--color-textSecondary);
         }
 
-        @media (max-width: 48rem) {
+        @container (max-width: 48rem) {
           .emovel-faq__list--columns {
             grid-template-columns: 1fr;
           }

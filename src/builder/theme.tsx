@@ -41,6 +41,27 @@ function buildCSSVars(theme: ThemeConfig): CSSProperties {
   return vars as CSSProperties;
 }
 
+/** CSS text block that defines all theme + system tokens as :root custom properties.
+ *  Injected into Puck's canvas iframe so sections can resolve var(--color-*). */
+export function buildThemeCSSText(theme: ThemeConfig): string {
+  const lines: string[] = [':root {'];
+  for (const key of COLOR_KEYS) {
+    lines.push(`  ${colorVar(key)}: ${theme.colors[key]};`);
+  }
+  lines.push(`  ${cssVarNames.radiusSm}: ${radius.sm};`);
+  lines.push(`  ${cssVarNames.radiusMd}: ${radius.md};`);
+  lines.push(`  ${cssVarNames.radiusLg}: ${radius.lg};`);
+  lines.push(`  ${cssVarNames.radiusPill}: ${radius.pill};`);
+  lines.push(`  ${cssVarNames.spaceSectionV}: ${space.sectionV};`);
+  lines.push(`  ${cssVarNames.spaceSectionH}: ${space.sectionH};`);
+  lines.push(`  ${cssVarNames.spaceHeroV}: ${space.heroV};`);
+  lines.push(`  ${cssVarNames.spaceHeroH}: ${space.heroH};`);
+  lines.push(`  ${cssVarNames.motionEase}: ${motion.ease};`);
+  lines.push(`  ${cssVarNames.motionDuration}: ${motion.duration};`);
+  lines.push('}');
+  return lines.join('\n');
+}
+
 interface ThemeProviderProps {
   children: ReactNode;
   initialThemeId?: string;

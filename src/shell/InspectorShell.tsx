@@ -1,16 +1,18 @@
 // InspectorShell — inspector right panel with tab strip.
-// Tabs: Content (Puck fields) · Style (placeholder) · Theme (ThemeSwitcher).
+// Tabs: Content (Puck fields) · Generate (PromptPanel) · Style · Theme.
 // Active tab underline = electric blue.
 
 import { useState, type ReactNode } from 'react';
 import { ThemeSwitcher } from '../builder/theme';
+import { PromptPanel } from './PromptPanel';
 
-type Tab = 'content' | 'style' | 'theme';
+type Tab = 'content' | 'generate' | 'style' | 'theme';
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'content', label: 'Content' },
-  { id: 'style',   label: 'Style'   },
-  { id: 'theme',   label: 'Theme'   },
+  { id: 'content',  label: 'Content'  },
+  { id: 'generate', label: 'Generate' },
+  { id: 'style',    label: 'Style'    },
+  { id: 'theme',    label: 'Theme'    },
 ];
 
 interface InspectorShellProps {
@@ -65,6 +67,8 @@ export function InspectorShell({ children }: InspectorShellProps) {
 
         .emovel-insp__tab:hover {
           color: var(--shell-text2);
+          background: rgba(255,255,255,0.025);
+          border-radius: 4px 4px 0 0;
         }
 
         .emovel-insp__tab--active {
@@ -93,13 +97,27 @@ export function InspectorShell({ children }: InspectorShellProps) {
         }
 
         .emovel-insp__theme-lbl {
+          display: flex;
+          align-items: center;
+          gap: 6px;
           font-family: var(--shell-mono);
           font-size: 9px;
-          font-weight: 500;
-          letter-spacing: 0.12em;
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--shell-text3);
-          margin: 0 0 12px;
+          color: var(--shell-text2);
+          margin: 0 0 14px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid var(--shell-b1);
+        }
+
+        .emovel-insp__theme-lbl::before {
+          content: "";
+          width: 4px;
+          height: 4px;
+          background: var(--shell-blue);
+          border-radius: 50%;
+          flex-shrink: 0;
         }
 
         /* Style placeholder */
@@ -138,6 +156,8 @@ export function InspectorShell({ children }: InspectorShellProps) {
         aria-label={`${active} panel`}
       >
         {active === 'content' && children}
+
+        {active === 'generate' && <PromptPanel />}
 
         {active === 'style' && (
           <div className="emovel-insp__placeholder">

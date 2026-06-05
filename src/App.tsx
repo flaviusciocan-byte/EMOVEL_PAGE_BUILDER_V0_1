@@ -1,10 +1,10 @@
+import { useEffect, useRef } from 'react';
 import { Puck, legacySideBarPlugin } from '@puckeditor/core';
 import type { Data } from '@puckeditor/core';
-import { useRef } from 'react';
 import '@puckeditor/core/puck.css';
 import './shell/chrome.css';
 import { config, initialData } from './builder/puck.config';
-import { ThemeProvider, useTheme } from './builder/theme';
+import { ThemeProvider, useTheme, buildThemeCSSText } from './builder/theme';
 import { puckOverrides } from './shell/puck-overrides';
 import { publishToZip } from './builder/publish';
 
@@ -29,6 +29,32 @@ function AppInner() {
   const { theme } = useTheme();
   const themeRef = useRef(theme);
   themeRef.current = theme;
+
+  // Inject theme CSS vars into Puck's canvas iframe on every theme change.
+  // CSS custom properties do not cross document boundaries, so vars set on
+  // the outer ThemeProvider div are invisible inside the iframe. We write a
+  // <style id="emovel-theme"> tag directly into the iframe's <head> instead.
+  useEffect(() => {
+    const STYLE_ID = 'emovel-theme';
+
+    function apply() {
+      const iframe = document.querySelector<HTMLIFrameElement>('iframe');
+      const doc = iframe?.contentDocument;
+      if (!doc?.head) return;
+      let el = doc.getElementById(STYLE_ID) as HTMLStyleElement | null;
+      if (!el) {
+        el = doc.createElement('style');
+        el.id = STYLE_ID;
+        doc.head.appendChild(el);
+      }
+      el.textContent = buildThemeCSSText(theme);
+    }
+
+    apply();
+    // Re-apply when the iframe reloads (Puck resets the iframe on data changes)
+    document.addEventListener('load', apply, true);
+    return () => document.removeEventListener('load', apply, true);
+  }, [theme]);
 
   return (
     <Puck

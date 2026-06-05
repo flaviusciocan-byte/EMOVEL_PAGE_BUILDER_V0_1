@@ -1,27 +1,8 @@
 import { useRef } from 'react';
-import { motion, useInView, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 import type { HeroSectionProps } from '../../types/sections';
-import { PATTERNS } from '../../motion/patterns';
 import { CinematicWings } from './CinematicWings';
 import { useCinematicLogo } from '../../hooks/useCinematicLogo';
-
-// ── Editor detection ──────────────────────────────────────────────────────────
-// Puck renders component previews inside an iframe.
-// window.self !== window.top is the reliable, SSR-safe check for this.
-//
-// Cannot use usePuck(): it throws "must be used inside <Puck>" when called
-// from renderToStaticMarkup (publish.ts static export) — confirmed in source.
-// Cannot use renderContext: it is provided by BOTH the editor canvas AND the
-// static <Render> component, so it cannot distinguish the two contexts.
-//
-// iframe check:  Puck editor  → window.self !== window.top → true  → no entrance
-//                Published page → window.self === window.top → false → entrance runs
-//                SSR / Node.js  → typeof window === 'undefined'     → false → entrance runs
-function useIsInEditor(): boolean {
-  if (typeof window === 'undefined') return false;
-  try { return window.self !== window.top; }
-  catch { return true; } // SecurityError = cross-origin iframe = treat as editor
-}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -32,57 +13,18 @@ export function HeroSection({
   subtitle,
   primaryCta,
   secondaryCta,
-  motionPattern = 'depth-push',
   enableCinematicLogo = true,
+  brandImageUrl,
+  brandImageAlt,
 }: HeroSectionProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const logoRef    = useRef<HTMLDivElement>(null);
-
-  const isInEditor = useIsInEditor();
-  const reduced    = useReducedMotion() ?? false;
-
-  // Entrance animation only in presentation mode (non-editor, non-reduced-motion).
-  // When shouldAnimate === false, all motion elements receive initial={false} and
-  // animate={false}, which disables Framer Motion overrides and leaves content at
-  // its natural CSS state (opacity: 1, no transform) — always visible.
-  const shouldAnimate = !isInEditor && !reduced;
-
-  // amount: 0 → fires on any viewport overlap, including above-fold at mount.
-  // Original 0.1 could fail at sub-100% zoom where the IO threshold was never met
-  // against the iframe viewport height, causing permanent opacity:0 in the editor.
-  const inView = useInView(sectionRef, { once: true, amount: 0 });
+  const logoRef = useRef<HTMLDivElement>(null);
 
   useCinematicLogo(logoRef, enableCinematicLogo);
-
-  const pat = PATTERNS[motionPattern];
-  const { isStaggered } = pat.framer;
-
-  // Motion props: only applied when shouldAnimate is true.
-  // initial={false} + animate={false} = Framer disables all overrides → natural visible state.
-  const panelMotionProps = shouldAnimate
-    ? {
-        initial:    'hidden' as const,
-        animate:    inView ? 'visible' as const : 'hidden' as const,
-        variants:   pat.framer.panelVariants,
-        transition: !isStaggered ? pat.framer.transition : undefined,
-      }
-    : { initial: false as const, animate: false as const };
-
-  // Child variants only for staggered-rise in presentation mode.
-  // When absent ({}) parent's initial={false} propagates nothing → children visible.
-  const childMotionProps = shouldAnimate && isStaggered
-    ? {
-        variants:   pat.framer.childVariants,
-        transition: pat.framer.transition,
-      }
-    : {};
 
   return (
     <section
       className="emovel-hero"
       id={id}
-      ref={sectionRef}
-      data-emovel-motion={motionPattern}
     >
       <style>{HERO_CSS}</style>
 
@@ -93,9 +35,18 @@ export function HeroSection({
       <div className="emovel-hero__inner">
         <motion.div
           className="emovel-hero__panel"
-          {...panelMotionProps}
+          initial={false}
+          animate={false}
         >
-          {enableCinematicLogo && (
+          {brandImageUrl ? (
+            <div className="emovel-hero__logo">
+              <img
+                className="emovel-hero__brand-img"
+                src={brandImageUrl}
+                alt={brandImageAlt || title}
+              />
+            </div>
+          ) : enableCinematicLogo && (
             <div className="emovel-hero__logo" ref={logoRef}>
               <CinematicWings className="emovel-hero__wings" />
             </div>
@@ -104,7 +55,8 @@ export function HeroSection({
           {eyebrow && (
             <motion.p
               className="emovel-hero__eyebrow"
-              {...childMotionProps}
+              initial={false}
+              animate={false}
             >
               {eyebrow}
             </motion.p>
@@ -112,7 +64,8 @@ export function HeroSection({
 
           <motion.h1
             className="emovel-hero__title"
-            {...childMotionProps}
+            initial={false}
+            animate={false}
           >
             {title}
           </motion.h1>
@@ -120,7 +73,8 @@ export function HeroSection({
           {subtitle && (
             <motion.p
               className="emovel-hero__subtitle"
-              {...childMotionProps}
+              initial={false}
+              animate={false}
             >
               {subtitle}
             </motion.p>
@@ -129,7 +83,8 @@ export function HeroSection({
           {(primaryCta || secondaryCta) && (
             <motion.div
               className="emovel-hero__actions"
-              {...childMotionProps}
+              initial={false}
+              animate={false}
             >
               {primaryCta && (
                 <a
@@ -200,7 +155,7 @@ const HERO_CSS = `
   width: min(100%, 72rem);
   margin: 0 auto;
   padding:
-    clamp(var(--space-hero-v, 4rem), 8vw, 7.5rem)
+    clamp(2.75rem, 5vw, 4.75rem)
     clamp(1.25rem, 4vw, var(--space-hero-h, 3.25rem));
 }
 
@@ -213,13 +168,20 @@ const HERO_CSS = `
 }
 
 .emovel-hero__logo {
-  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  margin-bottom: clamp(0.875rem, 2vw, 1.5rem);
 }
 
 .emovel-hero__wings {
-  width: clamp(9rem, 20vw, 15rem);
+  width: clamp(7rem, 14vw, 10rem);
   height: auto;
   color: var(--color-primary);
+}
+
+.emovel-hero__brand-img {
+  display: block;
+  width: clamp(8rem, 18vw, 12rem);
+  height: auto;
+  object-fit: contain;
 }
 
 .emovel-hero__eyebrow {
@@ -234,7 +196,7 @@ const HERO_CSS = `
 .emovel-hero__title {
   margin: 0;
   color: var(--color-textPrimary);
-  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  font-size: clamp(2.35rem, 5.4vw, 4.4rem);
   font-weight: 780;
   letter-spacing: -0.04em;
   line-height: 0.96;

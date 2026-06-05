@@ -10,6 +10,7 @@ export function LogoStripSection(props: LogoStripProps) {
           background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textSecondary);
+          container-type: inline-size;
         }
 
         .emovel-logostrip__inner {
@@ -81,7 +82,7 @@ export function LogoStripSection(props: LogoStripProps) {
           background: var(--color-surfaceAlt);
         }
 
-        @media (max-width: 34rem) {
+        @container (max-width: 34rem) {
           .emovel-logostrip__track {
             gap: 1rem;
           }

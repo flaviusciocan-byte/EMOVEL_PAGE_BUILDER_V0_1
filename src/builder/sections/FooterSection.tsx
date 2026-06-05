@@ -7,11 +7,10 @@ export function FooterSection(props: FooterProps) {
     <footer className="emovel-footer">
       <style>{`
         .emovel-footer {
-          background:
-            linear-gradient(0deg, rgba(255,255,255,0.015), transparent 18rem),
-            var(--color-surface);
+          background: var(--color-surface);
           border-top: 1px solid var(--color-border);
           color: var(--color-textSecondary);
+          container-type: inline-size;
         }
 
         .emovel-footer__inner {
@@ -126,7 +125,7 @@ export function FooterSection(props: FooterProps) {
           background: color-mix(in srgb, var(--color-primary) 8%, transparent);
         }
 
-        @media (max-width: 48rem) {
+        @container (max-width: 48rem) {
           .emovel-footer__top {
             grid-template-columns: 1fr 1fr;
           }
@@ -135,7 +134,7 @@ export function FooterSection(props: FooterProps) {
           }
         }
 
-        @media (max-width: 34rem) {
+        @container (max-width: 34rem) {
           .emovel-footer__top {
             grid-template-columns: 1fr;
           }

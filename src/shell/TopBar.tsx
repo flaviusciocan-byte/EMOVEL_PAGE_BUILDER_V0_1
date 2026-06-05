@@ -85,10 +85,10 @@ export function TopBar({ actions }: TopBarProps) {
         .emovel-topbar__label {
           font-family: var(--shell-mono);
           font-size: 9px;
-          font-weight: 500;
-          letter-spacing: 0.12em;
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--shell-text3);
+          color: var(--shell-text2);
           white-space: nowrap;
           flex-shrink: 0;
         }
@@ -125,6 +125,10 @@ export function TopBar({ actions }: TopBarProps) {
         .emovel-topbar__collection-btn:hover {
           border-color: var(--shell-b3);
           color: var(--shell-text);
+        }
+
+        .emovel-topbar__collection-btn:active {
+          transform: scale(0.97);
         }
 
         .emovel-topbar__collection-chevron {
@@ -207,6 +211,10 @@ export function TopBar({ actions }: TopBarProps) {
         .emovel-topbar__export-btn:hover {
           border-color: var(--shell-b3);
           color: var(--shell-text);
+        }
+
+        .emovel-topbar__export-btn:active {
+          transform: scale(0.97);
         }
 
         /* Puck native actions area (Publish button is styled gold via chrome.css) */

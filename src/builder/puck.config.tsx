@@ -248,6 +248,7 @@ export const config: Config<{
     'Nav Bar': {
       fields: {
         logoText: { type: 'text' as const, label: 'Logo text' },
+        logoImageUrl: { type: 'text' as const, label: 'Logo image URL (optional)' },
         links: {
           type: 'array' as const,
           label: 'Nav links',
@@ -270,6 +271,7 @@ export const config: Config<{
       },
       defaultProps: {
         logoText: 'Brand',
+        logoImageUrl: '',
         links: [
           { label: 'Features', href: '#features' },
           { label: 'Pricing',  href: '#pricing'  },

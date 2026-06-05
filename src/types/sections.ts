@@ -15,4 +15,6 @@ export type HeroSectionProps = {
   secondaryCta?: CtaLink;
   motionPattern?: MotionPattern;
   enableCinematicLogo?: boolean;
+  brandImageUrl?: string;
+  brandImageAlt?: string;
 };

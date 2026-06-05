@@ -17,13 +17,10 @@ export function NewsletterSection(props: NewsletterProps) {
     <section className="emovel-newsletter">
       <style>{`
         .emovel-newsletter {
-          background:
-            linear-gradient(135deg,
-              color-mix(in srgb, var(--color-primary) 8%, var(--color-surface)),
-              var(--color-surface)
-            );
+          background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
+          container-type: inline-size;
         }
 
         .emovel-newsletter__inner {
@@ -66,12 +63,25 @@ export function NewsletterSection(props: NewsletterProps) {
         }
 
         .emovel-newsletter__eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
           margin: 0;
-          font-size: clamp(0.7rem, 1vw, 0.8rem);
-          font-weight: 700;
-          letter-spacing: 0.16em;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: clamp(0.68rem, 1vw, 0.78rem);
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-secondary);
+          color: var(--color-textSecondary);
+        }
+
+        .emovel-newsletter__eyebrow::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-newsletter__headline {
@@ -160,13 +170,13 @@ export function NewsletterSection(props: NewsletterProps) {
           line-height: 1.5;
         }
 
-        @media (max-width: 48rem) {
+        @container (max-width: 48rem) {
           .emovel-newsletter__split {
             grid-template-columns: 1fr;
           }
         }
 
-        @media (max-width: 34rem) {
+        @container (max-width: 34rem) {
           .emovel-newsletter__form {
             flex-direction: column;
           }

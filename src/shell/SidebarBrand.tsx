@@ -46,16 +46,29 @@ export function SidebarBrand() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 10px 14px 6px;
+          padding: 10px 14px 9px;
+          border-bottom: 1px solid var(--shell-b1);
         }
 
         .emovel-sb__lib-title {
+          display: flex;
+          align-items: center;
+          gap: 6px;
           font-family: var(--shell-mono);
           font-size: 9px;
-          font-weight: 500;
-          letter-spacing: 0.12em;
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--shell-text3);
+          color: var(--shell-text2);
+        }
+
+        .emovel-sb__lib-title::before {
+          content: "";
+          width: 4px;
+          height: 4px;
+          background: var(--shell-blue);
+          border-radius: 50%;
+          flex-shrink: 0;
         }
       `}</style>
 

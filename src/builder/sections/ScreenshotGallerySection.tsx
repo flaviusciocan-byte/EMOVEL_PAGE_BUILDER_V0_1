@@ -10,12 +10,11 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
         .emovel-screenshot-gallery {
           position: relative;
           overflow: hidden;
-          background:
-            radial-gradient(circle at 50% 0%, var(--color-glow), transparent 32rem),
-            var(--color-background);
+          background: var(--color-background);
           color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
           border-bottom: 1px solid var(--color-border);
+          container-type: inline-size;
         }
 
         .emovel-screenshot-gallery__inner {
@@ -60,10 +59,8 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
           overflow: hidden;
           border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--color-surfaceAlt) 72%, transparent), var(--color-surface)),
-            var(--color-surface);
-          box-shadow: 0 1.25rem 3.5rem color-mix(in srgb, var(--color-background) 52%, transparent);
+          background: var(--color-surface);
+          box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.06);
           transition:
             transform var(--motion-duration) var(--motion-ease),
             border-color var(--motion-duration) var(--motion-ease),
@@ -73,13 +70,12 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
         .emovel-screenshot-gallery__card:hover {
           transform: translateY(-2px);
           border-color: var(--color-primary);
-          box-shadow: 0 1.5rem 4rem var(--color-glow);
+          box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--color-border) 60%, transparent);
         }
 
         .emovel-screenshot-gallery__placeholder {
           aspect-ratio: 16 / 10;
-          background:
-            linear-gradient(135deg, var(--color-surfaceAlt), var(--color-surface));
+          background: var(--color-surfaceAlt);
           border-bottom: 1px solid var(--color-border);
         }
 
@@ -91,7 +87,7 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
           line-height: 1.55;
         }
 
-        @media (max-width: 58rem) {
+        @container (max-width: 58rem) {
           .emovel-screenshot-gallery__header {
             grid-template-columns: 1fr;
             align-items: start;
@@ -104,7 +100,7 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
           }
         }
 
-        @media (max-width: 38rem) {
+        @container (max-width: 38rem) {
           .emovel-screenshot-gallery__inner {
             padding-block: 4rem;
           }

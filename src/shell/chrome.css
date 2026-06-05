@@ -109,9 +109,9 @@ body {
 /* ── Header ──────────────────────────────────────────────────────────────── */
 [class*="_PuckLayout-header_"] {
   background: var(--shell-s1) !important;
-  border-bottom: 1px solid var(--shell-b1) !important;
+  border-bottom: 1px solid var(--shell-b2) !important;
   color: var(--shell-text) !important;
-  box-shadow: none !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,.32) !important;
   padding: 0 !important;
 }
 
@@ -135,20 +135,23 @@ body {
 }
 
 [class*="_PuckLayout-leftSideBar_"] {
-  border-right: 1px solid var(--shell-b1) !important;
+  border-right: 1px solid var(--shell-b2) !important;
+  box-shadow: 2px 0 8px rgba(0,0,0,.20) !important;
 }
 
 [class*="_PuckLayout-rightSideBar_"] {
-  border-left: 1px solid var(--shell-b1) !important;
+  border-left: 1px solid var(--shell-b2) !important;
+  box-shadow: -2px 0 8px rgba(0,0,0,.20) !important;
 }
 
 [class*="_SidebarSection-title_"] {
   background: var(--shell-s1) !important;
-  border-color: var(--shell-b1) !important;
+  border-color: var(--shell-b2) !important;
   color: var(--shell-text2) !important;
   font-family: var(--shell-mono) !important;
-  font-size: 10px !important;
-  letter-spacing: 0.08em !important;
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
 }
 
@@ -182,11 +185,11 @@ body {
   flex-shrink: 0;
   width: 14px;
   height: 14px;
-  border: 1px solid var(--shell-gold);
+  border: 1px solid var(--shell-blue);
   border-radius: 3px;
-  opacity: 0.7;
-  background-image: linear-gradient(var(--shell-gold) 1px, transparent 1px),
-                    linear-gradient(90deg, var(--shell-gold) 1px, transparent 1px);
+  opacity: 0.55;
+  background-image: linear-gradient(var(--shell-blue) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--shell-blue) 1px, transparent 1px);
   background-size: 4px 4px;
   background-position: -1px -1px;
 }
@@ -205,6 +208,7 @@ body {
     background: var(--shell-blue-fill) !important;
     border-color: var(--shell-blue) !important;
     color: var(--shell-text) !important;
+    transform: translateX(1px) !important;
   }
 
   [class*="_Drawer_"]:not([class*="_Drawer--isDraggingFrom_"])

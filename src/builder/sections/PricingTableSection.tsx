@@ -13,6 +13,7 @@ export function PricingTableSection(props: PricingTableProps) {
           background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
+          container-type: inline-size;
         }
 
         .emovel-pricing__inner {
@@ -30,12 +31,25 @@ export function PricingTableSection(props: PricingTableProps) {
         }
 
         .emovel-pricing__eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
           margin: 0 0 0.75rem;
-          font-size: clamp(0.7rem, 1vw, 0.8rem);
-          font-weight: 700;
-          letter-spacing: 0.16em;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: clamp(0.68rem, 1vw, 0.78rem);
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-secondary);
+          color: var(--color-textSecondary);
+        }
+
+        .emovel-pricing__eyebrow::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-pricing__headline {
@@ -122,14 +136,23 @@ export function PricingTableSection(props: PricingTableProps) {
           border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
           position: relative;
+          box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+          transition:
+            transform var(--motion-duration) var(--motion-ease),
+            border-color var(--motion-duration) var(--motion-ease),
+            box-shadow var(--motion-duration) var(--motion-ease);
+        }
+
+        .emovel-pricing__card:not(.emovel-pricing__card--featured):hover {
+          transform: translateY(-2px);
+          border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+          box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.08);
         }
 
         .emovel-pricing__card--featured {
-          background:
-            linear-gradient(160deg, color-mix(in srgb, var(--color-primary) 12%, var(--color-surface)), var(--color-surface));
-          border-color: color-mix(in srgb, var(--color-primary) 60%, var(--color-border));
-          box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent),
-                      0 24px 60px color-mix(in srgb, var(--color-glow) 35%, transparent);
+          background: var(--color-surface);
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 1px var(--color-primary), 0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.10);
         }
 
         .emovel-pricing__badge {
@@ -230,10 +253,10 @@ export function PricingTableSection(props: PricingTableProps) {
 
         .emovel-pricing__cta:hover {
           transform: translateY(-1px);
-          box-shadow: 0 6px 20px color-mix(in srgb, var(--color-glow) 35%, transparent);
+          box-shadow: 0 6px 20px color-mix(in srgb, var(--color-border) 50%, transparent);
         }
 
-        @media (max-width: 34rem) {
+        @container (max-width: 34rem) {
           .emovel-pricing__grid {
             grid-template-columns: 1fr;
           }

@@ -21,6 +21,7 @@ export function FeatureSplitSection(props: FeatureSplitProps) {
           background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
+          container-type: inline-size;
         }
 
         .emovel-featuresplit__inner {
@@ -45,12 +46,8 @@ export function FeatureSplitSection(props: FeatureSplitProps) {
           border-radius: var(--radius-lg);
           overflow: hidden;
           border: 1px solid var(--color-border);
-          background:
-            linear-gradient(135deg,
-              color-mix(in srgb, var(--color-primary) 10%, var(--color-surfaceAlt)),
-              var(--color-surface)
-            );
-          box-shadow: 0 20px 60px color-mix(in srgb, var(--color-background) 55%, transparent);
+          background: var(--color-surfaceAlt);
+          box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 20px 60px rgba(0,0,0,.10);
         }
 
         .emovel-featuresplit__image img {
@@ -92,12 +89,25 @@ export function FeatureSplitSection(props: FeatureSplitProps) {
         }
 
         .emovel-featuresplit__eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
           margin: 0;
-          font-size: clamp(0.7rem, 1vw, 0.8rem);
-          font-weight: 700;
-          letter-spacing: 0.16em;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: clamp(0.68rem, 1vw, 0.78rem);
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-secondary);
+          color: var(--color-textSecondary);
+        }
+
+        .emovel-featuresplit__eyebrow::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-featuresplit__headline {
@@ -139,7 +149,7 @@ export function FeatureSplitSection(props: FeatureSplitProps) {
           box-shadow: 0 8px 24px color-mix(in srgb, var(--color-primary) 32%, transparent);
         }
 
-        @media (max-width: 54rem) {
+        @container (max-width: 54rem) {
           .emovel-featuresplit__inner {
             grid-template-columns: 1fr;
           }

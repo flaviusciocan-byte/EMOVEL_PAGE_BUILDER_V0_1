@@ -16,6 +16,8 @@ export type HeroStoredProps = {
   secondaryCtaHref: string;
   motionPattern: MotionPattern;
   enableCinematicLogo: 'true' | 'false';
+  brandImageUrl?: string;
+  brandImageAlt?: string;
 };
 
 // ── Field definitions ─────────────────────────────────────────────────────────
@@ -67,6 +69,14 @@ export const heroFields = {
       { value: 'false', label: 'Disabled' },
     ],
   },
+  brandImageUrl: {
+    type: 'text' as const,
+    label: 'Brand image URL (optional)',
+  },
+  brandImageAlt: {
+    type: 'text' as const,
+    label: 'Brand image alt text',
+  },
 };
 
 // ── Default props ─────────────────────────────────────────────────────────────
@@ -81,6 +91,8 @@ export const heroDefaultProps: HeroStoredProps = {
   secondaryCtaHref:    '#',
   motionPattern:       'depth-push',
   enableCinematicLogo: 'true',
+  brandImageUrl:       '',
+  brandImageAlt:       '',
 };
 
 // ── Render function ───────────────────────────────────────────────────────────
@@ -104,6 +116,8 @@ export function renderHero(props: HeroStoredProps) {
       }
       motionPattern={props.motionPattern}
       enableCinematicLogo={props.enableCinematicLogo !== 'false'}
+      brandImageUrl={props.brandImageUrl || undefined}
+      brandImageAlt={props.brandImageAlt || props.title}
     />
   );
 }

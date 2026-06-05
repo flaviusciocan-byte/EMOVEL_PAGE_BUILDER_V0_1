@@ -49,7 +49,7 @@
   width: min(100%, 72rem);
   margin: 0 auto;
   padding:
-    clamp(var(--space-hero-v, 4rem), 8vw, 7.5rem)
+    clamp(2.75rem, 5vw, 4.75rem)
     clamp(1.25rem, 4vw, var(--space-hero-h, 3.25rem));
 }
 
@@ -64,13 +64,20 @@
 
 /* Logo / wings */
 .emovel-hero__logo {
-  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  margin-bottom: clamp(0.875rem, 2vw, 1.5rem);
 }
 
 .emovel-hero__wings {
-  width: clamp(9rem, 20vw, 15rem);
+  width: clamp(7rem, 14vw, 10rem);
   height: auto;
   color: var(--color-primary);
+}
+
+.emovel-hero__brand-img {
+  display: block;
+  width: clamp(8rem, 18vw, 12rem);
+  height: auto;
+  object-fit: contain;
 }
 
 /* Copy */
@@ -86,7 +93,7 @@
 .emovel-hero__title {
   margin: 0;
   color: var(--color-textPrimary);
-  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  font-size: clamp(2.35rem, 5.4vw, 4.4rem);
   font-weight: 780;
   letter-spacing: -0.04em;
   line-height: 0.96;

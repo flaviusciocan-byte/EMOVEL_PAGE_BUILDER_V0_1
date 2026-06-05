@@ -9,11 +9,10 @@ export function CTASection(props: CTAProps) {
         .emovel-cta {
           position: relative;
           overflow: hidden;
-          background:
-            radial-gradient(circle at 50% 100%, var(--color-glow), transparent 32rem),
-            linear-gradient(180deg, var(--color-surface), var(--color-background));
+          background: var(--color-background);
           color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
+          container-type: inline-size;
         }
 
         .emovel-cta__inner {
@@ -30,22 +29,9 @@ export function CTASection(props: CTAProps) {
           padding: clamp(2rem, 6vw, 4.25rem);
           border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--color-surfaceAlt) 76%, transparent), var(--color-surface)),
-            var(--color-surface);
-          box-shadow: 0 1.5rem 4.5rem color-mix(in srgb, var(--color-background) 58%, transparent);
+          background: var(--color-surface);
+          box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 20px 60px rgba(0,0,0,.08);
           text-align: center;
-        }
-
-        .emovel-cta__panel::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          background:
-            linear-gradient(90deg, transparent, var(--color-glow), transparent);
-          opacity: 0.42;
-          pointer-events: none;
         }
 
         .emovel-cta__content {
@@ -113,11 +99,6 @@ export function CTASection(props: CTAProps) {
           border-color: var(--color-primary);
           background: var(--color-primary);
           color: var(--color-background);
-          box-shadow: 0 1rem 2.6rem var(--color-glow);
-        }
-
-        .emovel-cta__button--primary:hover {
-          box-shadow: 0 1.25rem 3.25rem var(--color-glow);
         }
 
         .emovel-cta__button--secondary {
@@ -133,7 +114,7 @@ export function CTASection(props: CTAProps) {
           line-height: 1.6;
         }
 
-        @media (max-width: 42rem) {
+        @container (max-width: 42rem) {
           .emovel-cta__inner {
             padding-block: 4rem;
           }

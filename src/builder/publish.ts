@@ -32,6 +32,34 @@ import {
 } from '../motion/patterns';
 import type { KeyframeState, KeyframesDescriptor } from '../motion/patterns';
 
+const BRAND_EXPORT_ASSETS: ReadonlyArray<{ sourcePath: string; zipPath: string }> = [
+  { sourcePath: 'emovel-brand/app-icon-1024.png', zipPath: 'app-icon/app-icon-1024.png' },
+  { sourcePath: 'emovel-brand/avatar-on-dark-1024.png', zipPath: 'social-avatar/avatar-on-dark-1024.png' },
+  { sourcePath: 'emovel-brand/favicon/favicon.ico', zipPath: 'favicon/favicon.ico' },
+  { sourcePath: 'emovel-brand/favicon-gold-256.png', zipPath: 'favicon/favicon-gold-256.png' },
+  { sourcePath: 'emovel-brand/favicon.ico', zipPath: 'favicon/favicon.ico' },
+  { sourcePath: 'emovel-brand/og-image-3d.png', zipPath: 'og-image/og-image-3d.png' },
+  {
+    sourcePath: 'emovel-brand/source-transparent/emovel-logo-3d-gold.png',
+    zipPath: 'source-transparent/emovel-logo-3d-gold.png',
+  },
+  {
+    sourcePath: 'emovel-brand/source-transparent/emovel-logo-gold-on-dark.png',
+    zipPath: 'source-transparent/emovel-logo-gold-on-dark.png',
+  },
+];
+
+const EXPORT_ASSET_PATHS: ReadonlyArray<readonly [string, string]> = [
+  ['emovel-brand/source-transparent/emovel-logo-gold-on-dark.png', 'source-transparent/emovel-logo-gold-on-dark.png'],
+  ['emovel-brand/source-transparent/emovel-logo-3d-gold.png', 'source-transparent/emovel-logo-3d-gold.png'],
+  ['emovel-brand/emovel-logo-gold-on-dark.png', 'source-transparent/emovel-logo-gold-on-dark.png'],
+  ['emovel-brand/emovel-logo-3d-gold.png', 'source-transparent/emovel-logo-3d-gold.png'],
+  ['/emovel-brand/favicon/favicon.ico', 'favicon/favicon.ico'],
+  ['emovel-brand/favicon/favicon.ico', 'favicon/favicon.ico'],
+  ['/emovel-brand/og-image-3d.png', 'og-image/og-image-3d.png'],
+  ['emovel-brand/og-image-3d.png', 'og-image/og-image-3d.png'],
+];
+
 // ─── CSS helpers ──────────────────────────────────────────────────────────────
 
 function keyframeStateToTransform(s: KeyframeState): string {
@@ -291,6 +319,13 @@ function slugify(str: string): string {
     .replace(/^-|-$/g, '') || 'page';
 }
 
+function normalizeExportAssetPaths(html: string): string {
+  return EXPORT_ASSET_PATHS.reduce(
+    (nextHTML, [builderPath, exportPath]) => nextHTML.split(builderPath).join(exportPath),
+    html,
+  );
+}
+
 /** Render page sections to HTML via Puck's Render component. */
 function renderBody(data: Data): string {
   return renderToStaticMarkup(
@@ -306,18 +341,21 @@ function buildIndexHTML(
   ioScript:  string,
 ): string {
   const safeTitle = escapeHTML(title);
+  const exportBodyHTML = normalizeExportAssetPaths(bodyHTML);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${safeTitle}</title>
+  <link rel="icon" href="favicon/favicon.ico">
+  <meta property="og:image" content="og-image/og-image-3d.png">
   <style>
 ${styleCSS}
   </style>
 </head>
 <body>
-${bodyHTML}
+${exportBodyHTML}
 <script>${ioScript}</script>
 </body>
 </html>`;
@@ -337,6 +375,16 @@ export function buildPageHTML(data: Data, theme: ThemeConfig): string {
 
 // ─── ZIP download ─────────────────────────────────────────────────────────────
 
+async function addBrandAssetsToZip(zip: JSZip): Promise<void> {
+  await Promise.all(
+    BRAND_EXPORT_ASSETS.map(async ({ sourcePath, zipPath }) => {
+      const res = await fetch(`/${sourcePath}`);
+      if (!res.ok) return;
+      zip.file(zipPath, await res.blob());
+    }),
+  );
+}
+
 /** Render the page to a .zip containing a self-contained index.html and trigger download. */
 export async function publishToZip(
   data:  Data,
@@ -354,6 +402,7 @@ export async function publishToZip(
 
   const zip = new JSZip();
   zip.file('index.html', indexHTML);
+  await addBrandAssetsToZip(zip);
 
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
 

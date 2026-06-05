@@ -11,6 +11,7 @@ export function FeatureGridSection(props: FeatureGridProps) {
           background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
+          container-type: inline-size;
         }
 
         .emovel-featuregrid__inner {
@@ -28,12 +29,25 @@ export function FeatureGridSection(props: FeatureGridProps) {
         }
 
         .emovel-featuregrid__eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
           margin: 0 0 0.85rem;
-          font-size: clamp(0.7rem, 1vw, 0.8rem);
-          font-weight: 700;
-          letter-spacing: 0.16em;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: clamp(0.68rem, 1vw, 0.78rem);
+          font-weight: 600;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-secondary);
+          color: var(--color-textSecondary);
+        }
+
+        .emovel-featuregrid__eyebrow::before {
+          content: "";
+          width: 0.28rem;
+          height: 0.28rem;
+          border-radius: var(--radius-pill);
+          background: var(--color-primary);
+          flex-shrink: 0;
         }
 
         .emovel-featuregrid__headline {
@@ -64,11 +78,10 @@ export function FeatureGridSection(props: FeatureGridProps) {
           flex-direction: column;
           gap: 0.75rem;
           padding: clamp(1.25rem, 2.5vw, 1.75rem);
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.025), transparent),
-            var(--color-surface);
+          background: var(--color-surface);
           border: 1px solid var(--color-border);
           border-radius: var(--radius-md);
+          box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
           transition:
             border-color var(--motion-duration) var(--motion-ease),
             transform var(--motion-duration) var(--motion-ease),
@@ -78,7 +91,7 @@ export function FeatureGridSection(props: FeatureGridProps) {
         .emovel-featuregrid__card:hover {
           border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
           transform: translateY(-2px);
-          box-shadow: 0 8px 28px color-mix(in srgb, var(--color-glow) 40%, transparent);
+          box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.08);
         }
 
         .emovel-featuregrid__icon {
@@ -111,13 +124,13 @@ export function FeatureGridSection(props: FeatureGridProps) {
           flex: 1;
         }
 
-        @media (max-width: 54rem) {
+        @container (max-width: 54rem) {
           .emovel-featuregrid__grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
         }
 
-        @media (max-width: 34rem) {
+        @container (max-width: 34rem) {
           .emovel-featuregrid__grid {
             grid-template-columns: 1fr;
           }

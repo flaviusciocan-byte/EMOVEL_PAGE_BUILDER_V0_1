@@ -10,9 +10,7 @@ export function VideoEmbedSection(props: VideoEmbedProps) {
     <section className="emovel-videoembed">
       <style>{`
         .emovel-videoembed {
-          background:
-            radial-gradient(circle at 50% 0%, var(--color-glow), transparent 50rem),
-            var(--color-background);
+          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textPrimary);
         }
@@ -64,10 +62,7 @@ export function VideoEmbedSection(props: VideoEmbedProps) {
           border-radius: var(--radius-lg);
           overflow: hidden;
           border: 1px solid var(--color-border);
-          box-shadow:
-            0 30px 80px rgba(0,0,0,0.45),
-            0 0 0 1px rgba(255,255,255,0.02),
-            0 0 60px var(--color-glow);
+          box-shadow: 0 2px 8px rgba(0,0,0,.14), 0 20px 60px rgba(0,0,0,.12);
         }
 
         .emovel-videoembed__ratio {
@@ -95,11 +90,7 @@ export function VideoEmbedSection(props: VideoEmbedProps) {
           align-items: center;
           justify-content: center;
           gap: 0.75rem;
-          background:
-            radial-gradient(circle at 50% 42%,
-              color-mix(in srgb, var(--color-primary) 16%, var(--color-surface)),
-              var(--color-surface)
-            );
+          background: var(--color-surface);
           color: var(--color-textSecondary);
         }
 

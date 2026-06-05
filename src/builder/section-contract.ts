@@ -88,6 +88,7 @@ export type BillingPeriod     = 'monthly' | 'both';  // 'both' = show monthly/an
 // ─────────────────────────────────────────────────────────────────────────────
 export interface NavBarProps {
   logoText: string;
+  logoImageUrl?: string;
   // PUCK: array field with arrayFields {label:text, href:text} → stored as CTALink[] → no normalization needed
   links: CTALink[];
   ctaLabel: string;

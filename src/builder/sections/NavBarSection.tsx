@@ -2,7 +2,7 @@ import { useId } from 'react';
 import type { NavBarProps } from '../section-contract';
 
 export function NavBarSection(props: NavBarProps) {
-  const { logoText, links, ctaLabel, ctaHref, position } = props;
+  const { logoText, logoImageUrl, links, ctaLabel, ctaHref, position } = props;
 
   // useId() generates stable IDs across browser + renderToStaticMarkup,
   // ensuring each NavBar instance has a unique checkbox ID.
@@ -21,9 +21,7 @@ export function NavBarSection(props: NavBarProps) {
         /* ── Base ── */
         .emovel-navbar {
           width: 100%;
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.02), transparent),
-            var(--color-surface);
+          background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
           position: relative;
           z-index: 100;
@@ -35,9 +33,7 @@ export function NavBarSection(props: NavBarProps) {
           top: 0;
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.025), transparent),
-            color-mix(in srgb, var(--color-surface) 88%, transparent);
+          background: color-mix(in srgb, var(--color-surface) 88%, transparent);
         }
 
         /* ── Bar row ── */
@@ -63,6 +59,14 @@ export function NavBarSection(props: NavBarProps) {
           flex-shrink: 0;
           user-select: none;
           margin-right: 1.5rem;
+        }
+
+        .emovel-navbar__logo-img {
+          display: block;
+          width: auto;
+          height: 30px;
+          max-width: 156px;
+          object-fit: contain;
         }
 
         /* ── Desktop links ── */
@@ -286,7 +290,15 @@ export function NavBarSection(props: NavBarProps) {
       {/* ── Bar row: logo · desktop links · spacer · CTA · hamburger ── */}
       <div className="emovel-navbar__bar">
         <a className="emovel-navbar__logo" href="#">
-          {logoText || 'Brand'}
+          {logoImageUrl ? (
+            <img
+              className="emovel-navbar__logo-img"
+              src={logoImageUrl}
+              alt={logoText || 'Brand'}
+            />
+          ) : (
+            logoText || 'Brand'
+          )}
         </a>
 
         {safeLinks.length > 0 && (
