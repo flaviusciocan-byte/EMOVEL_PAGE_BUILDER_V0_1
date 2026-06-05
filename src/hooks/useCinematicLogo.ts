@@ -12,6 +12,15 @@ export function useCinematicLogo(
     const container = containerRef.current;
     if (!container) return;
 
+    // In Puck's editor (iframe) or when reduced-motion is requested:
+    // skip the Anime.js timeline entirely. Wings stay at their natural CSS
+    // opacity (1) — they were never set to 0 at this point, so no flicker.
+    const inIframe =
+      typeof window !== 'undefined' &&
+      (() => { try { return window.self !== window.top; } catch { return true; } })();
+
+    if (inIframe) return;
+
     if (
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches

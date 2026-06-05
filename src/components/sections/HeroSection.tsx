@@ -5,6 +5,24 @@ import { PATTERNS } from '../../motion/patterns';
 import { CinematicWings } from './CinematicWings';
 import { useCinematicLogo } from '../../hooks/useCinematicLogo';
 
+// ── Editor detection ──────────────────────────────────────────────────────────
+// Puck renders component previews inside an iframe.
+// window.self !== window.top is the reliable, SSR-safe check for this.
+//
+// Cannot use usePuck(): it throws "must be used inside <Puck>" when called
+// from renderToStaticMarkup (publish.ts static export) — confirmed in source.
+// Cannot use renderContext: it is provided by BOTH the editor canvas AND the
+// static <Render> component, so it cannot distinguish the two contexts.
+//
+// iframe check:  Puck editor  → window.self !== window.top → true  → no entrance
+//                Published page → window.self === window.top → false → entrance runs
+//                SSR / Node.js  → typeof window === 'undefined'     → false → entrance runs
+function useIsInEditor(): boolean {
+  if (typeof window === 'undefined') return false;
+  try { return window.self !== window.top; }
+  catch { return true; } // SecurityError = cross-origin iframe = treat as editor
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function HeroSection({
@@ -20,19 +38,44 @@ export function HeroSection({
   const sectionRef = useRef<HTMLElement>(null);
   const logoRef    = useRef<HTMLDivElement>(null);
 
-  const inView  = useInView(sectionRef, { once: true, amount: 0.1 });
-  const reduced = useReducedMotion() ?? false;
+  const isInEditor = useIsInEditor();
+  const reduced    = useReducedMotion() ?? false;
+
+  // Entrance animation only in presentation mode (non-editor, non-reduced-motion).
+  // When shouldAnimate === false, all motion elements receive initial={false} and
+  // animate={false}, which disables Framer Motion overrides and leaves content at
+  // its natural CSS state (opacity: 1, no transform) — always visible.
+  const shouldAnimate = !isInEditor && !reduced;
+
+  // amount: 0 → fires on any viewport overlap, including above-fold at mount.
+  // Original 0.1 could fail at sub-100% zoom where the IO threshold was never met
+  // against the iframe viewport height, causing permanent opacity:0 in the editor.
+  const inView = useInView(sectionRef, { once: true, amount: 0 });
 
   useCinematicLogo(logoRef, enableCinematicLogo);
 
   const pat = PATTERNS[motionPattern];
   const { isStaggered } = pat.framer;
 
-  // Reduced-motion: collapse all variants to no-op so Framer renders final state immediately.
-  const panelVariants   = reduced ? { hidden: {}, visible: {} } : pat.framer.panelVariants;
-  const panelTransition = !isStaggered ? pat.framer.transition : undefined;
-  const childVariants   = isStaggered && !reduced ? pat.framer.childVariants : undefined;
-  const childTransition = isStaggered && !reduced ? pat.framer.transition    : undefined;
+  // Motion props: only applied when shouldAnimate is true.
+  // initial={false} + animate={false} = Framer disables all overrides → natural visible state.
+  const panelMotionProps = shouldAnimate
+    ? {
+        initial:    'hidden' as const,
+        animate:    inView ? 'visible' as const : 'hidden' as const,
+        variants:   pat.framer.panelVariants,
+        transition: !isStaggered ? pat.framer.transition : undefined,
+      }
+    : { initial: false as const, animate: false as const };
+
+  // Child variants only for staggered-rise in presentation mode.
+  // When absent ({}) parent's initial={false} propagates nothing → children visible.
+  const childMotionProps = shouldAnimate && isStaggered
+    ? {
+        variants:   pat.framer.childVariants,
+        transition: pat.framer.transition,
+      }
+    : {};
 
   return (
     <section
@@ -50,10 +93,7 @@ export function HeroSection({
       <div className="emovel-hero__inner">
         <motion.div
           className="emovel-hero__panel"
-          initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
-          variants={panelVariants}
-          transition={panelTransition}
+          {...panelMotionProps}
         >
           {enableCinematicLogo && (
             <div className="emovel-hero__logo" ref={logoRef}>
@@ -64,8 +104,7 @@ export function HeroSection({
           {eyebrow && (
             <motion.p
               className="emovel-hero__eyebrow"
-              variants={childVariants}
-              transition={childTransition}
+              {...childMotionProps}
             >
               {eyebrow}
             </motion.p>
@@ -73,8 +112,7 @@ export function HeroSection({
 
           <motion.h1
             className="emovel-hero__title"
-            variants={childVariants}
-            transition={childTransition}
+            {...childMotionProps}
           >
             {title}
           </motion.h1>
@@ -82,8 +120,7 @@ export function HeroSection({
           {subtitle && (
             <motion.p
               className="emovel-hero__subtitle"
-              variants={childVariants}
-              transition={childTransition}
+              {...childMotionProps}
             >
               {subtitle}
             </motion.p>
@@ -92,8 +129,7 @@ export function HeroSection({
           {(primaryCta || secondaryCta) && (
             <motion.div
               className="emovel-hero__actions"
-              variants={childVariants}
-              transition={childTransition}
+              {...childMotionProps}
             >
               {primaryCta && (
                 <a
