@@ -1,6 +1,6 @@
 // ThemeProvider — injects the active page theme as CSS custom properties on a wrapper div.
 // useTheme — hook for components that need to read or switch the active theme.
-// ThemeSwitcher — skeleton preset picker; Phase 3 wires this into the inspector panel.
+// ThemeSwitcher — preset picker; mounted in the inspector Theme tab.
 
 import { createContext, useContext, useState, type CSSProperties, type ReactNode } from 'react';
 import { themes, DEFAULT_THEME_ID, type ThemeConfig } from './themes';
@@ -82,8 +82,6 @@ export function ThemeProvider({ children, initialThemeId = DEFAULT_THEME_ID }: T
   );
 }
 
-// ThemeSwitcher skeleton — renders preset cards, handles selection.
-// Phase 3: mount inside InspectorPanel's Theme tab.
 export function ThemeSwitcher() {
   const { themeId, setTheme } = useTheme();
 

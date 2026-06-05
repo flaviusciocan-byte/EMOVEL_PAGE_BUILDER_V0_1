@@ -130,7 +130,7 @@ export function ExportPanel() {
       transition: 'background 120ms ease, border-color 120ms ease',
     },
     btnPrimary: {
-      background: 'linear-gradient(135deg, #F3DFA2, #D4AF37)',
+      background: 'linear-gradient(135deg, #D4AF37 0%, #b8931a 100%)',
       border: '1px solid #D4AF37',
       color: '#080808',
       fontWeight: 700,

@@ -137,7 +137,7 @@ export function PromptPanel() {
 
         .emovel-prompt__button--primary {
           border-color: #D4AF37;
-          background: linear-gradient(135deg, #F3DFA2, #D4AF37);
+          background: linear-gradient(135deg, #D4AF37 0%, #b8931a 100%);
           color: #080808;
         }
 
