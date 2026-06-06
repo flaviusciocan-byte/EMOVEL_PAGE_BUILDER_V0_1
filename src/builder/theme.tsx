@@ -1,15 +1,17 @@
 // ThemeProvider — injects the active page theme as CSS custom properties on a wrapper div.
 // useTheme — hook for components that need to read or switch the active theme.
-// ThemeSwitcher — preset picker; mounted in the inspector Theme tab.
+// ThemeSwitcher — preset picker + live custom-brand derivation; mounted in the inspector Theme tab.
 
 import { createContext, useContext, useState, type CSSProperties, type ReactNode } from 'react';
 import { themes, DEFAULT_THEME_ID, type ThemeConfig } from './themes';
-import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion } from './tokens';
+import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, type ColorTokens } from './tokens';
+import { deriveTheme, type ThemeInputs } from './derive-theme';
 
 interface ThemeContextValue {
   themeId: string;
   theme: ThemeConfig;
   setTheme: (id: string) => void;
+  setCustomTheme: (inputs: ThemeInputs) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -69,21 +71,148 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children, initialThemeId = DEFAULT_THEME_ID }: ThemeProviderProps) {
   const [themeId, setThemeId] = useState(initialThemeId);
-  const theme = themes[themeId] ?? themes[DEFAULT_THEME_ID];
+  const [customColors, setCustomColors] = useState<ColorTokens | null>(null);
+
+  const baseTheme = themes[themeId] ?? themes[DEFAULT_THEME_ID];
+
+  // When custom is active and derived colors exist, overlay them onto the base config.
+  // All non-custom themes are served from themes.ts unchanged.
+  const theme: ThemeConfig =
+    themeId === 'custom' && customColors !== null
+      ? {
+          ...baseTheme,
+          colors: customColors,
+          swatches: [
+            customColors.background,
+            customColors.surface,
+            customColors.primary,
+          ] as [string, string, string],
+        }
+      : baseTheme;
 
   function setTheme(id: string) {
     if (themes[id]) setThemeId(id);
   }
 
+  function setCustomTheme(inputs: ThemeInputs) {
+    setCustomColors(deriveTheme(inputs));
+    setThemeId('custom');
+  }
+
   return (
-    <ThemeContext.Provider value={{ themeId, theme, setTheme }}>
+    <ThemeContext.Provider value={{ themeId, theme, setTheme, setCustomTheme }}>
       <div style={buildCSSVars(theme)}>{children}</div>
     </ThemeContext.Provider>
   );
 }
 
+// ─── ThemeSwitcher ────────────────────────────────────────────────────────────
+
+const S_custom = {
+  panel: {
+    marginTop: 2,
+    padding: '12px 11px',
+    borderRadius: 9,
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid var(--color-border)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 10,
+  },
+  label: {
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase' as const,
+    color: 'var(--color-textSecondary)',
+    marginBottom: 4,
+    margin: 0,
+  },
+  row: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  colorWell: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    border: '1px solid var(--color-border)',
+    cursor: 'pointer',
+    padding: 0,
+    flexShrink: 0 as const,
+  },
+  modeBtn: (active: boolean): CSSProperties => ({
+    flex: 1,
+    padding: '5px 0',
+    borderRadius: 6,
+    border: active ? '1px solid var(--color-accent)' : '1px solid var(--color-border)',
+    background: active ? 'rgba(255,255,255,0.06)' : 'transparent',
+    color: active ? 'var(--color-textPrimary)' : 'var(--color-textSecondary)',
+    fontSize: 10,
+    fontWeight: 600,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    cursor: 'pointer',
+    transition: 'border-color 120ms ease, color 120ms ease',
+  }),
+  checkRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    fontSize: 11,
+    color: 'var(--color-textSecondary)',
+    cursor: 'pointer',
+  } as CSSProperties,
+};
+
 export function ThemeSwitcher() {
-  const { themeId, setTheme } = useTheme();
+  const { themeId, setTheme, setCustomTheme } = useTheme();
+
+  // Local state for the custom brand inputs — persists while user tweaks colors
+  const [primaryColor, setPrimaryColor] = useState('#D4AF37');
+  const [accentColor, setAccentColor]   = useState('#5CC8FF');
+  const [hasAccent, setHasAccent]       = useState(false);
+  const [surfaceMode, setSurfaceMode]   = useState<'light' | 'dark'>('dark');
+
+  function activateCustom() {
+    setCustomTheme({
+      primary: primaryColor,
+      mode: surfaceMode,
+      ...(hasAccent ? { accent: accentColor } : {}),
+    });
+  }
+
+  function handlePrimaryChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setPrimaryColor(val);
+    if (themeId === 'custom') {
+      setCustomTheme({ primary: val, mode: surfaceMode, ...(hasAccent ? { accent: accentColor } : {}) });
+    }
+  }
+
+  function handleAccentChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setAccentColor(val);
+    if (themeId === 'custom' && hasAccent) {
+      setCustomTheme({ primary: primaryColor, mode: surfaceMode, accent: val });
+    }
+  }
+
+  function handleModeChange(m: 'light' | 'dark') {
+    setSurfaceMode(m);
+    if (themeId === 'custom') {
+      setCustomTheme({ primary: primaryColor, mode: m, ...(hasAccent ? { accent: accentColor } : {}) });
+    }
+  }
+
+  function handleAccentToggle(e: React.ChangeEvent<HTMLInputElement>) {
+    const checked = e.target.checked;
+    setHasAccent(checked);
+    if (themeId === 'custom') {
+      setCustomTheme({ primary: primaryColor, mode: surfaceMode, ...(checked ? { accent: accentColor } : {}) });
+    }
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -92,7 +221,7 @@ export function ThemeSwitcher() {
         return (
           <button
             key={t.id}
-            onClick={() => setTheme(t.id)}
+            onClick={() => t.id === 'custom' ? activateCustom() : setTheme(t.id)}
             aria-pressed={active}
             style={{
               display: 'flex',
@@ -183,6 +312,73 @@ export function ThemeSwitcher() {
           </button>
         );
       })}
+
+      {/* ── Custom brand inputs — visible only when Custom theme is active ── */}
+      {themeId === 'custom' && (
+        <div style={S_custom.panel}>
+
+          <div>
+            <p style={S_custom.label}>Brand color</p>
+            <div style={{ ...S_custom.row, marginTop: 6 }}>
+              <input
+                type="color"
+                value={primaryColor}
+                onChange={handlePrimaryChange}
+                style={S_custom.colorWell}
+                title="Primary brand color"
+                aria-label="Primary brand color"
+              />
+              <span style={{ fontSize: 11, color: 'var(--color-textSecondary)', fontFamily: 'monospace' }}>
+                {primaryColor.toUpperCase()}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <p style={S_custom.label}>Surface mode</p>
+            <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+              {(['dark', 'light'] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => handleModeChange(m)}
+                  style={S_custom.modeBtn(m === surfaceMode)}
+                  aria-pressed={m === surfaceMode}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label style={S_custom.checkRow}>
+              <input
+                type="checkbox"
+                checked={hasAccent}
+                onChange={handleAccentToggle}
+                style={{ accentColor: 'var(--color-primary)', cursor: 'pointer' }}
+              />
+              Custom accent color
+            </label>
+            {hasAccent && (
+              <div style={{ ...S_custom.row, marginTop: 8 }}>
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={handleAccentChange}
+                  style={S_custom.colorWell}
+                  title="Accent color"
+                  aria-label="Accent color"
+                />
+                <span style={{ fontSize: 11, color: 'var(--color-textSecondary)', fontFamily: 'monospace' }}>
+                  {accentColor.toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
     </div>
   );
 }
