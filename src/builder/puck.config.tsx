@@ -32,6 +32,8 @@ import type {
   ContentBlockProps,
   FooterProps,
   FooterLinkGroup,
+  CardProps,
+  CardVariant,
 } from './section-contract';
 
 import {
@@ -57,6 +59,7 @@ import { NewsletterSection }        from './sections/NewsletterSection';
 import { TeamGridSection }          from './sections/TeamGridSection';
 import { ContentBlockSection }      from './sections/ContentBlockSection';
 import { FooterSection }            from './sections/FooterSection';
+import { CardSection }              from './sections/CardSection';
 
 // ─── Stored-props types ───────────────────────────────────────────────────────
 
@@ -115,6 +118,7 @@ export const config: Config<{
   'Team Grid':          TeamGridProps;
   'Content Block':      ContentBlockProps;
   'Footer':             FooterStoredProps;
+  'Card':               CardProps;
 }> = {
   components: {
 
@@ -749,6 +753,40 @@ export const config: Config<{
           )}
         />
       ),
+    },
+
+    // ── Card ─────────────────────────────────────────────────────────────────
+    'Card': {
+      fields: {
+        variant: {
+          type: 'select' as const,
+          label: 'Variant',
+          options: [
+            { value: 'solid',   label: 'Solid (filled surface, soft shadow)' },
+            { value: 'glass',   label: 'Glass (translucent + backdrop blur)'  },
+            { value: 'outline', label: 'Outline (transparent, border only)'   },
+            { value: 'image',   label: 'Image (full-bleed background photo)'  },
+          ],
+        },
+        title:              { type: 'text'     as const, label: 'Title' },
+        body:               { type: 'textarea' as const, label: 'Body text' },
+        eyebrow:            { type: 'text'     as const, label: 'Eyebrow (leave blank to hide)' },
+        backgroundImageUrl: { type: 'text'     as const, label: 'Background image URL (image variant; assets/… path)' },
+        objectImageUrl:     { type: 'text'     as const, label: 'Object image URL (floating 3D asset; assets/… path)' },
+        ctaLabel:           { type: 'text'     as const, label: 'CTA label (leave blank to hide)' },
+        ctaHref:            { type: 'text'     as const, label: 'CTA href' },
+      },
+      defaultProps: {
+        variant:            'solid' as CardVariant,
+        title:              'Your headline goes here.',
+        body:               'A supporting sentence that gives context and motivates the reader to act.',
+        eyebrow:            '',
+        backgroundImageUrl: '',
+        objectImageUrl:     '',
+        ctaLabel:           'Get started',
+        ctaHref:            '#',
+      } satisfies CardProps,
+      render: (props: CardProps) => <CardSection {...props} />,
     },
   },
 };

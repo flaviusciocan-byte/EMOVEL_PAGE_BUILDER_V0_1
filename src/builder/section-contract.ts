@@ -337,3 +337,24 @@ export interface FooterProps {
   // PUCK: array field with arrayFields {label:text, href:text} → stored as CTALink[] → no normalization needed
   socialLinks: CTALink[];
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 14. Card Section
+// Page role: Premium standalone card — glass / solid / outline / image variants
+// Tokens: --color-background, --color-surface, --color-textPrimary, --color-textSecondary,
+//         --color-primary, --color-border, --radius-lg, --radius-pill
+// Note: "image" variant forces rgba(255,255,255,1) text over a dark gradient overlay —
+// this is an accessibility invariant, not a theme color (see CardSection.tsx).
+// ─────────────────────────────────────────────────────────────────────────────
+export type CardVariant = 'glass' | 'solid' | 'outline' | 'image';
+
+export interface CardProps {
+  variant: CardVariant;
+  title: string;
+  body: string;
+  eyebrow: string;              // empty string = not rendered
+  backgroundImageUrl: string;   // full-bleed bg for "image" variant; empty = solid color fallback
+  objectImageUrl: string;       // floating 3D object PNG (screen blend); empty = no object
+  ctaLabel: string;             // CTA button label; empty = button not rendered
+  ctaHref: string;              // CTA destination href
+}
