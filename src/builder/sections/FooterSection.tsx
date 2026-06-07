@@ -1,16 +1,15 @@
 import type { FooterProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function FooterSection(props: FooterProps) {
-  const { logoText, tagline, linkGroups, copyright, socialLinks } = props;
+  const { surface, width, backgroundImageUrl, logoText, tagline, linkGroups, copyright, socialLinks } = props;
 
   return (
-    <footer className="emovel-footer">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} as="footer" className="emovel-footer">
       <style>{`
         .emovel-footer {
-          background: var(--color-surface);
           border-top: 1px solid var(--color-border);
           color: var(--color-textSecondary);
-          container-type: inline-size;
         }
 
         .emovel-footer__inner {
@@ -199,6 +198,6 @@ export function FooterSection(props: FooterProps) {
           ) : null}
         </div>
       </div>
-    </footer>
+    </SectionSurface>
   );
 }

@@ -1,4 +1,5 @@
 import type { ProductGridProps, ProductStatus } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 const statusLabels: Record<ProductStatus, string> = {
   available: 'Available',
@@ -7,20 +8,16 @@ const statusLabels: Record<ProductStatus, string> = {
 };
 
 export function ProductGridSection(props: ProductGridProps) {
-  const { sectionTitle, sectionDescription, products } = props;
+  const { surface, width, backgroundImageUrl, sectionTitle, sectionDescription, products } = props;
   const visibleProducts = products.slice(0, 6);
 
   return (
-    <section className="emovel-product-grid">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-product-grid">
       <style>{`
         .emovel-product-grid {
-          position: relative;
           overflow: hidden;
-          background: var(--color-background);
-          color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
           border-bottom: 1px solid var(--color-border);
-          container-type: inline-size;
         }
 
         .emovel-product-grid__inner {
@@ -252,6 +249,6 @@ export function ProductGridSection(props: ProductGridProps) {
           </div>
         ) : null}
       </div>
-    </section>
+    </SectionSurface>
   );
 }

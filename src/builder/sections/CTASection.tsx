@@ -1,18 +1,15 @@
 import type { CTAProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function CTASection(props: CTAProps) {
-  const { headline, subheadline, primaryAction, secondaryAction, supportText } = props;
+  const { surface, width, backgroundImageUrl, headline, subheadline, primaryAction, secondaryAction, supportText } = props;
 
   return (
-    <section className="emovel-cta">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-cta">
       <style>{`
         .emovel-cta {
-          position: relative;
           overflow: hidden;
-          background: var(--color-background);
-          color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
-          container-type: inline-size;
         }
 
         .emovel-cta__inner {
@@ -163,6 +160,6 @@ export function CTASection(props: CTAProps) {
           </div>
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

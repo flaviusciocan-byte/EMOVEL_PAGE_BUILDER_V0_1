@@ -6,6 +6,8 @@ import {
   type PageSpecSection,
 } from './page-spec';
 
+const SURF = { surface: 'transparent' as const, width: 'contained' as const, backgroundImageUrl: '' };
+
 const DEFAULT_PROMPT =
   'Create an EMOVEL landing page for a premium page builder that turns prompts into editable pages.';
 
@@ -135,6 +137,7 @@ function buildSections(prompt: string, brand: PageSpecBrand): PageSpecSection[] 
     {
       kind: 'nav',
       props: {
+        ...SURF,
         logoText: brand.name,
         links: [
           makeLink('Features', '#features'),
@@ -150,6 +153,7 @@ function buildSections(prompt: string, brand: PageSpecBrand): PageSpecSection[] 
     {
       kind: 'hero',
       props: {
+        ...SURF,
         eyebrow: brand.name,
         title: `${brand.name} turns prompts into editable pages.`,
         subtitle: `${product}. Start with a structured draft, refine every section in the builder, then export clean page data or a static site.`,
@@ -164,6 +168,7 @@ function buildSections(prompt: string, brand: PageSpecBrand): PageSpecSection[] 
     {
       kind: 'featureGrid',
       props: {
+        ...SURF,
         eyebrow: 'Page engine',
         headline: 'Generated structure, human control.',
         subheadline: `A practical workflow for ${brand.audience}: prompt the first draft, then edit the result as normal Puck sections.`,
@@ -204,6 +209,7 @@ function buildSections(prompt: string, brand: PageSpecBrand): PageSpecSection[] 
     {
       kind: 'pricing',
       props: {
+        ...SURF,
         eyebrow: 'Pricing',
         headline: 'Choose the workflow that fits the page volume.',
         subheadline: 'Start simple, then expand into a repeatable EMOVEL page engine.',
@@ -214,6 +220,7 @@ function buildSections(prompt: string, brand: PageSpecBrand): PageSpecSection[] 
     {
       kind: 'cta',
       props: {
+        ...SURF,
         headline: 'Generate the first draft, then make it yours.',
         subheadline: `Use ${brand.name} to create a complete page structure from a prompt and continue editing with the tools already in the builder.`,
         primaryAction: 'Generate Page',
@@ -224,6 +231,7 @@ function buildSections(prompt: string, brand: PageSpecBrand): PageSpecSection[] 
     {
       kind: 'faq',
       props: {
+        ...SURF,
         eyebrow: 'FAQ',
         headline: 'Questions before generating.',
         subheadline: '',
@@ -315,6 +323,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'nav',
         props: {
+          ...SURF,
           logoText: 'EMOVEL',
           logoImageUrl: 'assets/source-transparent/emovel-logo-gold-on-dark.png',
           links: [
@@ -334,6 +343,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'hero',
         props: {
+          ...SURF,
           eyebrow: 'EMOVEL',
           title: 'Construiește sisteme care convertesc',
           subtitle:
@@ -351,6 +361,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'featureGrid',
         props: {
+          ...SURF,
           eyebrow: 'Ecosistem premium',
           headline: 'O arhitectură pentru produse digitale monetizabile.',
           subheadline:
@@ -394,6 +405,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'productGrid',
         props: {
+          ...SURF,
           sectionTitle: 'Ecosistemul EMOVEL',
           sectionDescription:
             'Modulele principale ale sistemului lucrează împreună pentru a transforma ideile în produse comerciale controlate.',
@@ -428,6 +440,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'statsBar',
         props: {
+          ...SURF,
           eyebrow: 'Control comercial',
           stats: [
             { value: '01', label: 'ecosistem central' },
@@ -440,6 +453,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'cta',
         props: {
+          ...SURF,
           headline: 'Intră în sistemul care transformă ideile în structuri monetizabile.',
           subheadline:
             'Pornește cu Builder-ul, extinde cu prompt engines și conectează fiecare produs digital la un mecanism comercial clar.',
@@ -451,6 +465,7 @@ function buildEmovelHomePageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'faq',
         props: {
+          ...SURF,
           eyebrow: 'FAQ',
           headline: 'Ce este EMOVEL?',
           subheadline: '',
@@ -548,6 +563,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'nav',
         props: {
+          ...SURF,
           logoText: 'EMOVEL',
           links: [
             makeLink('Intelligence', '#features'),
@@ -563,6 +579,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'hero',
         props: {
+          ...SURF,
           eyebrow: 'EMOVEL UI Rebuilder',
           title: 'Rebuild Any Reference Into a Premium Commercial Page',
           subtitle:
@@ -578,6 +595,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'featureGrid',
         props: {
+          ...SURF,
           eyebrow: 'Core system',
           headline: 'From reference page to commercial blueprint.',
           subheadline:
@@ -605,6 +623,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'contentBlock',
         props: {
+          ...SURF,
           eyebrow: 'Commercial DNA',
           headline: 'Understand why the reference converts before rebuilding it.',
           body:
@@ -616,6 +635,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'featureSplit',
         props: {
+          ...SURF,
           eyebrow: 'Claude Code Prompt Export',
           headline: 'Package the rebuild as an implementation-ready prompt.',
           body:
@@ -630,6 +650,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'cta',
         props: {
+          ...SURF,
           headline: 'Turn the next winning reference into an EMOVEL-ready build plan.',
           subheadline:
             'Use UI Rebuilder to move from inspiration to structured commercial blueprint, then continue inside the Builder where every section remains editable.',
@@ -641,6 +662,7 @@ function buildUiRebuilderPageSpec(rawPrompt: string): PageSpec {
       {
         kind: 'faq',
         props: {
+          ...SURF,
           eyebrow: 'FAQ',
           headline: 'How UI Rebuilder fits the Builder.',
           subheadline: '',

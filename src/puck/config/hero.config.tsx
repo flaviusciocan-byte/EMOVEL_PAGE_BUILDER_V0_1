@@ -1,5 +1,5 @@
 import { HeroSection } from '../../components/sections/HeroSection';
-import type { MotionPattern } from '../../types/sections';
+import type { MotionPattern, SurfaceVariant, WidthVariant } from '../../types/sections';
 
 // ── Stored props ──────────────────────────────────────────────────────────────
 // Puck stores all field values as strings/primitives. CTAs are flattened into
@@ -7,6 +7,9 @@ import type { MotionPattern } from '../../types/sections';
 // enableCinematicLogo is stored as 'true'|'false' (Puck has no boolean field type).
 
 export type HeroStoredProps = {
+  surface: SurfaceVariant;
+  width: WidthVariant;
+  backgroundImageUrl: string;
   eyebrow: string;
   title: string;
   subtitle: string;
@@ -23,6 +26,30 @@ export type HeroStoredProps = {
 // ── Field definitions ─────────────────────────────────────────────────────────
 
 export const heroFields = {
+  surface: {
+    type: 'select' as const,
+    label: 'Surface',
+    options: [
+      { value: 'transparent', label: 'Transparent' },
+      { value: 'base',        label: 'Base'        },
+      { value: 'surface',     label: 'Surface'     },
+      { value: 'surfaceAlt',  label: 'Surface Alt' },
+      { value: 'image',       label: 'Image'       },
+      { value: 'gradient',    label: 'Gradient'    },
+    ],
+  },
+  width: {
+    type: 'select' as const,
+    label: 'Width',
+    options: [
+      { value: 'contained',  label: 'Contained'  },
+      { value: 'full-bleed', label: 'Full bleed' },
+    ],
+  },
+  backgroundImageUrl: {
+    type: 'text' as const,
+    label: 'Background image URL (surface = image)',
+  },
   eyebrow: {
     type: 'text' as const,
     label: 'Eyebrow (optional)',
@@ -82,6 +109,9 @@ export const heroFields = {
 // ── Default props ─────────────────────────────────────────────────────────────
 
 export const heroDefaultProps: HeroStoredProps = {
+  surface:             'transparent',
+  width:               'contained',
+  backgroundImageUrl:  '',
   eyebrow:             'Your brand',
   title:               'A headline that earns attention.',
   subtitle:            'One or two sentences that frame what you offer and who it is for.',
@@ -101,6 +131,9 @@ export const heroDefaultProps: HeroStoredProps = {
 export function renderHero(props: HeroStoredProps) {
   return (
     <HeroSection
+      surface={props.surface}
+      width={props.width}
+      backgroundImageUrl={props.backgroundImageUrl || undefined}
       eyebrow={props.eyebrow || undefined}
       title={props.title}
       subtitle={props.subtitle || undefined}

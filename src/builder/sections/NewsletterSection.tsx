@@ -1,7 +1,9 @@
 import type { NewsletterProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function NewsletterSection(props: NewsletterProps) {
   const {
+    surface, width, backgroundImageUrl,
     eyebrow,
     headline,
     subheadline,
@@ -14,13 +16,10 @@ export function NewsletterSection(props: NewsletterProps) {
   const isSplit = layout === 'split';
 
   return (
-    <section className="emovel-newsletter">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-newsletter">
       <style>{`
         .emovel-newsletter {
-          background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-newsletter__inner {
@@ -241,6 +240,6 @@ export function NewsletterSection(props: NewsletterProps) {
           </div>
         )}
       </div>
-    </section>
+    </SectionSurface>
   );
 }

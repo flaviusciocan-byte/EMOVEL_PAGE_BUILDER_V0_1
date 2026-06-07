@@ -3,11 +3,15 @@ import { motion } from 'motion/react';
 import type { HeroSectionProps } from '../../types/sections';
 import { CinematicWings } from './CinematicWings';
 import { useCinematicLogo } from '../../hooks/useCinematicLogo';
+import { SectionSurface } from '../../builder/sections/SectionSurface';
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function HeroSection({
   id,
+  surface = 'transparent',
+  width = 'contained',
+  backgroundImageUrl = '',
   eyebrow,
   title,
   subtitle,
@@ -22,7 +26,10 @@ export function HeroSection({
   useCinematicLogo(logoRef, enableCinematicLogo);
 
   return (
-    <section
+    <SectionSurface
+      surface={surface}
+      width={width}
+      backgroundImageUrl={backgroundImageUrl}
       className="emovel-hero"
       id={id}
     >
@@ -106,7 +113,7 @@ export function HeroSection({
           )}
         </motion.div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }
 
@@ -121,12 +128,8 @@ const HERO_CSS = `
   --hero-btn-dur: var(--motion-duration, 180ms);
   --hero-btn-ease: var(--motion-ease, cubic-bezier(.22, 1, .36, 1));
 
-  position: relative;
   overflow: hidden;
-  background: var(--color-background);
-  color: var(--color-textPrimary);
   border-bottom: 1px solid var(--color-border);
-  container-type: inline-size;
   isolation: isolate;
 }
 

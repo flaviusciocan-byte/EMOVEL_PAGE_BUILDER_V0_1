@@ -1,19 +1,17 @@
 import { useState } from 'react';
 import type { PricingTableProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function PricingTableSection(props: PricingTableProps) {
-  const { eyebrow, headline, subheadline, plans, billingPeriod } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, subheadline, plans, billingPeriod } = props;
   const showToggle = billingPeriod === 'both';
   const [annual, setAnnual] = useState(false);
 
   return (
-    <section className="emovel-pricing">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-pricing">
       <style>{`
         .emovel-pricing {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-pricing__inner {
@@ -345,6 +343,6 @@ export function PricingTableSection(props: PricingTableProps) {
           })}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

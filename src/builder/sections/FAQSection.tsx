@@ -1,17 +1,15 @@
 import type { FAQProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function FAQSection(props: FAQProps) {
-  const { eyebrow, headline, subheadline, items, layout } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, subheadline, items, layout } = props;
   const isColumns = layout === 'columns';
 
   return (
-    <section className="emovel-faq">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-faq">
       <style>{`
         .emovel-faq {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-faq__inner {
@@ -167,6 +165,6 @@ export function FAQSection(props: FAQProps) {
           ))}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

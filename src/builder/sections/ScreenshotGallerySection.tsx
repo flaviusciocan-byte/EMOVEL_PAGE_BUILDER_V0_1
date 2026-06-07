@@ -1,20 +1,17 @@
 import type { ScreenshotGalleryProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
-  const { title, description, shots } = props;
+  const { surface, width, backgroundImageUrl, title, description, shots } = props;
   const items = shots.filter((item) => Boolean(item.caption)).slice(0, 6);
 
   return (
-    <section className="emovel-screenshot-gallery">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-screenshot-gallery">
       <style>{`
         .emovel-screenshot-gallery {
-          position: relative;
           overflow: hidden;
-          background: var(--color-background);
-          color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
           border-bottom: 1px solid var(--color-border);
-          container-type: inline-size;
         }
 
         .emovel-screenshot-gallery__inner {
@@ -134,6 +131,6 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
           </div>
         ) : null}
       </div>
-    </section>
+    </SectionSurface>
   );
 }

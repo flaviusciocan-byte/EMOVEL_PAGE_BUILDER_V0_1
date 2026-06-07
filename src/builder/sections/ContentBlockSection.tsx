@@ -1,17 +1,16 @@
 import type { ContentBlockProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function ContentBlockSection(props: ContentBlockProps) {
-  const { eyebrow, headline, body, alignment, layout } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, body, alignment, layout } = props;
   const isProse = layout === 'prose' || !layout;
   const isCenter = alignment === 'center';
 
   return (
-    <section className="emovel-contentblock">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-contentblock">
       <style>{`
         .emovel-contentblock {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
         }
 
         .emovel-contentblock__inner {
@@ -94,6 +93,6 @@ export function ContentBlockSection(props: ContentBlockProps) {
           {body ? <p className="emovel-contentblock__body">{body}</p> : null}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

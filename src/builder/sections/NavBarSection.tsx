@@ -1,8 +1,9 @@
 import { useId } from 'react';
 import type { NavBarProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function NavBarSection(props: NavBarProps) {
-  const { logoText, logoImageUrl, links, ctaLabel, ctaHref, position } = props;
+  const { surface, width, backgroundImageUrl, logoText, logoImageUrl, links, ctaLabel, ctaHref, position } = props;
 
   // useId() generates stable IDs across browser + renderToStaticMarkup,
   // ensuring each NavBar instance has a unique checkbox ID.
@@ -12,23 +13,23 @@ export function NavBarSection(props: NavBarProps) {
   const safeLinks = links ?? [];
 
   return (
-    <nav
-      className="emovel-navbar"
-      data-position={position}
-      aria-label="Site navigation"
+    <SectionSurface
+      as="nav"
+      ariaLabel="Site navigation"
+      surface={surface}
+      width={width}
+      backgroundImageUrl={backgroundImageUrl}
+      className={`emovel-navbar${position === 'sticky' ? ' emovel-navbar--sticky' : ''}`}
     >
       <style>{`
         /* ── Base ── */
         .emovel-navbar {
-          width: 100%;
-          background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
-          position: relative;
           z-index: 100;
-          container-type: inline-size;
         }
 
-        .emovel-navbar[data-position="sticky"] {
+        /* Sticky modifier — overrides SectionSurface position:relative via cascade order */
+        .emovel-navbar--sticky {
           position: sticky;
           top: 0;
           backdrop-filter: blur(12px);
@@ -355,6 +356,6 @@ export function NavBarSection(props: NavBarProps) {
           )}
         </div>
       </div>
-    </nav>
+    </SectionSurface>
   );
 }

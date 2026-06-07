@@ -1,18 +1,17 @@
 import type { VideoEmbedProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function VideoEmbedSection(props: VideoEmbedProps) {
-  const { eyebrow, headline, subheadline, embedUrl, videoTitle, aspectRatio } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, subheadline, embedUrl, videoTitle, aspectRatio } = props;
 
   // Aspect ratio percentage: 16:9 = 56.25%, 4:3 = 75%
   const paddingTop = aspectRatio === '4:3' ? '75%' : '56.25%';
 
   return (
-    <section className="emovel-videoembed">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-videoembed">
       <style>{`
         .emovel-videoembed {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
         }
 
         .emovel-videoembed__inner {
@@ -140,6 +139,6 @@ export function VideoEmbedSection(props: VideoEmbedProps) {
           </div>
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

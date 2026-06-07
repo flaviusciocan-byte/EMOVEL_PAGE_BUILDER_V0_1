@@ -9,10 +9,13 @@ import { CardSection } from './CardSection';
 import type { CardVariant } from '../section-contract';
 
 const BASE_PROPS = {
+  surface: 'transparent' as const,
+  width: 'contained' as const,
+  backgroundImageUrl: '',
   title: 'Test card title',
   body: 'Test body text.',
   eyebrow: '',
-  backgroundImageUrl: '',
+  cardImageUrl: '',
   objectImageUrl: '',
   ctaLabel: '',
   ctaHref: '#',
@@ -29,8 +32,8 @@ describe('CardSection — renders without crashing', () => {
         createElement(CardSection, { ...BASE_PROPS, variant }),
       );
       expect(html).toContain('Test card title');
-      // Variant modifier class on the <section> element
-      expect(html).toContain(`class="emovel-card emovel-card--${variant}"`);
+      // Variant modifier class present on the outer element (alongside SectionSurface classes)
+      expect(html).toContain(`emovel-card--${variant}`);
     });
   }
 });
@@ -82,21 +85,21 @@ describe('CardSection — image variant', () => {
     expect(html).toContain('class="emovel-card__overlay"');
   });
 
-  it('renders bg element with inline style when backgroundImageUrl is set', () => {
+  it('renders bg element with inline style when cardImageUrl is set', () => {
     const html = renderToStaticMarkup(
       createElement(CardSection, {
         ...BASE_PROPS,
         variant: 'image',
-        backgroundImageUrl: 'assets/hero-bg.jpg',
+        cardImageUrl: 'assets/hero-bg.jpg',
       }),
     );
     expect(html).toContain('class="emovel-card__bg"');
     expect(html).toContain('hero-bg.jpg');
   });
 
-  it('omits bg element when backgroundImageUrl is empty', () => {
+  it('omits bg element when cardImageUrl is empty', () => {
     const html = renderToStaticMarkup(
-      createElement(CardSection, { ...BASE_PROPS, variant: 'image', backgroundImageUrl: '' }),
+      createElement(CardSection, { ...BASE_PROPS, variant: 'image', cardImageUrl: '' }),
     );
     expect(html).not.toContain('class="emovel-card__bg"');
   });

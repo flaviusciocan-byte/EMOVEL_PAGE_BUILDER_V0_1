@@ -1,16 +1,15 @@
 import type { LogoStripProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function LogoStripSection(props: LogoStripProps) {
-  const { eyebrow, logos } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, logos } = props;
 
   return (
-    <section className="emovel-logostrip">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-logostrip">
       <style>{`
         .emovel-logostrip {
-          background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
           color: var(--color-textSecondary);
-          container-type: inline-size;
         }
 
         .emovel-logostrip__inner {
@@ -108,6 +107,6 @@ export function LogoStripSection(props: LogoStripProps) {
           ))}
         </ul>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

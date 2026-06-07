@@ -1,17 +1,15 @@
 import type { FeatureGridProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function FeatureGridSection(props: FeatureGridProps) {
-  const { eyebrow, headline, subheadline, features, columns } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, subheadline, features, columns } = props;
   const cols = columns ?? 3;
 
   return (
-    <section className="emovel-featuregrid">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-featuregrid">
       <style>{`
         .emovel-featuregrid {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-featuregrid__inner {
@@ -162,6 +160,6 @@ export function FeatureGridSection(props: FeatureGridProps) {
           ))}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

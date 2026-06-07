@@ -1,4 +1,5 @@
 import type { TeamGridProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 function TeamAvatar({ name, avatarUrl }: { name: string; avatarUrl: string }) {
   const initials = name
@@ -19,17 +20,14 @@ function TeamAvatar({ name, avatarUrl }: { name: string; avatarUrl: string }) {
 }
 
 export function TeamGridSection(props: TeamGridProps) {
-  const { eyebrow, headline, subheadline, members, columns } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, subheadline, members, columns } = props;
   const cols = columns ?? 3;
 
   return (
-    <section className="emovel-teamgrid">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-teamgrid">
       <style>{`
         .emovel-teamgrid {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-teamgrid__inner {
@@ -197,6 +195,6 @@ export function TeamGridSection(props: TeamGridProps) {
           ))}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

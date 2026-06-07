@@ -32,18 +32,17 @@ function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string }) {
   );
 }
 
+import { SectionSurface } from './SectionSurface';
+
 export function TestimonialsSection(props: TestimonialsProps) {
-  const { eyebrow, headline, testimonials, layout } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, headline, testimonials, layout } = props;
   const isSlider = layout === 'slider';
 
   return (
-    <section className="emovel-testimonials">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-testimonials">
       <style>{`
         .emovel-testimonials {
-          background: var(--color-surfaceAlt);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-testimonials__inner {
@@ -247,6 +246,6 @@ export function TestimonialsSection(props: TestimonialsProps) {
           ))}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

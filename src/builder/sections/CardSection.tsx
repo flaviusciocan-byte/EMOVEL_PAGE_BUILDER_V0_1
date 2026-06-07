@@ -4,24 +4,24 @@
 // overlay — that is an accessibility invariant, not a theme color.
 
 import type { CardProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function CardSection(props: CardProps) {
   const {
+    surface, width, backgroundImageUrl,
     variant, title, body, eyebrow,
-    backgroundImageUrl, objectImageUrl,
+    cardImageUrl, objectImageUrl,
     ctaLabel, ctaHref,
   } = props;
 
   const isImage = variant === 'image';
 
   return (
-    <section className={`emovel-card emovel-card--${variant}`}>
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className={`emovel-card emovel-card--${variant}`}>
       <style>{`
         /* ── Section shell ──────────────────────────────────── */
         .emovel-card {
-          background: var(--color-background);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
+          /* background and container-type provided by SectionSurface */
         }
 
         .emovel-card__inner {
@@ -232,10 +232,10 @@ export function CardSection(props: CardProps) {
         <div className="emovel-card__card">
 
           {/* Background image layer — image variant only */}
-          {isImage && backgroundImageUrl ? (
+          {isImage && cardImageUrl ? (
             <div
               className="emovel-card__bg"
-              style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+              style={{ backgroundImage: `url(${cardImageUrl})` }}
               role="img"
               aria-label={title}
             />
@@ -276,6 +276,6 @@ export function CardSection(props: CardProps) {
 
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

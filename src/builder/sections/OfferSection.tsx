@@ -1,20 +1,17 @@
 import type { OfferProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function OfferSection(props: OfferProps) {
-  const { title, problem, solution, benefits } = props;
+  const { surface, width, backgroundImageUrl, title, problem, solution, benefits } = props;
   const visibleBenefits = benefits.filter(Boolean);
 
   return (
-    <section className="emovel-offer">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-offer">
       <style>{`
         .emovel-offer {
-          position: relative;
           overflow: hidden;
-          background: var(--color-background);
-          color: var(--color-textPrimary);
           border-top: 1px solid var(--color-border);
           border-bottom: 1px solid var(--color-border);
-          container-type: inline-size;
         }
 
         .emovel-offer__inner {
@@ -268,6 +265,6 @@ export function OfferSection(props: OfferProps) {
           ) : null}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

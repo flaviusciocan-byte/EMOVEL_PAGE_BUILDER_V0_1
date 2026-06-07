@@ -1,16 +1,14 @@
 import type { StatsBarProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function StatsBarSection(props: StatsBarProps) {
-  const { eyebrow, stats } = props;
+  const { surface, width, backgroundImageUrl, eyebrow, stats } = props;
 
   return (
-    <section className="emovel-statsbar">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-statsbar">
       <style>{`
         .emovel-statsbar {
-          background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-statsbar__inner {
@@ -131,6 +129,6 @@ export function StatsBarSection(props: StatsBarProps) {
           ))}
         </ul>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

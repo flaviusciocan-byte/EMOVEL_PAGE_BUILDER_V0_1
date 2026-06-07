@@ -1,7 +1,9 @@
 import type { FeatureSplitProps } from '../section-contract';
+import { SectionSurface } from './SectionSurface';
 
 export function FeatureSplitSection(props: FeatureSplitProps) {
   const {
+    surface, width, backgroundImageUrl,
     eyebrow,
     headline,
     body,
@@ -15,13 +17,10 @@ export function FeatureSplitSection(props: FeatureSplitProps) {
   const imageFirst = imagePosition === 'left';
 
   return (
-    <section className="emovel-featuresplit">
+    <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} className="emovel-featuresplit">
       <style>{`
         .emovel-featuresplit {
-          background: var(--color-background);
           border-bottom: 1px solid var(--color-border);
-          color: var(--color-textPrimary);
-          container-type: inline-size;
         }
 
         .emovel-featuresplit__inner {
@@ -179,6 +178,6 @@ export function FeatureSplitSection(props: FeatureSplitProps) {
           ) : null}
         </div>
       </div>
-    </section>
+    </SectionSurface>
   );
 }

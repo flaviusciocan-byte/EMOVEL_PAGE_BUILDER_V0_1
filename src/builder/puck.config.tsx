@@ -96,6 +96,41 @@ function parseFooterLinks(raw: string): CTALink[] {
     });
 }
 
+// ─── Shared surface fields + defaults ─────────────────────────────────────────
+
+const SURFACE_FIELDS = {
+  surface: {
+    type: 'select' as const,
+    label: 'Surface',
+    options: [
+      { value: 'transparent', label: 'Transparent' },
+      { value: 'base',        label: 'Base'        },
+      { value: 'surface',     label: 'Surface'     },
+      { value: 'surfaceAlt',  label: 'Surface Alt' },
+      { value: 'image',       label: 'Image'       },
+      { value: 'gradient',    label: 'Gradient'    },
+    ],
+  },
+  width: {
+    type: 'select' as const,
+    label: 'Width',
+    options: [
+      { value: 'contained',  label: 'Contained'  },
+      { value: 'full-bleed', label: 'Full bleed' },
+    ],
+  },
+  backgroundImageUrl: {
+    type: 'text' as const,
+    label: 'Background image URL (surface = image)',
+  },
+};
+
+const SURFACE_DEFAULTS = {
+  surface:            'transparent' as const,
+  width:              'contained'   as const,
+  backgroundImageUrl: '',
+};
+
 // ─── Config ───────────────────────────────────────────────────────────────────
 // Explicit type annotation (not satisfies) so config's type is Config<{...}>, which extends
 // the base Config and satisfies Puck<UserConfig extends Config>'s prop constraint.
@@ -132,6 +167,7 @@ export const config: Config<{
     // ── Product Grid ────────────────────────────────────────────────────────
     'Product Grid': {
       fields: {
+        ...SURFACE_FIELDS,
         sectionTitle:       { type: 'text'     as const, label: 'Section title' },
         sectionDescription: { type: 'textarea' as const, label: 'Section description' },
         products: {
@@ -155,6 +191,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         sectionTitle:       'The Collection',
         sectionDescription: 'Modular products, each refined to a finished standard.',
         products: [
@@ -172,6 +209,7 @@ export const config: Config<{
     // stored state is never rewritten, so the array field editor always shows correct values.
     'Offer Section': {
       fields: {
+        ...SURFACE_FIELDS,
         title:    { type: 'text'     as const, label: 'Section title' },
         problem:  { type: 'textarea' as const, label: 'The problem' },
         solution: { type: 'textarea' as const, label: 'The solution' },
@@ -185,6 +223,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         title:    'A clear offer, no noise',
         problem:  'Describe the real friction your buyer experiences before finding you.',
         solution: 'Describe how your product resolves that friction specifically.',
@@ -206,6 +245,7 @@ export const config: Config<{
     // ── Screenshot Gallery ───────────────────────────────────────────────────
     'Screenshot Gallery': {
       fields: {
+        ...SURFACE_FIELDS,
         title:       { type: 'text'     as const, label: 'Section title' },
         description: { type: 'textarea' as const, label: 'Description' },
         shots: {
@@ -218,6 +258,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         title:       'See it in action',
         description: 'A short line that frames what the visitor is about to see.',
         shots: [
@@ -232,6 +273,7 @@ export const config: Config<{
     // ── CTA Section ──────────────────────────────────────────────────────────
     'CTA Section': {
       fields: {
+        ...SURFACE_FIELDS,
         headline:        { type: 'text'     as const, label: 'Headline' },
         subheadline:     { type: 'textarea' as const, label: 'Subheadline' },
         primaryAction:   { type: 'text'     as const, label: 'Primary action' },
@@ -239,6 +281,7 @@ export const config: Config<{
         supportText:     { type: 'text'     as const, label: 'Support text' },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         headline:        'Ready when you are.',
         subheadline:     'One sentence that removes hesitation and confirms what the visitor gets next.',
         primaryAction:   'Get started',
@@ -251,6 +294,7 @@ export const config: Config<{
     // ── Nav Bar ──────────────────────────────────────────────────────────────
     'Nav Bar': {
       fields: {
+        ...SURFACE_FIELDS,
         logoText: { type: 'text' as const, label: 'Logo text' },
         logoImageUrl: { type: 'text' as const, label: 'Logo image URL (optional)' },
         links: {
@@ -274,6 +318,8 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
+        surface: 'surface' as const,
         logoText: 'Brand',
         logoImageUrl: '',
         links: [
@@ -291,6 +337,7 @@ export const config: Config<{
     // ── Logo Strip ───────────────────────────────────────────────────────────
     'Logo Strip': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow: { type: 'text' as const, label: 'Eyebrow' },
         logos: {
           type: 'array' as const,
@@ -303,6 +350,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow: 'Trusted by leading teams',
         logos: [
           { name: 'Acme Corp',  imageUrl: '' },
@@ -318,6 +366,7 @@ export const config: Config<{
     // ── Feature Grid ─────────────────────────────────────────────────────────
     'Feature Grid': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:     { type: 'text'     as const, label: 'Eyebrow' },
         headline:    { type: 'text'     as const, label: 'Headline' },
         subheadline: { type: 'textarea' as const, label: 'Subheadline' },
@@ -342,6 +391,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:     'Features',
         headline:    'Everything you need to succeed.',
         subheadline: 'A short line that adds context to the headline above.',
@@ -358,6 +408,7 @@ export const config: Config<{
     // ── Feature Split ────────────────────────────────────────────────────────
     'Feature Split': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:  { type: 'text'     as const, label: 'Eyebrow' },
         headline: { type: 'text'     as const, label: 'Headline' },
         body:     { type: 'textarea' as const, label: 'Body' },
@@ -375,6 +426,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:       'How it works',
         headline:      'A specific benefit your buyer gains.',
         body:          'Two or three sentences that explain the benefit in concrete terms. Be specific about the outcome.',
@@ -390,6 +442,7 @@ export const config: Config<{
     // ── Pricing Table ────────────────────────────────────────────────────────
     'Pricing Table': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:     { type: 'text'     as const, label: 'Eyebrow' },
         headline:    { type: 'text'     as const, label: 'Headline' },
         subheadline: { type: 'textarea' as const, label: 'Subheadline' },
@@ -426,6 +479,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:     'Pricing',
         headline:    'Simple, transparent pricing.',
         subheadline: 'One line that removes a common objection about pricing complexity.',
@@ -461,6 +515,7 @@ export const config: Config<{
     // ── FAQ ──────────────────────────────────────────────────────────────────
     'FAQ': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:     { type: 'text'     as const, label: 'Eyebrow' },
         headline:    { type: 'text'     as const, label: 'Headline' },
         subheadline: { type: 'textarea' as const, label: 'Subheadline' },
@@ -483,6 +538,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:     'FAQ',
         headline:    'Questions, answered.',
         subheadline: '',
@@ -500,6 +556,7 @@ export const config: Config<{
     // ── Testimonials ─────────────────────────────────────────────────────────
     'Testimonials': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:  { type: 'text' as const, label: 'Eyebrow' },
         headline: { type: 'text' as const, label: 'Headline' },
         testimonials: {
@@ -531,6 +588,8 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
+        surface: 'surfaceAlt' as const,
         eyebrow:  'What people are saying',
         headline: 'Trusted by builders worldwide.',
         testimonials: [
@@ -546,6 +605,7 @@ export const config: Config<{
     // ── Stats Bar ────────────────────────────────────────────────────────────
     'Stats Bar': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow: { type: 'text' as const, label: 'Eyebrow' },
         stats: {
           type: 'array' as const,
@@ -558,6 +618,8 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
+        surface: 'surface' as const,
         eyebrow: 'By the numbers',
         stats: [
           { value: '10,000+', label: 'Active users' },
@@ -572,6 +634,7 @@ export const config: Config<{
     // ── Video Embed ──────────────────────────────────────────────────────────
     'Video Embed': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:     { type: 'text'     as const, label: 'Eyebrow' },
         headline:    { type: 'text'     as const, label: 'Headline' },
         subheadline: { type: 'textarea' as const, label: 'Subheadline' },
@@ -587,6 +650,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:     'See it in action',
         headline:    'Watch the product in under two minutes.',
         subheadline: 'A short line that frames why the video is worth watching.',
@@ -600,6 +664,7 @@ export const config: Config<{
     // ── Newsletter ───────────────────────────────────────────────────────────
     'Newsletter': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:          { type: 'text'     as const, label: 'Eyebrow' },
         headline:         { type: 'text'     as const, label: 'Headline' },
         subheadline:      { type: 'textarea' as const, label: 'Subheadline' },
@@ -616,6 +681,8 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
+        surface: 'surface' as const,
         eyebrow:          'Stay in the loop',
         headline:         'Get updates before everyone else.',
         subheadline:      'Early access, product announcements, and nothing else.',
@@ -630,6 +697,7 @@ export const config: Config<{
     // ── Team Grid ────────────────────────────────────────────────────────────
     'Team Grid': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:     { type: 'text'     as const, label: 'Eyebrow' },
         headline:    { type: 'text'     as const, label: 'Headline' },
         subheadline: { type: 'textarea' as const, label: 'Subheadline' },
@@ -655,6 +723,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:     'The team',
         headline:    'The people behind the product.',
         subheadline: '',
@@ -671,6 +740,7 @@ export const config: Config<{
     // ── Content Block ────────────────────────────────────────────────────────
     'Content Block': {
       fields: {
+        ...SURFACE_FIELDS,
         eyebrow:  { type: 'text'     as const, label: 'Eyebrow' },
         headline: { type: 'text'     as const, label: 'Headline' },
         body:     { type: 'textarea' as const, label: 'Body text' },
@@ -692,6 +762,7 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
         eyebrow:   '',
         headline:  'A heading for long-form content.',
         body:      'Write your content here. This section renders body text as-is, preserving line breaks. Use it for about pages, manifestos, legal content, or any narrative that benefits from a clean reading experience.',
@@ -706,6 +777,7 @@ export const config: Config<{
     // parseFooterLinks converts to CTALink[] at the render boundary.
     'Footer': {
       fields: {
+        ...SURFACE_FIELDS,
         logoText: { type: 'text'     as const, label: 'Logo text' },
         tagline:  { type: 'textarea' as const, label: 'Tagline' },
         linkGroups: {
@@ -729,6 +801,8 @@ export const config: Config<{
         },
       },
       defaultProps: {
+        ...SURFACE_DEFAULTS,
+        surface: 'surface' as const,
         logoText: 'Brand',
         tagline:  'A short tagline that explains what the brand stands for.',
         linkGroups: [
@@ -744,6 +818,9 @@ export const config: Config<{
       } satisfies FooterStoredProps,
       render: (props: FooterStoredProps) => (
         <FooterSection
+          surface={props.surface}
+          width={props.width}
+          backgroundImageUrl={props.backgroundImageUrl}
           logoText={props.logoText}
           tagline={props.tagline}
           copyright={props.copyright}
@@ -758,6 +835,7 @@ export const config: Config<{
     // ── Card ─────────────────────────────────────────────────────────────────
     'Card': {
       fields: {
+        ...SURFACE_FIELDS,
         variant: {
           type: 'select' as const,
           label: 'Variant',
@@ -768,23 +846,24 @@ export const config: Config<{
             { value: 'image',   label: 'Image (full-bleed background photo)'  },
           ],
         },
-        title:              { type: 'text'     as const, label: 'Title' },
-        body:               { type: 'textarea' as const, label: 'Body text' },
-        eyebrow:            { type: 'text'     as const, label: 'Eyebrow (leave blank to hide)' },
-        backgroundImageUrl: { type: 'text'     as const, label: 'Background image URL (image variant; assets/… path)' },
-        objectImageUrl:     { type: 'text'     as const, label: 'Object image URL (floating 3D asset; assets/… path)' },
-        ctaLabel:           { type: 'text'     as const, label: 'CTA label (leave blank to hide)' },
-        ctaHref:            { type: 'text'     as const, label: 'CTA href' },
+        title:          { type: 'text'     as const, label: 'Title' },
+        body:           { type: 'textarea' as const, label: 'Body text' },
+        eyebrow:        { type: 'text'     as const, label: 'Eyebrow (leave blank to hide)' },
+        cardImageUrl:   { type: 'text'     as const, label: 'Card image URL (image variant; assets/… path)' },
+        objectImageUrl: { type: 'text'     as const, label: 'Object image URL (floating 3D asset; assets/… path)' },
+        ctaLabel:       { type: 'text'     as const, label: 'CTA label (leave blank to hide)' },
+        ctaHref:        { type: 'text'     as const, label: 'CTA href' },
       },
       defaultProps: {
-        variant:            'solid' as CardVariant,
-        title:              'Your headline goes here.',
-        body:               'A supporting sentence that gives context and motivates the reader to act.',
-        eyebrow:            '',
-        backgroundImageUrl: '',
-        objectImageUrl:     '',
-        ctaLabel:           'Get started',
-        ctaHref:            '#',
+        ...SURFACE_DEFAULTS,
+        variant:        'solid' as CardVariant,
+        title:          'Your headline goes here.',
+        body:           'A supporting sentence that gives context and motivates the reader to act.',
+        eyebrow:        '',
+        cardImageUrl:   '',
+        objectImageUrl: '',
+        ctaLabel:       'Get started',
+        ctaHref:        '#',
       } satisfies CardProps,
       render: (props: CardProps) => <CardSection {...props} />,
     },

@@ -2,6 +2,21 @@
 // Codex imports from this file. Claude owns this file.
 // Do not add EMOVEL-specific defaults here; defaults live in puck.config.tsx.
 
+// ── Per-section surface system ────────────────────────────────────────────────
+// These three props are shared by every section. SectionSurface reads them to
+// apply the outer background treatment. Defaults live in puck.config.tsx.
+
+export type SurfaceVariant = 'transparent' | 'base' | 'surface' | 'surfaceAlt' | 'image' | 'gradient';
+export type WidthVariant   = 'contained' | 'full-bleed';
+
+export interface SharedSectionSurface {
+  surface:            SurfaceVariant;
+  width:              WidthVariant;
+  backgroundImageUrl: string;  // only used when surface = 'image'; empty = no photo
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export type ProductStatus = 'available' | 'coming_soon' | 'early_access';
 
 export interface ProductCard {
@@ -11,7 +26,7 @@ export interface ProductCard {
   cta: string;
 }
 
-export interface HeroProps {
+export interface HeroProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   description: string;
@@ -19,7 +34,7 @@ export interface HeroProps {
   secondaryCTA: string;
 }
 
-export interface ProductGridProps {
+export interface ProductGridProps extends SharedSectionSurface {
   sectionTitle: string;
   sectionDescription: string;
   products: ProductCard[];
@@ -29,7 +44,7 @@ export interface ProductGridProps {
 // Puck's array field serializes items as { text: string }[].
 // puck.config.tsx normalizes { text: string }[] → string[] before calling OfferSection.
 // Codex renders against string[] and is unaware of Puck internals.
-export interface OfferProps {
+export interface OfferProps extends SharedSectionSurface {
   title: string;
   problem: string;
   solution: string;
@@ -40,13 +55,13 @@ export interface ShotItem {
   caption: string;
 }
 
-export interface ScreenshotGalleryProps {
+export interface ScreenshotGalleryProps extends SharedSectionSurface {
   title: string;
   description: string;
   shots: ShotItem[];
 }
 
-export interface CTAProps {
+export interface CTAProps extends SharedSectionSurface {
   headline: string;
   subheadline: string;
   primaryAction: string;
@@ -86,7 +101,7 @@ export type BillingPeriod     = 'monthly' | 'both';  // 'both' = show monthly/an
 // Page role: Navigation / Header
 // Tokens: --color-background, --color-surface, --color-textPrimary, --color-primary, --color-border
 // ─────────────────────────────────────────────────────────────────────────────
-export interface NavBarProps {
+export interface NavBarProps extends SharedSectionSurface {
   logoText: string;
   logoImageUrl?: string;
   // PUCK: array field with arrayFields {label:text, href:text} → stored as CTALink[] → no normalization needed
@@ -106,7 +121,7 @@ export interface LogoItem {
   imageUrl: string;   // logo image URL; empty string = render name as styled text
 }
 
-export interface LogoStripProps {
+export interface LogoStripProps extends SharedSectionSurface {
   eyebrow: string;
   // PUCK: array field with arrayFields {name:text, imageUrl:text} → stored as LogoItem[] → no normalization needed
   logos: LogoItem[];
@@ -124,7 +139,7 @@ export interface FeatureCard {
   body: string;
 }
 
-export interface FeatureGridProps {
+export interface FeatureGridProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   subheadline: string;
@@ -140,7 +155,7 @@ export interface FeatureGridProps {
 // Tokens: --color-background, --color-surface, --color-textPrimary, --color-textSecondary,
 //         --color-primary, --radius-lg
 // ─────────────────────────────────────────────────────────────────────────────
-export interface FeatureSplitProps {
+export interface FeatureSplitProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   body: string;
@@ -166,7 +181,7 @@ export interface TestimonialCard {
   rating: number;      // 0 = no stars; 1–5 = star rating displayed
 }
 
-export interface TestimonialsProps {
+export interface TestimonialsProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   // PUCK: array field — stored as TestimonialCard[] → no normalization needed
@@ -195,7 +210,7 @@ export interface PricingPlan {
   badge: string;             // e.g. "Most Popular" — empty string = no badge rendered
 }
 
-export interface PricingTableProps {
+export interface PricingTableProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   subheadline: string;
@@ -216,7 +231,7 @@ export interface FAQItem {
   answer: string;
 }
 
-export interface FAQProps {
+export interface FAQProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   subheadline: string;
@@ -236,7 +251,7 @@ export interface StatItem {
   label: string;   // e.g. "Happy Customers" — rendered smaller below value
 }
 
-export interface StatsBarProps {
+export interface StatsBarProps extends SharedSectionSurface {
   eyebrow: string;
   // PUCK: array field with arrayFields {value:text, label:text} → stored as StatItem[] → no normalization needed
   stats: StatItem[];
@@ -249,7 +264,7 @@ export interface StatsBarProps {
 //         --color-primary, --radius-lg, --color-glow
 // Implementation note: render an <iframe> with title attr; no autoplay
 // ─────────────────────────────────────────────────────────────────────────────
-export interface VideoEmbedProps {
+export interface VideoEmbedProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   subheadline: string;
@@ -271,7 +286,7 @@ export interface TeamMember {
   avatarUrl: string;   // image URL; empty string = render initials in color placeholder
 }
 
-export interface TeamGridProps {
+export interface TeamGridProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   subheadline: string;
@@ -286,7 +301,7 @@ export interface TeamGridProps {
 // Tokens: --color-surface, --color-surfaceAlt, --color-textPrimary, --color-textSecondary,
 //         --color-primary, --color-border, --radius-pill, --radius-md
 // ─────────────────────────────────────────────────────────────────────────────
-export interface NewsletterProps {
+export interface NewsletterProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   subheadline: string;
@@ -302,7 +317,7 @@ export interface NewsletterProps {
 // Tokens: --color-background, --color-textPrimary, --color-textSecondary,
 //         --color-primary, --color-border
 // ─────────────────────────────────────────────────────────────────────────────
-export interface ContentBlockProps {
+export interface ContentBlockProps extends SharedSectionSurface {
   eyebrow: string;
   headline: string;
   body: string;                 // long-form body text (textarea in Puck)
@@ -328,7 +343,7 @@ export interface FooterLinkGroup {
   links: CTALink[];
 }
 
-export interface FooterProps {
+export interface FooterProps extends SharedSectionSurface {
   logoText: string;
   tagline: string;
   // PUCK: nested array — see note above; puck.config.tsx normalizes at render boundary
@@ -348,13 +363,13 @@ export interface FooterProps {
 // ─────────────────────────────────────────────────────────────────────────────
 export type CardVariant = 'glass' | 'solid' | 'outline' | 'image';
 
-export interface CardProps {
+export interface CardProps extends SharedSectionSurface {
   variant: CardVariant;
   title: string;
   body: string;
-  eyebrow: string;              // empty string = not rendered
-  backgroundImageUrl: string;   // full-bleed bg for "image" variant; empty = solid color fallback
-  objectImageUrl: string;       // floating 3D object PNG (screen blend); empty = no object
-  ctaLabel: string;             // CTA button label; empty = button not rendered
-  ctaHref: string;              // CTA destination href
+  eyebrow: string;    // empty string = not rendered
+  cardImageUrl: string;   // full-bleed bg for "image" card variant; empty = solid color fallback
+  objectImageUrl: string; // floating 3D object PNG (screen blend); empty = no object
+  ctaLabel: string;   // CTA button label; empty = button not rendered
+  ctaHref: string;    // CTA destination href
 }
