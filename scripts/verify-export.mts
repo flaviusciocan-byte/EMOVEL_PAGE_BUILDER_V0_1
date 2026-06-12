@@ -140,6 +140,69 @@ function lineOf(html: string, needle: string): string {
   return `line ${line}: …${html.slice(Math.max(0, idx - 20), idx + needle.length + 20).replace(/\n/g, '↵')}…`;
 }
 
+// ─── Registry v1.1 helper functions ──────────────────────────────────────────
+
+/** Strip all :root { ... } blocks so the remainder can be scanned for naked hex values. */
+function stripRootBlocks(html: string): string {
+  // [^{}]* matches multi-line content — :root blocks have no nested braces.
+  return html.replace(/:root\s*\{[^{}]*\}/g, '');
+}
+
+/** Naked hex color strings outside any :root block — must be empty for token-origin compliance. */
+function findNakedHex(html: string): string[] {
+  return [...stripRootBlocks(html).matchAll(/#[0-9a-fA-F]{3,6}(?![0-9a-fA-F])/g)]
+    .map(m => m[0]);
+}
+
+/** Asset paths found in src="assets/..." attributes. */
+function extractAssetSrcs(html: string): string[] {
+  return [...html.matchAll(/src="(assets\/[^"]+)"/g)].map(m => m[1]);
+}
+
+// Strings that must not appear in any EMOVEL export — indicates placeholder / demo content.
+const PLACEHOLDER_TERMS = [
+  'lorem ipsum', 'todo', 'fake', 'dummy', 'example.com', 'src=""', 'placeholder',
+];
+
+/**
+ * Registry v1.1 export checks.
+ * Runs all five policy assertions against a single generated HTML file.
+ */
+function runRegistryV11Checks(html: string, fileLabel: string): void {
+  console.log(`\n── Registry v1.1 checks — ${fileLabel} ─────────────────`);
+
+  // 1. Imperial Cold Gold — exact value must be declared as --color-primary
+  assert(`[${fileLabel}] Imperial Cold Gold declared as --color-primary: #D4AF37`,
+    html.includes('--color-primary: #D4AF37'),
+    lineOf(html, '--color-primary: #D4AF37'));
+
+  // 2. Token-origin — no naked hex colors outside the :root token block
+  const nakedHex = findNakedHex(html);
+  assert(`[${fileLabel}] no naked hex colors outside :root token block`,
+    nakedHex.length === 0,
+    nakedHex.length > 0 ? `found: ${nakedHex.slice(0, 5).join(', ')}` : undefined);
+
+  // 3. Token usage — var(--color-primary) must be referenced in section CSS
+  assert(`[${fileLabel}] var(--color-primary) referenced in section CSS`,
+    html.includes('var(--color-primary)'),
+    lineOf(html, 'var(--color-primary)'));
+
+  // 4. Zero-placeholder — no demo / placeholder strings in export
+  const placeholderHits = PLACEHOLDER_TERMS.filter(t => html.toLowerCase().includes(t));
+  assert(`[${fileLabel}] no placeholder/demo strings in export`,
+    placeholderHits.length === 0,
+    placeholderHits.length > 0 ? `found terms: ${placeholderHits.join(', ')}` : undefined);
+
+  // 5. Asset resolution — every src="assets/..." must point to a real file under public/
+  const assetRefs = extractAssetSrcs(html);
+  const missing   = assetRefs.filter(ref => !existsSync(join(ROOT, 'public', ref)));
+  assert(
+    `[${fileLabel}] all src="assets/..." paths resolve under public/ (${assetRefs.length} checked)`,
+    missing.length === 0,
+    missing.length > 0 ? `missing: ${missing.join(', ')}` : undefined,
+  );
+}
+
 // ── Assertions on hero-depth-push.html ────────────────────────────────────────
 
 console.log('\n── hero-depth-push.html ──────────────────────────────────────');
@@ -255,6 +318,9 @@ assert('staggered actions delay: 0.35s',
 assert('no panel animation for staggered-rise (no emovel-staggered-rise panel rule)',
   !S.includes('[data-emovel-motion="staggered-rise"] .emovel-hero__panel {'),
   lineOf(S, '[data-emovel-motion="staggered-rise"] .emovel-hero__panel {'));
+
+runRegistryV11Checks(D, 'hero-depth-push');
+runRegistryV11Checks(S, 'hero-staggered');
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 
