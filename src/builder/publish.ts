@@ -15,6 +15,7 @@ import JSZip from 'jszip';
 
 import { config } from './puck.config';
 import type { ThemeConfig } from './themes';
+import { collectLocalAssetRefs } from './export-validator';
 import {
   COLOR_KEYS,
   colorVar,
@@ -388,6 +389,28 @@ export async function publishToZip(
   data:  Data,
   theme: ThemeConfig,
 ): Promise<void> {
+  // ── Asset validation — block export if any local asset ref is missing ────────
+  const assetRefs = collectLocalAssetRefs(data);
+  if (assetRefs.length > 0) {
+    const checks = await Promise.all(
+      assetRefs.map(async (ref): Promise<string | null> => {
+        try {
+          const r = await fetch(`/${ref}`);
+          return r.ok ? null : ref;
+        } catch {
+          return ref;
+        }
+      }),
+    );
+    const missing = checks.filter((r): r is string => r !== null);
+    if (missing.length > 0) {
+      throw new Error(
+        `EMOVEL export blocked — MISSING ASSET\n` +
+        missing.map(p => `  MISSING ASSET: ${p}`).join('\n'),
+      );
+    }
+  }
+
   const title =
     typeof (data.root as { props?: { title?: string } })?.props?.title === 'string'
       ? ((data.root as { props: { title: string } }).props.title || 'page')
