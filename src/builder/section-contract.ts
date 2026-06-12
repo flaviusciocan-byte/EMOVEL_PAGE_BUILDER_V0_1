@@ -6,7 +6,7 @@
 // These three props are shared by every section. SectionSurface reads them to
 // apply the outer background treatment. Defaults live in puck.config.tsx.
 
-export type SurfaceVariant = 'transparent' | 'base' | 'surface' | 'surfaceAlt' | 'image' | 'gradient';
+export type SurfaceVariant = 'transparent' | 'base' | 'surface' | 'surfaceAlt' | 'image' | 'gradient' | 'elevated' | 'inverted' | 'cinematic';
 export type WidthVariant   = 'contained' | 'full-bleed';
 
 export interface SharedSectionSurface {
