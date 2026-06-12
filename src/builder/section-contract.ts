@@ -85,6 +85,9 @@ export interface CTALink {
 // ── Layout variant string-literal unions (follow ProductStatus pattern) ───────
 
 export type NavPosition       = 'static' | 'sticky';
+// hide-on-scroll intentionally deferred — requires JS scroll handler; not in step 3A.
+export type NavLogoVariant    = 'wordmark' | 'monogram' | 'wings';
+export type NavTransparency   = 'solid' | 'glass-over-hero';
 export type ImagePosition     = 'left' | 'right';
 export type ColumnCount       = 2 | 3 | 4;           // Puck select: option values must be numeric
 export type TestimonialLayout = 'grid' | 'slider';   // slider = CSS scroll-snap, no JS lib
@@ -109,6 +112,8 @@ export interface NavBarProps extends SharedSectionSurface {
   ctaLabel: string;
   ctaHref: string;
   position: NavPosition;
+  logoVariant?: NavLogoVariant;
+  transparency?: NavTransparency;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -343,6 +348,8 @@ export interface FooterLinkGroup {
   links: CTALink[];
 }
 
+export type FooterBrandMark = 'monogram' | 'wings' | 'none';
+
 export interface FooterProps extends SharedSectionSurface {
   logoText: string;
   tagline: string;
@@ -351,6 +358,9 @@ export interface FooterProps extends SharedSectionSurface {
   copyright: string;
   // PUCK: array field with arrayFields {label:text, href:text} → stored as CTALink[] → no normalization needed
   socialLinks: CTALink[];
+  brandMark?: FooterBrandMark;
+  newsletter?: boolean;
+  legalLinks?: CTALink[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -10,7 +10,8 @@ export type ComponentCategory =
   | 'cta'
   | 'dashboard'
   | 'timeline'
-  | 'showcase';
+  | 'showcase'
+  | 'structure';
 
 export interface ComponentRegistryEntry {
   /** Official 1-based index from Registry v1.1 (01–10 for this batch). */

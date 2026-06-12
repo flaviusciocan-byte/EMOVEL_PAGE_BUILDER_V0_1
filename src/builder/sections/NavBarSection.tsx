@@ -3,7 +3,7 @@ import type { NavBarProps } from '../section-contract';
 import { SectionSurface } from './SectionSurface';
 
 export function NavBarSection(props: NavBarProps) {
-  const { surface, width, backgroundImageUrl, logoText, logoImageUrl, links, ctaLabel, ctaHref, position } = props;
+  const { surface, width, backgroundImageUrl, logoText, logoImageUrl, links, ctaLabel, ctaHref, position, logoVariant, transparency } = props;
 
   // useId() generates stable IDs across browser + renderToStaticMarkup,
   // ensuring each NavBar instance has a unique checkbox ID.
@@ -19,7 +19,11 @@ export function NavBarSection(props: NavBarProps) {
       surface={surface}
       width={width}
       backgroundImageUrl={backgroundImageUrl}
-      className={`emovel-navbar${position === 'sticky' ? ' emovel-navbar--sticky' : ''}`}
+      className={[
+        'emovel-navbar',
+        position === 'sticky'              ? 'emovel-navbar--sticky' : null,
+        transparency === 'glass-over-hero' ? 'emovel-navbar--glass'  : null,
+      ].filter(Boolean).join(' ')}
     >
       <style>{`
         /* ── Base ── */
@@ -32,6 +36,13 @@ export function NavBarSection(props: NavBarProps) {
         .emovel-navbar--sticky {
           position: sticky;
           top: 0;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+        }
+
+        /* Glass modifier — applied via transparency="glass-over-hero" */
+        .emovel-navbar--glass {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           background: color-mix(in srgb, var(--color-surface) 88%, transparent);
@@ -291,15 +302,12 @@ export function NavBarSection(props: NavBarProps) {
       {/* ── Bar row: logo · desktop links · spacer · CTA · hamburger ── */}
       <div className="emovel-navbar__bar">
         <a className="emovel-navbar__logo" href="#">
-          {logoImageUrl ? (
-            <img
-              className="emovel-navbar__logo-img"
-              src={logoImageUrl}
-              alt={logoText || 'Brand'}
-            />
-          ) : (
-            logoText || 'Brand'
-          )}
+          {logoVariant === 'wordmark'
+            ? (logoText || 'Brand')
+            : logoImageUrl
+              ? <img className="emovel-navbar__logo-img" src={logoImageUrl} alt={logoText || 'Brand'} />
+              : (logoText || 'Brand')
+          }
         </a>
 
         {safeLinks.length > 0 && (

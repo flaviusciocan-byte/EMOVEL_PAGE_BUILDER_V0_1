@@ -2,7 +2,7 @@ import type { FooterProps } from '../section-contract';
 import { SectionSurface } from './SectionSurface';
 
 export function FooterSection(props: FooterProps) {
-  const { surface, width, backgroundImageUrl, logoText, tagline, linkGroups, copyright, socialLinks } = props;
+  const { surface, width, backgroundImageUrl, logoText, tagline, linkGroups, copyright, socialLinks, brandMark, newsletter, legalLinks } = props;
 
   return (
     <SectionSurface surface={surface} width={width} backgroundImageUrl={backgroundImageUrl} as="footer" className="emovel-footer">
@@ -124,6 +124,32 @@ export function FooterSection(props: FooterProps) {
           background: color-mix(in srgb, var(--color-primary) 8%, transparent);
         }
 
+        .emovel-footer__newsletter {
+          padding: clamp(1.25rem, 2.5vw, 1.75rem) 0;
+          border-top: 1px solid var(--color-border);
+        }
+
+        .emovel-footer__legal-links {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          flex-wrap: wrap;
+        }
+
+        .emovel-footer__legal-link {
+          font-size: 0.8rem;
+          color: var(--color-textSecondary);
+          text-decoration: none;
+          transition: color var(--motion-duration) var(--motion-ease);
+        }
+
+        .emovel-footer__legal-link:hover {
+          color: var(--color-textPrimary);
+        }
+
         @container (max-width: 48rem) {
           .emovel-footer__top {
             grid-template-columns: 1fr 1fr;
@@ -148,7 +174,7 @@ export function FooterSection(props: FooterProps) {
         <div className="emovel-footer__top">
           <div className="emovel-footer__brand">
             {logoText ? (
-              <div className="emovel-footer__logo">{logoText}</div>
+              <div className="emovel-footer__logo" data-brandmark={brandMark ?? 'none'}>{logoText}</div>
             ) : null}
             {tagline ? (
               <p className="emovel-footer__tagline">{tagline}</p>
@@ -176,10 +202,28 @@ export function FooterSection(props: FooterProps) {
           ))}
         </div>
 
+        {newsletter ? (
+          <div className="emovel-footer__newsletter">
+            <p className="emovel-footer__group-heading">Newsletter</p>
+          </div>
+        ) : null}
+
         <div className="emovel-footer__bottom">
           <span className="emovel-footer__copyright">
             {copyright || `© ${new Date().getFullYear()}`}
           </span>
+
+          {legalLinks && legalLinks.length > 0 ? (
+            <ul className="emovel-footer__legal-links" role="list">
+              {legalLinks.map((link, i) => (
+                <li key={i}>
+                  <a className="emovel-footer__legal-link" href={link.href || '#'}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
 
           {socialLinks && socialLinks.length > 0 ? (
             <ul className="emovel-footer__social" role="list" aria-label="Social links">

@@ -101,4 +101,25 @@ export const componentRegistry: Readonly<Record<string, ComponentRegistryEntry>>
     notes: 'No existing 3D showcase component. Requires real 3D model or rendered asset.',
   },
 
+
+  NavigationBar: {
+    registryIndex: 11,
+    registryName: 'NavigationBar',
+    implementationKey: 'builder/sections/NavBarSection',
+    status: 'implemented',
+    category: 'structure',
+    requiresAssets: false,
+    notes: 'logoVariant and transparency added. hide-on-scroll intentionally deferred — requires JS scroll handler.',
+  },
+
+  FooterSection: {
+    registryIndex: 12,
+    registryName: 'FooterSection',
+    implementationKey: 'builder/sections/FooterSection',
+    status: 'implemented',
+    category: 'structure',
+    requiresAssets: false,
+    notes: 'newsletter is a presentational slot only — not connected to a provider.',
+  },
+
 } as const;
