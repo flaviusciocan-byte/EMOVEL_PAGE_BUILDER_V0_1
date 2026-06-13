@@ -113,6 +113,8 @@ body {
   color: var(--shell-text) !important;
   box-shadow: 0 2px 12px rgba(0,0,0,.32) !important;
   padding: 0 !important;
+  position: relative;
+  z-index: 2;
 }
 
 /* Allow TopBar dropdowns to extend below the header boundary.
