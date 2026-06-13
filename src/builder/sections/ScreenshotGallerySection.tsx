@@ -70,9 +70,11 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
           box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--color-border) 60%, transparent);
         }
 
-        .emovel-screenshot-gallery__placeholder {
+        .emovel-screenshot-gallery__img {
+          display: block;
+          width: 100%;
           aspect-ratio: 16 / 10;
-          background: var(--color-surfaceAlt);
+          object-fit: cover;
           border-bottom: 1px solid var(--color-border);
         }
 
@@ -122,7 +124,13 @@ export function ScreenshotGallerySection(props: ScreenshotGalleryProps) {
                 className="emovel-screenshot-gallery__card"
                 key={`${shot.caption}-${index}`}
               >
-                <div className="emovel-screenshot-gallery__placeholder" aria-hidden="true" />
+                {shot.imageUrl ? (
+                  <img
+                    src={shot.imageUrl}
+                    alt={shot.alt || shot.caption || ''}
+                    className="emovel-screenshot-gallery__img"
+                  />
+                ) : null}
                 <figcaption className="emovel-screenshot-gallery__caption">
                   {shot.caption}
                 </figcaption>

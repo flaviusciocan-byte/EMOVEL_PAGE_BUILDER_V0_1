@@ -178,6 +178,15 @@
     },
     {
       "registryVersion": "1.1",
+      "registryName": "GalleryShowcase",
+      "implementationKey": "builder/sections/ScreenshotGallerySection",
+      "status": "implemented",
+      "category": "gallery",
+      "requiresAssets": true,
+      "notes": "Existing ScreenshotGallerySection is upgraded and adopted as GalleryShowcase using real local imageUrl assets. Advanced aspect/layout/lightbox/captionMode controls are deferred."
+    },
+    {
+      "registryVersion": "1.1",
       "registryName": "LeadCapture",
       "implementationKey": "builder/sections/NewsletterSection",
       "status": "implemented",

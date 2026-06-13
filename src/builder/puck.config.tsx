@@ -317,7 +317,9 @@ export const config: Config<{
           type: 'array' as const,
           label: 'Shots',
           arrayFields: {
-            caption: { type: 'text' as const, label: 'Caption' },
+            caption:  { type: 'text' as const, label: 'Caption' },
+            imageUrl: { type: 'text' as const, label: 'Image URL (assets/...)' },
+            alt:      { type: 'text' as const, label: 'Alt text' },
           },
           getItemSummary: (item: ShotItem) => item.caption || 'Shot',
         },
@@ -325,11 +327,23 @@ export const config: Config<{
       defaultProps: {
         ...SURFACE_DEFAULTS,
         title:       'See it in action',
-        description: 'A short line that frames what the visitor is about to see.',
+        description: 'Every detail of the EMOVEL builder — from cinematic canvas to AI-native composer.',
         shots: [
-          { caption: 'Caption for screenshot one' },
-          { caption: 'Caption for screenshot two' },
-          { caption: 'Caption for screenshot three' },
+          {
+            caption:  'EMOVEL Ultra Builder — cinematic canvas view',
+            imageUrl: 'assets/references/emovel-reference-zimage-00007.png',
+            alt:      'EMOVEL Ultra Builder canvas with dark-luxury layout and gold accents',
+          },
+          {
+            caption:  'Component inspector and live theme tokens',
+            imageUrl: 'assets/references/emovel-reference-zimage-00008.png',
+            alt:      'EMOVEL inspector panel displaying surface and color token controls',
+          },
+          {
+            caption:  'AI Composer — intent to validated page schema',
+            imageUrl: 'assets/references/emovel-reference-zimage-00009.png',
+            alt:      'EMOVEL Composer pipeline mapping intent to a validated registry page schema',
+          },
         ],
       } satisfies ScreenshotGalleryProps,
       render: surfaceWarned((props: ScreenshotGalleryProps) => <ScreenshotGallerySection {...props} />),

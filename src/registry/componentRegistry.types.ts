@@ -14,6 +14,7 @@ export type ComponentCategory =
   | 'structure'
   | 'testimonials'
   | 'editorial'
+  | 'gallery'
   | 'lead';
 
 export interface ComponentRegistryEntry {

@@ -123,7 +123,6 @@ export const componentRegistry: Readonly<Record<string, ComponentRegistryEntry>>
   },
 
   // ── 13–16 ────────────────────────────────────────────────────────────────────
-  // 15 (GalleryShowcase) is intentionally absent: ShotItem lacks imageUrl — deferred to Step 6C.
 
   TestimonialSection: {
     registryIndex: 13,
@@ -143,6 +142,16 @@ export const componentRegistry: Readonly<Record<string, ComponentRegistryEntry>>
     category: 'editorial',
     requiresAssets: false,
     notes: 'Existing FeatureSplitSection is adopted pragmatically as EditorialSection for image-plus-copy editorial layouts. Dedicated EditorialSection may be created later if needed.',
+  },
+
+  GalleryShowcase: {
+    registryIndex: 15,
+    registryName: 'GalleryShowcase',
+    implementationKey: 'builder/sections/ScreenshotGallerySection',
+    status: 'implemented',
+    category: 'gallery',
+    requiresAssets: true,
+    notes: 'Existing ScreenshotGallerySection is upgraded and adopted as GalleryShowcase using real local imageUrl assets. Advanced aspect/layout/lightbox/captionMode controls are deferred.',
   },
 
   LeadCapture: {

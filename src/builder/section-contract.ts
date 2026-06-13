@@ -52,7 +52,9 @@ export interface OfferProps extends SharedSectionSurface {
 }
 
 export interface ShotItem {
-  caption: string;
+  caption:  string;
+  imageUrl?: string;
+  alt?:      string;
 }
 
 export interface ScreenshotGalleryProps extends SharedSectionSurface {
