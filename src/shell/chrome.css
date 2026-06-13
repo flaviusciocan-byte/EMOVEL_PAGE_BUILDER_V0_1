@@ -115,6 +115,13 @@ body {
   padding: 0 !important;
 }
 
+/* Allow TopBar dropdowns to extend below the header boundary.
+   Puck sets overflow:hidden/auto on this selector when the left sidebar is
+   visible, which clips position:absolute children (e.g. collection picker). */
+[class*="_PuckLayout--leftSideBarVisible_"] [class*="_PuckLayout-header_"] {
+  overflow: visible !important;
+}
+
 [class*="_PuckLayout-headerInner_"] {
   align-items: stretch !important;
   min-height: 48px;
