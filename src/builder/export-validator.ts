@@ -26,18 +26,48 @@ function normalize(path: string): string {
  * Walk all section props in a Puck Data object and return the normalized
  * paths of every local asset reference found (e.g. "assets/hero.jpg").
  * External URLs, data URIs, and blob URLs are excluded.
+ * Duplicates are suppressed — each path appears at most once.
+ *
+ * Scans two levels:
+ *   1. Top-level props (existing behaviour, unchanged).
+ *   2. Each element of any array-valued prop (e.g. shots[].imageUrl).
  */
 export function collectLocalAssetRefs(data: Data): string[] {
+  const seen = new Set<string>();
   const refs: string[] = [];
-  for (const item of (data.content ?? [])) {
-    const props = item.props as Record<string, unknown>;
-    for (const field of ASSET_FIELDS) {
-      const v = props?.[field];
-      if (typeof v === 'string' && v && isLocalAsset(v)) {
-        refs.push(normalize(v));
+
+  function addRef(value: unknown) {
+    if (typeof value === 'string' && value && isLocalAsset(value)) {
+      const normalized = normalize(value);
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        refs.push(normalized);
       }
     }
   }
+
+  for (const item of (data.content ?? [])) {
+    const props = item.props as Record<string, unknown>;
+
+    // Level 1: top-level asset fields
+    for (const field of ASSET_FIELDS) {
+      addRef(props?.[field]);
+    }
+
+    // Level 2: nested array items — same ASSET_FIELDS checked per object element
+    for (const propValue of Object.values(props ?? {})) {
+      if (Array.isArray(propValue)) {
+        for (const arrayItem of propValue) {
+          if (arrayItem !== null && typeof arrayItem === 'object') {
+            for (const field of ASSET_FIELDS) {
+              addRef((arrayItem as Record<string, unknown>)[field]);
+            }
+          }
+        }
+      }
+    }
+  }
+
   return refs;
 }
 

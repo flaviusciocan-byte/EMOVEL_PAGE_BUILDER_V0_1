@@ -160,3 +160,174 @@ describe('validatePageForExport', () => {
     expect(validatePageForExport(data, () => false)).toEqual([]);
   });
 });
+
+// ── collectLocalAssetRefs — nested arrays ─────────────────────────────────────
+
+describe('collectLocalAssetRefs — nested arrays', () => {
+  it('collects imageUrl from nested array items', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'One', imageUrl: 'assets/references/img-00007.png' },
+          { caption: 'Two', imageUrl: 'assets/references/img-00008.png' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual([
+      'assets/references/img-00007.png',
+      'assets/references/img-00008.png',
+    ]);
+  });
+
+  it('normalizes /assets/ prefix inside nested items', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'One', imageUrl: '/assets/references/img-00007.png' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual(['assets/references/img-00007.png']);
+  });
+
+  it('ignores external URLs inside nested items', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'One', imageUrl: 'https://cdn.example.com/img.jpg' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual([]);
+  });
+
+  it('ignores empty imageUrl inside nested items', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'One', imageUrl: '' },
+          { caption: 'Two', imageUrl: '' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual([]);
+  });
+
+  it('ignores nested items with no asset fields', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'Caption only' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual([]);
+  });
+
+  it('collects nested assets alongside top-level assets', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        backgroundImageUrl: 'assets/bg.jpg',
+        shots: [
+          { caption: 'One', imageUrl: 'assets/references/img-00007.png' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual([
+      'assets/bg.jpg',
+      'assets/references/img-00007.png',
+    ]);
+  });
+
+  it('deduplicates when the same path appears more than once', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'A', imageUrl: 'assets/references/img-00007.png' },
+          { caption: 'B', imageUrl: 'assets/references/img-00007.png' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual(['assets/references/img-00007.png']);
+  });
+
+  it('deduplicates when the same path appears in top-level and nested', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        imageUrl: 'assets/references/img-00007.png',
+        shots: [
+          { caption: 'A', imageUrl: 'assets/references/img-00007.png' },
+        ],
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual(['assets/references/img-00007.png']);
+  });
+
+  it('skips prop values that are strings or numbers, not arrays', () => {
+    const data = makeData([{
+      type: 'Hero', id: 'h1',
+      props: {
+        imageUrl:    'assets/top.jpg',
+        title:       'assets/fake.jpg',
+        columnCount: 3,
+      },
+    }]);
+    expect(collectLocalAssetRefs(data)).toEqual(['assets/top.jpg']);
+  });
+});
+
+// ── validatePageForExport — nested arrays ─────────────────────────────────────
+
+describe('validatePageForExport — nested arrays', () => {
+  it('reports missing asset in nested array item', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'One', imageUrl: 'assets/references/missing.png' },
+        ],
+      },
+    }]);
+    const errors = validatePageForExport(data, () => false);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('MISSING ASSET');
+    expect(errors[0]).toContain('assets/references/missing.png');
+  });
+
+  it('does not report nested asset when existsFn confirms it exists', () => {
+    const existing = new Set(['assets/references/img-00007.png']);
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        shots: [
+          { caption: 'One', imageUrl: 'assets/references/img-00007.png' },
+        ],
+      },
+    }]);
+    expect(validatePageForExport(data, p => existing.has(p))).toEqual([]);
+  });
+
+  it('reports mixed top-level and nested missing assets', () => {
+    const data = makeData([{
+      type: 'Gallery', id: 'g1',
+      props: {
+        backgroundImageUrl: 'assets/bg-missing.jpg',
+        shots: [
+          { caption: 'One', imageUrl: 'assets/references/missing.png' },
+        ],
+      },
+    }]);
+    const errors = validatePageForExport(data, () => false);
+    expect(errors).toHaveLength(2);
+    expect(errors.some(e => e.includes('assets/bg-missing.jpg'))).toBe(true);
+    expect(errors.some(e => e.includes('assets/references/missing.png'))).toBe(true);
+  });
+});
