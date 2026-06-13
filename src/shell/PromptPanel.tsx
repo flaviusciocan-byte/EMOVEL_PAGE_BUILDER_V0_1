@@ -7,7 +7,12 @@ import {
   type PageGenerationPreset,
 } from '../builder/prompt-to-page';
 import { pageSpecToPuckData } from '../builder/page-spec-to-puck';
-import type { PageSpec } from '../builder/page-spec';
+import type { PageSpec }           from '../builder/page-spec';
+import { buildRegistryPageSchema } from '../composer/composer';
+import { validatePageSchema }      from '../composer/page-schema-validator';
+import { pageSchemaToPuckData }    from '../composer/page-schema-to-puck';
+import type { ValidatorManifest }  from '../composer/page-schema-validator';
+import manifestJson                from '../../registry.manifest.json';
 
 const SAMPLE_PROMPT =
   'Create an EMOVEL landing page for the Page Builder: prompt-generated editable pages, premium hero, feature grid, offer, pricing, CTA, FAQ, and footer.';
@@ -28,6 +33,7 @@ export function PromptPanel() {
   const [preset, setPreset] = useState<PageGenerationPreset>('auto');
   const [lastSpec, setLastSpec] = useState<PageSpec | null>(null);
   const [status, setStatus] = useState('');
+  const [composerErrors, setComposerErrors] = useState<string[]>([]);
 
   const previewSpec = useMemo(
     () => generatePageSpecFromPrompt(prompt, preset),
@@ -46,6 +52,21 @@ export function PromptPanel() {
     const spec = lastSpec ?? previewSpec;
     downloadJSON(`${spec.slug}.pagespec.json`, spec);
     setStatus('PageSpec exported.');
+  }
+
+  function handleGenerateRegistryComposer() {
+    setComposerErrors([]);
+    const schema     = buildRegistryPageSchema(prompt, manifestJson as ValidatorManifest);
+    const validation = validatePageSchema(schema, manifestJson as ValidatorManifest);
+    if (!validation.valid) {
+      setComposerErrors(validation.errors);
+      setStatus('[Registry] Validation failed — schema errors below.');
+      return;
+    }
+    const data = pageSchemaToPuckData(schema);
+    dispatch({ type: 'setData', data: data as Partial<Data> });
+    setComposerErrors([]);
+    setStatus(`[Registry] Loaded ${schema.components.length} validated sections.`);
   }
 
   return (
@@ -173,6 +194,35 @@ export function PromptPanel() {
           font-size: 11px;
           line-height: 1.45;
         }
+
+        .emovel-prompt__button--registry {
+          border-color: rgba(92, 200, 255, 0.4);
+          background: rgba(92, 200, 255, 0.06);
+          color: #5cc8ff;
+        }
+
+        .emovel-prompt__button--registry:hover {
+          border-color: rgba(92, 200, 255, 0.65);
+          background: rgba(92, 200, 255, 0.1);
+        }
+
+        .emovel-prompt__composer-errors {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 10px;
+          border: 1px solid rgba(255, 80, 80, 0.3);
+          border-radius: 6px;
+          background: rgba(255, 80, 80, 0.04);
+        }
+
+        .emovel-prompt__composer-error {
+          color: #ff6b6b;
+          font-family: var(--shell-mono);
+          font-size: 9px;
+          letter-spacing: 0.04em;
+          line-height: 1.6;
+        }
       `}</style>
 
       <p className="emovel-prompt__label">Prompt to page</p>
@@ -220,6 +270,17 @@ export function PromptPanel() {
         </button>
       </div>
 
+      <div className="emovel-prompt__actions">
+        <button
+          type="button"
+          className="emovel-prompt__button emovel-prompt__button--registry"
+          onClick={handleGenerateRegistryComposer}
+          style={{ gridColumn: '1 / -1' }}
+        >
+          Registry Composer
+        </button>
+      </div>
+
       <div className="emovel-prompt__meta" aria-label="Generated page summary">
         <div className="emovel-prompt__row">
           <span>Title</span>
@@ -238,6 +299,14 @@ export function PromptPanel() {
       <div className="emovel-prompt__status" role="status">
         {status}
       </div>
+
+      {composerErrors.length > 0 && (
+        <div className="emovel-prompt__composer-errors" role="alert" aria-label="Registry Composer errors">
+          {composerErrors.map((err, i) => (
+            <div key={i} className="emovel-prompt__composer-error">{err}</div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
