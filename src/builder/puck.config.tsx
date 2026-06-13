@@ -137,6 +137,51 @@ const SURFACE_DEFAULTS = {
 // Rendered only when BuilderModeContext is true (inside Puck canvas).
 // The context defaults to false, so renderToStaticMarkup never includes these.
 
+/** Shared MISSING ASSET banner — builder canvas only, never exported. */
+function MissingAssetBanner({ message }: { message: string }) {
+  return (
+    <div style={{
+      padding: '0.6rem 1rem 0.6rem 1.1rem',
+      background: 'color-mix(in srgb, var(--color-warning) 10%, var(--color-surface))',
+      borderLeft: '2px solid var(--color-warning)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.2rem',
+    }}>
+      <span style={{
+        fontSize: '0.7rem',
+        fontWeight: 700,
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: 'var(--color-warning)',
+      }}>MISSING ASSET</span>
+      <span style={{
+        fontSize: '0.8rem',
+        color: 'var(--color-textSecondary)',
+      }}>{message}</span>
+    </div>
+  );
+}
+
+/** Wraps any section render function to show MISSING ASSET when surface='image'
+ *  but backgroundImageUrl is empty, in the builder canvas only. */
+function surfaceWarned<P extends { surface: string; backgroundImageUrl: string }>(
+  renderFn: (props: P) => JSX.Element,
+): (props: P) => JSX.Element {
+  return function SurfaceWarnedRender(props: P) {
+    const isBuilder = useContext(BuilderModeContext);
+    const showWarning = isBuilder && props.surface === 'image' && !props.backgroundImageUrl;
+    return (
+      <>
+        {showWarning && (
+          <MissingAssetBanner message="Image surface requires a real backgroundImageUrl before export." />
+        )}
+        {renderFn(props)}
+      </>
+    );
+  };
+}
+
 /** Card render wrapper — shows MISSING ASSET banner in the builder canvas only. */
 export function CardRender(props: CardProps) {
   const isBuilder = useContext(BuilderModeContext);
@@ -144,26 +189,7 @@ export function CardRender(props: CardProps) {
   return (
     <>
       {showWarning && (
-        <div style={{
-          padding: '0.6rem 1rem 0.6rem 1.1rem',
-          background: 'color-mix(in srgb, var(--color-warning) 10%, var(--color-surface))',
-          borderLeft: '2px solid var(--color-warning)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.2rem',
-        }}>
-          <span style={{
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'var(--color-warning)',
-          }}>MISSING ASSET</span>
-          <span style={{
-            fontSize: '0.8rem',
-            color: 'var(--color-textSecondary)',
-          }}>Image variant requires a real cardImageUrl before export.</span>
-        </div>
+        <MissingAssetBanner message="Image variant requires a real cardImageUrl before export." />
       )}
       <CardSection {...props} />
     </>
@@ -200,7 +226,7 @@ export const config: Config<{
     'Hero': {
       fields:       heroFields,
       defaultProps: heroDefaultProps,
-      render:       renderHero,
+      render:       surfaceWarned(renderHero),
     },
 
     // ── Product Grid ────────────────────────────────────────────────────────
@@ -239,7 +265,7 @@ export const config: Config<{
           { title: 'Product Three', description: 'A short, honest description of what this product does.', status: 'early_access' as const, cta: 'Join' },
         ],
       } satisfies ProductGridProps,
-      render: (props: ProductGridProps) => <ProductGridSection {...props} />,
+      render: surfaceWarned((props: ProductGridProps) => <ProductGridSection {...props} />),
     },
 
     // ── Offer Section ────────────────────────────────────────────────────────
@@ -273,12 +299,12 @@ export const config: Config<{
           { text: 'Benefit four' },
         ],
       } satisfies OfferStoredProps,
-      render: (props: OfferStoredProps) => (
+      render: surfaceWarned((props: OfferStoredProps) => (
         <OfferSection
           {...props}
           benefits={normalizeBenefits(props.benefits)}
         />
-      ),
+      )),
     },
 
     // ── Screenshot Gallery ───────────────────────────────────────────────────
@@ -306,7 +332,7 @@ export const config: Config<{
           { caption: 'Caption for screenshot three' },
         ],
       } satisfies ScreenshotGalleryProps,
-      render: (props: ScreenshotGalleryProps) => <ScreenshotGallerySection {...props} />,
+      render: surfaceWarned((props: ScreenshotGalleryProps) => <ScreenshotGallerySection {...props} />),
     },
 
     // ── CTA Section ──────────────────────────────────────────────────────────
@@ -327,7 +353,7 @@ export const config: Config<{
         secondaryAction: 'Talk to us',
         supportText:     'No commitment required.',
       } satisfies CTAProps,
-      render: (props: CTAProps) => <CTASection {...props} />,
+      render: surfaceWarned((props: CTAProps) => <CTASection {...props} />),
     },
 
     // ── Nav Bar ──────────────────────────────────────────────────────────────
@@ -370,7 +396,7 @@ export const config: Config<{
         ctaHref:  '#',
         position: 'static',
       } satisfies NavBarProps,
-      render: (props: NavBarProps) => <NavBarSection {...props} />,
+      render: surfaceWarned((props: NavBarProps) => <NavBarSection {...props} />),
     },
 
     // ── Logo Strip ───────────────────────────────────────────────────────────
@@ -399,7 +425,7 @@ export const config: Config<{
           { name: 'Vandelay',   imageUrl: '' },
         ],
       } satisfies LogoStripProps,
-      render: (props: LogoStripProps) => <LogoStripSection {...props} />,
+      render: surfaceWarned((props: LogoStripProps) => <LogoStripSection {...props} />),
     },
 
     // ── Feature Grid ─────────────────────────────────────────────────────────
@@ -441,7 +467,7 @@ export const config: Config<{
         ],
         columns: 3 as ColumnCount,
       } satisfies FeatureGridProps,
-      render: (props: FeatureGridProps) => <FeatureGridSection {...props} />,
+      render: surfaceWarned((props: FeatureGridProps) => <FeatureGridSection {...props} />),
     },
 
     // ── Feature Split ────────────────────────────────────────────────────────
@@ -475,7 +501,7 @@ export const config: Config<{
         imageAlt:      '',
         imagePosition: 'right',
       } satisfies FeatureSplitProps,
-      render: (props: FeatureSplitProps) => <FeatureSplitSection {...props} />,
+      render: surfaceWarned((props: FeatureSplitProps) => <FeatureSplitSection {...props} />),
     },
 
     // ── Pricing Table ────────────────────────────────────────────────────────
@@ -548,7 +574,7 @@ export const config: Config<{
         ],
         billingPeriod: 'monthly',
       } satisfies PricingTableProps,
-      render: (props: PricingTableProps) => <PricingTableSection {...props} />,
+      render: surfaceWarned((props: PricingTableProps) => <PricingTableSection {...props} />),
     },
 
     // ── FAQ ──────────────────────────────────────────────────────────────────
@@ -589,7 +615,7 @@ export const config: Config<{
         ],
         layout: 'accordion',
       } satisfies FAQProps,
-      render: (props: FAQProps) => <FAQSection {...props} />,
+      render: surfaceWarned((props: FAQProps) => <FAQSection {...props} />),
     },
 
     // ── Testimonials ─────────────────────────────────────────────────────────
@@ -638,7 +664,7 @@ export const config: Config<{
         ],
         layout: 'grid',
       } satisfies TestimonialsProps,
-      render: (props: TestimonialsProps) => <TestimonialsSection {...props} />,
+      render: surfaceWarned((props: TestimonialsProps) => <TestimonialsSection {...props} />),
     },
 
     // ── Stats Bar ────────────────────────────────────────────────────────────
@@ -667,7 +693,7 @@ export const config: Config<{
           { value: '< 24h',   label: 'Avg. response' },
         ],
       } satisfies StatsBarProps,
-      render: (props: StatsBarProps) => <StatsBarSection {...props} />,
+      render: surfaceWarned((props: StatsBarProps) => <StatsBarSection {...props} />),
     },
 
     // ── Video Embed ──────────────────────────────────────────────────────────
@@ -697,7 +723,7 @@ export const config: Config<{
         videoTitle:  'Product demo',
         aspectRatio: '16:9',
       } satisfies VideoEmbedProps,
-      render: (props: VideoEmbedProps) => <VideoEmbedSection {...props} />,
+      render: surfaceWarned((props: VideoEmbedProps) => <VideoEmbedSection {...props} />),
     },
 
     // ── Newsletter ───────────────────────────────────────────────────────────
@@ -730,7 +756,7 @@ export const config: Config<{
         privacyNote:      'No spam. Unsubscribe anytime.',
         layout:           'centered',
       } satisfies NewsletterProps,
-      render: (props: NewsletterProps) => <NewsletterSection {...props} />,
+      render: surfaceWarned((props: NewsletterProps) => <NewsletterSection {...props} />),
     },
 
     // ── Team Grid ────────────────────────────────────────────────────────────
@@ -773,7 +799,7 @@ export const config: Config<{
         ],
         columns: 3 as ColumnCount,
       } satisfies TeamGridProps,
-      render: (props: TeamGridProps) => <TeamGridSection {...props} />,
+      render: surfaceWarned((props: TeamGridProps) => <TeamGridSection {...props} />),
     },
 
     // ── Content Block ────────────────────────────────────────────────────────
@@ -808,7 +834,7 @@ export const config: Config<{
         alignment: 'left',
         layout:    'prose',
       } satisfies ContentBlockProps,
-      render: (props: ContentBlockProps) => <ContentBlockSection {...props} />,
+      render: surfaceWarned((props: ContentBlockProps) => <ContentBlockSection {...props} />),
     },
 
     // ── Footer ───────────────────────────────────────────────────────────────
@@ -855,7 +881,7 @@ export const config: Config<{
           { label: 'LinkedIn', href: '#' },
         ],
       } satisfies FooterStoredProps,
-      render: (props: FooterStoredProps) => (
+      render: surfaceWarned((props: FooterStoredProps) => (
         <FooterSection
           surface={props.surface}
           width={props.width}
@@ -868,7 +894,7 @@ export const config: Config<{
             (g): FooterLinkGroup => ({ heading: g.heading, links: parseFooterLinks(g.links) }),
           )}
         />
-      ),
+      )),
     },
 
     // ── Card ─────────────────────────────────────────────────────────────────
@@ -904,7 +930,7 @@ export const config: Config<{
         ctaLabel:       'Get started',
         ctaHref:        '#',
       } satisfies CardProps,
-      render: CardRender,
+      render: surfaceWarned(CardRender),
     },
   },
 };

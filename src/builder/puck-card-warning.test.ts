@@ -4,8 +4,9 @@
 
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
+import type { ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { CardRender } from './puck.config';
+import { config, CardRender } from './puck.config';
 import type { CardProps } from './section-contract';
 
 // The exact scenario that triggers the warning in the builder canvas:
@@ -34,6 +35,39 @@ describe('CardRender — export path is clean', () => {
   it('still renders card content in the export path', () => {
     const html = renderToStaticMarkup(createElement(CardRender, IMAGE_CARD_NO_URL));
     expect(html).toContain('Test Card Title');
+    expect(html).toContain('emovel-card');
+  });
+});
+
+// surfaceWarned — tested through config.components['Card'].render which is surfaceWarned(CardRender).
+// variant='solid' avoids the card-specific warning; surface='image' + empty backgroundImageUrl
+// would trigger the surface warning in the builder canvas. Without a Provider it must be silent.
+describe('surfaceWarned — export path is clean', () => {
+  const renderCard = config.components['Card'].render as ComponentType<CardProps>;
+
+  const SURFACE_IMAGE_NO_URL: CardProps = {
+    surface:            'image',
+    width:              'contained',
+    backgroundImageUrl: '',
+    variant:            'solid',
+    title:              'Surface Warning Test',
+    body:               'Body.',
+    eyebrow:            '',
+    cardImageUrl:       '',
+    objectImageUrl:     '',
+    ctaLabel:           '',
+    ctaHref:            '#',
+  };
+
+  it('does not include MISSING ASSET for surface=image + empty backgroundImageUrl when no Provider', () => {
+    const html = renderToStaticMarkup(createElement(renderCard, SURFACE_IMAGE_NO_URL));
+    expect(html).not.toContain('MISSING ASSET');
+    expect(html).not.toContain('backgroundImageUrl before export');
+  });
+
+  it('still renders section content in the export path', () => {
+    const html = renderToStaticMarkup(createElement(renderCard, SURFACE_IMAGE_NO_URL));
+    expect(html).toContain('Surface Warning Test');
     expect(html).toContain('emovel-card');
   });
 });
