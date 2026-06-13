@@ -1,6 +1,7 @@
 // Puck configuration — field definitions, defaultProps, and registered renders for all sections.
 // Claude owns this file. Codex MUST NOT edit it.
 
+import { useContext } from 'react';
 import type { Config } from '@puckeditor/core';
 import type {
   ProductCard,
@@ -60,6 +61,7 @@ import { TeamGridSection }          from './sections/TeamGridSection';
 import { ContentBlockSection }      from './sections/ContentBlockSection';
 import { FooterSection }            from './sections/FooterSection';
 import { CardSection }              from './sections/CardSection';
+import { BuilderModeContext }       from './BuilderModeContext';
 
 // ─── Stored-props types ───────────────────────────────────────────────────────
 
@@ -130,6 +132,43 @@ const SURFACE_DEFAULTS = {
   width:              'contained'   as const,
   backgroundImageUrl: '',
 };
+
+// ─── Builder-only warning components ─────────────────────────────────────────
+// Rendered only when BuilderModeContext is true (inside Puck canvas).
+// The context defaults to false, so renderToStaticMarkup never includes these.
+
+/** Card render wrapper — shows MISSING ASSET banner in the builder canvas only. */
+export function CardRender(props: CardProps) {
+  const isBuilder = useContext(BuilderModeContext);
+  const showWarning = isBuilder && props.variant === 'image' && !props.cardImageUrl;
+  return (
+    <>
+      {showWarning && (
+        <div style={{
+          padding: '0.6rem 1rem 0.6rem 1.1rem',
+          background: 'color-mix(in srgb, var(--color-warning) 10%, var(--color-surface))',
+          borderLeft: '2px solid var(--color-warning)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.2rem',
+        }}>
+          <span style={{
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--color-warning)',
+          }}>MISSING ASSET</span>
+          <span style={{
+            fontSize: '0.8rem',
+            color: 'var(--color-textSecondary)',
+          }}>Image variant requires a real cardImageUrl before export.</span>
+        </div>
+      )}
+      <CardSection {...props} />
+    </>
+  );
+}
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 // Explicit type annotation (not satisfies) so config's type is Config<{...}>, which extends
@@ -865,7 +904,7 @@ export const config: Config<{
         ctaLabel:       'Get started',
         ctaHref:        '#',
       } satisfies CardProps,
-      render: (props: CardProps) => <CardSection {...props} />,
+      render: CardRender,
     },
   },
 };

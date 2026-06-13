@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme, buildThemeCSSText } from './builder/theme';
 import { puckOverrides } from './shell/puck-overrides';
 import { publishToZip } from './builder/publish';
 import { PageContextProvider } from './storage/PageContext';
+import { BuilderModeContext } from './builder/BuilderModeContext';
 
 const STORAGE_KEY = 'emovel-page-data';
 
@@ -58,27 +59,29 @@ function AppInner() {
   }, [theme]);
 
   return (
-    <Puck
-      config={config}
-      data={savedData}
-      plugins={[legacySideBar]}
-      overrides={puckOverrides}
-      onAction={(_, newState) => {
-        // localStorage = fast autosave buffer. The authoritative copy is the file on disk
-        // (saved explicitly via the Save button in TopBar / PageListPanel).
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(newState.data));
-        } catch {
-          // Storage full or unavailable — fail silently
-        }
-      }}
-      onPublish={(data) => {
-        // onPublish = ZIP static export. Saving to disk uses the Save button in TopBar.
-        publishToZip(data, themeRef.current).catch((err) => {
-          console.error('[EMOVEL] Publish failed:', err);
-        });
-      }}
-    />
+    <BuilderModeContext.Provider value={true}>
+      <Puck
+        config={config}
+        data={savedData}
+        plugins={[legacySideBar]}
+        overrides={puckOverrides}
+        onAction={(_, newState) => {
+          // localStorage = fast autosave buffer. The authoritative copy is the file on disk
+          // (saved explicitly via the Save button in TopBar / PageListPanel).
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newState.data));
+          } catch {
+            // Storage full or unavailable — fail silently
+          }
+        }}
+        onPublish={(data) => {
+          // onPublish = ZIP static export. Saving to disk uses the Save button in TopBar.
+          publishToZip(data, themeRef.current).catch((err) => {
+            console.error('[EMOVEL] Publish failed:', err);
+          });
+        }}
+      />
+    </BuilderModeContext.Provider>
   );
 }
 
