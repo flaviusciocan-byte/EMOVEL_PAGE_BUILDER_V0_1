@@ -157,6 +157,33 @@
       "category": "structure",
       "requiresAssets": false,
       "notes": "newsletter is a presentational slot only — not connected to a provider."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "TestimonialSection",
+      "implementationKey": "builder/sections/TestimonialsSection",
+      "status": "implemented",
+      "category": "testimonials",
+      "requiresAssets": false,
+      "notes": "Existing TestimonialsSection is adopted as Registry v1.1 TestimonialSection."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "EditorialSection",
+      "implementationKey": "builder/sections/FeatureSplitSection",
+      "status": "implemented",
+      "category": "editorial",
+      "requiresAssets": false,
+      "notes": "Existing FeatureSplitSection is adopted pragmatically as EditorialSection for image-plus-copy editorial layouts. Dedicated EditorialSection may be created later if needed."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "LeadCapture",
+      "implementationKey": "builder/sections/NewsletterSection",
+      "status": "implemented",
+      "category": "lead",
+      "requiresAssets": false,
+      "notes": "Existing NewsletterSection is adopted as email-focused LeadCapture. Multi-field lead forms are deferred."
     }
   ]
 }

@@ -1,6 +1,6 @@
 import type { ComponentRegistryEntry } from './componentRegistry.types';
 
-// Registry v1.1 — Components 01–10.
+// Registry v1.1 — Components 01–16 (15 GalleryShowcase deferred — requires ShotItem.imageUrl extension).
 // Implementation keys are path strings, not direct imports, to avoid
 // circular dependency risk between registry and visual components.
 
@@ -120,6 +120,39 @@ export const componentRegistry: Readonly<Record<string, ComponentRegistryEntry>>
     category: 'structure',
     requiresAssets: false,
     notes: 'newsletter is a presentational slot only — not connected to a provider.',
+  },
+
+  // ── 13–16 ────────────────────────────────────────────────────────────────────
+  // 15 (GalleryShowcase) is intentionally absent: ShotItem lacks imageUrl — deferred to Step 6C.
+
+  TestimonialSection: {
+    registryIndex: 13,
+    registryName: 'TestimonialSection',
+    implementationKey: 'builder/sections/TestimonialsSection',
+    status: 'implemented',
+    category: 'testimonials',
+    requiresAssets: false,
+    notes: 'Existing TestimonialsSection is adopted as Registry v1.1 TestimonialSection.',
+  },
+
+  EditorialSection: {
+    registryIndex: 14,
+    registryName: 'EditorialSection',
+    implementationKey: 'builder/sections/FeatureSplitSection',
+    status: 'implemented',
+    category: 'editorial',
+    requiresAssets: false,
+    notes: 'Existing FeatureSplitSection is adopted pragmatically as EditorialSection for image-plus-copy editorial layouts. Dedicated EditorialSection may be created later if needed.',
+  },
+
+  LeadCapture: {
+    registryIndex: 16,
+    registryName: 'LeadCapture',
+    implementationKey: 'builder/sections/NewsletterSection',
+    status: 'implemented',
+    category: 'lead',
+    requiresAssets: false,
+    notes: 'Existing NewsletterSection is adopted as email-focused LeadCapture. Multi-field lead forms are deferred.',
   },
 
 } as const;
