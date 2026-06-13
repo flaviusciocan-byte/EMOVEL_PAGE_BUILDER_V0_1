@@ -1,0 +1,162 @@
+{
+  "registryVersion": "1.1",
+  "generatedFrom": "TypeScript",
+  "source": {
+    "registry": "src/registry/componentRegistry.ts",
+    "shared": "src/registry/shared.ts"
+  },
+  "sharedProps": {
+    "universe": {
+      "allowedValues": [
+        "noir",
+        "ivory",
+        "nordic",
+        "terra",
+        "mono"
+      ]
+    },
+    "surface": {
+      "allowedValues": [
+        "base",
+        "elevated",
+        "inverted",
+        "cinematic"
+      ],
+      "default": "base"
+    },
+    "motion": {
+      "allowedValues": [
+        "none",
+        "subtle",
+        "cinematic"
+      ],
+      "default": "subtle"
+    },
+    "spacing": {
+      "allowedValues": [
+        "compact",
+        "standard",
+        "generous"
+      ],
+      "default": "standard"
+    },
+    "anchorId": {
+      "type": "string",
+      "default": "auto-generated"
+    },
+    "aiLock": {
+      "type": "string[]",
+      "default": []
+    }
+  },
+  "components": [
+    {
+      "registryVersion": "1.1",
+      "registryName": "HeroSection",
+      "implementationKey": "components/sections/HeroSection",
+      "status": "implemented",
+      "category": "hero",
+      "requiresAssets": false,
+      "notes": null
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "TrustStrip",
+      "implementationKey": "builder/sections/LogoStripSection",
+      "status": "implemented",
+      "category": "trust",
+      "requiresAssets": false,
+      "notes": "StatsBarSection (builder/sections/StatsBarSection) is also available for metrics-based trust signals."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "FeatureGrid",
+      "implementationKey": "builder/sections/CardSection",
+      "status": "implemented",
+      "category": "features",
+      "requiresAssets": false,
+      "notes": "Registry v1.1 explicit mapping: FeatureGrid → CardSection. FeatureGridSection also exists as a supplementary feature-card grid."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "ProductShowcase",
+      "implementationKey": "builder/sections/ProductGridSection",
+      "status": "implemented",
+      "category": "product",
+      "requiresAssets": false,
+      "notes": null
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "PricingSection",
+      "implementationKey": "builder/sections/PricingTableSection",
+      "status": "implemented",
+      "category": "pricing",
+      "requiresAssets": false,
+      "notes": null
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "FAQSection",
+      "implementationKey": "builder/sections/FAQSection",
+      "status": "implemented",
+      "category": "faq",
+      "requiresAssets": false,
+      "notes": null
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "CTASection",
+      "implementationKey": "builder/sections/CTASection",
+      "status": "implemented",
+      "category": "cta",
+      "requiresAssets": false,
+      "notes": null
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "DashboardPreview",
+      "implementationKey": null,
+      "status": "notImplemented",
+      "category": "dashboard",
+      "requiresAssets": true,
+      "notes": "No existing dashboard preview component. Requires a real dashboard screenshot or live embed asset."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "WorkflowTimeline",
+      "implementationKey": null,
+      "status": "notImplemented",
+      "category": "timeline",
+      "requiresAssets": false,
+      "notes": "No existing workflow or timeline component."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "ThreeDShowcase",
+      "implementationKey": null,
+      "status": "notImplemented",
+      "category": "showcase",
+      "requiresAssets": true,
+      "notes": "No existing 3D showcase component. Requires real 3D model or rendered asset."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "NavigationBar",
+      "implementationKey": "builder/sections/NavBarSection",
+      "status": "implemented",
+      "category": "structure",
+      "requiresAssets": false,
+      "notes": "logoVariant and transparency added. hide-on-scroll intentionally deferred — requires JS scroll handler."
+    },
+    {
+      "registryVersion": "1.1",
+      "registryName": "FooterSection",
+      "implementationKey": "builder/sections/FooterSection",
+      "status": "implemented",
+      "category": "structure",
+      "requiresAssets": false,
+      "notes": "newsletter is a presentational slot only — not connected to a provider."
+    }
+  ]
+}

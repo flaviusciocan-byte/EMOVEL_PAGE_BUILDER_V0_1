@@ -1,11 +1,17 @@
 // Shared Layer — declared once at registry level.
 // No component re-declares these props.
 
+/** Allowed values — used by the manifest generator so TypeScript is the single source of truth. */
+export const UNIVERSE_VALUES = ['noir', 'ivory', 'nordic', 'terra', 'mono'] as const;
+export const SURFACE_VALUES  = ['base', 'elevated', 'inverted', 'cinematic'] as const;
+export const MOTION_VALUES   = ['none', 'subtle', 'cinematic'] as const;
+export const SPACING_VALUES  = ['compact', 'standard', 'generous'] as const;
+
 /** Page-level color universe. Inherited by all components; palette cannot be overridden directly. */
-export type Universe = 'noir' | 'ivory' | 'nordic' | 'terra' | 'mono';
+export type Universe = typeof UNIVERSE_VALUES[number];
 
 /** Section background treatment. Implemented via SectionSurface. Default: base. */
-export type Surface = 'base' | 'elevated' | 'inverted' | 'cinematic';
+export type Surface = typeof SURFACE_VALUES[number];
 
 /**
  * Animation level.
@@ -13,10 +19,10 @@ export type Surface = 'base' | 'elevated' | 'inverted' | 'cinematic';
  * Export renders the full declared motion.
  * Default: subtle.
  */
-export type Motion = 'none' | 'subtle' | 'cinematic';
+export type Motion = typeof MOTION_VALUES[number];
 
 /** Internal padding scale. Maps to the existing token spacing system. Default: standard. */
-export type Spacing = 'compact' | 'standard' | 'generous';
+export type Spacing = typeof SPACING_VALUES[number];
 
 /**
  * Props shared by every registered EMOVEL Builder component.
