@@ -22,7 +22,7 @@ export const puckOverrides = {
   // Left drawer: brand block + SECȚIUNI header + Puck's native draggable items.
   // children = Puck's drag handles — MUST remain in DOM for drag-to-canvas.
   drawer: ({ children }: { children: ReactNode }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'visible' }}>
       <SidebarBrand />
       <SectionLibraryDock sectionCount={SECTION_COUNT}>
         {children}
