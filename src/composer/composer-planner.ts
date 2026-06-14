@@ -49,6 +49,11 @@ export function planPageStructure(
       'Testimonials/social proof detected — reduces buyer hesitation before the conversion section.');
   }
 
+  if (profile.hasPricing) {
+    add('PricingSection',
+      'Pricing detected — transparent plan comparison helps visitors self-select before the CTA.');
+  }
+
   // ── Conversion anchor ───────────────────────────────────────────────────────
   // CTASection always appears, after any content sections, before any lead capture.
 

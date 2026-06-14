@@ -295,6 +295,92 @@ describe('buildRegistryPageSchema — FooterSection', () => {
   });
 });
 
+// ── PricingSection ────────────────────────────────────────────────────────────
+
+describe('buildRegistryPageSchema — PricingSection', () => {
+  const PRICING_PROMPT = 'SaaS pricing page with subscription plans';
+
+  it('pricing prompt includes PricingSection', () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    expect(schema.components.some(c => c.registryName === 'PricingSection')).toBe(true);
+  });
+
+  it('non-pricing prompt excludes PricingSection', () => {
+    const schema = buildRegistryPageSchema('simple about page for the team', manifest);
+    expect(schema.components.some(c => c.registryName === 'PricingSection')).toBe(false);
+  });
+
+  it('PricingSection appears before CTASection', () => {
+    const schema      = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricingIdx  = schema.components.findIndex(c => c.registryName === 'PricingSection');
+    const ctaIdx      = schema.components.findIndex(c => c.registryName === 'CTASection');
+    expect(pricingIdx).toBeGreaterThan(-1);
+    expect(pricingIdx).toBeLessThan(ctaIdx);
+  });
+
+  it('pricing schema validates against real manifest', () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const result = validatePageSchema(schema, manifest);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('pageSchemaToPuckData converts PricingSection to "Pricing Table"', () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const data   = pageSchemaToPuckData(schema);
+    expect(data.content.some(c => c.type === 'Pricing Table')).toBe(true);
+  });
+
+  it('PricingSection emits exactly 3 plans', () => {
+    const schema   = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing  = schema.components.find(c => c.registryName === 'PricingSection');
+    const plans    = pricing?.props.plans as unknown[];
+    expect(Array.isArray(plans)).toBe(true);
+    expect(plans!.length).toBe(3);
+  });
+
+  it('plans have name, price, description, features, ctaLabel, highlight, badge', () => {
+    const schema  = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
+    const plans   = pricing?.props.plans as Array<Record<string, unknown>>;
+    for (const plan of plans) {
+      expect(typeof plan.name).toBe('string');
+      expect(typeof plan.price).toBe('string');
+      expect(typeof plan.description).toBe('string');
+      expect(typeof plan.features).toBe('string');
+      expect(typeof plan.ctaLabel).toBe('string');
+      expect(typeof plan.highlight).toBe('string');
+      expect(typeof plan.badge).toBe('string');
+    }
+  });
+
+  it('plan features are newline-separated strings', () => {
+    const schema  = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
+    const plans   = pricing?.props.plans as Array<{ features: string }>;
+    for (const plan of plans) {
+      expect(typeof plan.features).toBe('string');
+      expect(plan.features.length).toBeGreaterThan(0);
+      expect(plan.features).toContain('\n');
+    }
+  });
+
+  it('Pro plan has highlight "featured" and badge "Most Popular"', () => {
+    const schema  = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
+    const plans   = pricing?.props.plans as Array<{ name: string; highlight: string; badge: string }>;
+    const pro     = plans.find(p => p.name === 'Pro');
+    expect(pro?.highlight).toBe('featured');
+    expect(pro?.badge).toBe('Most Popular');
+  });
+
+  it('headline contains brand name for premium tone', () => {
+    const schema  = buildRegistryPageSchema('SaaS pricing plans for Acme', manifest);
+    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
+    expect((pricing?.props.headline as string)).toContain('Acme');
+  });
+});
+
 // ── Exclusions ────────────────────────────────────────────────────────────────
 
 describe('buildRegistryPageSchema — exclusions', () => {

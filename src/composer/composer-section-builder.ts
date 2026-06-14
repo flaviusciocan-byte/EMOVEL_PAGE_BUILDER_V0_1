@@ -95,6 +95,12 @@ const FOOTER_LINK_GROUPS_BY_PAGE_TYPE: Record<PageType, Array<{ heading: string;
   ],
 };
 
+const PRICING_HEADLINE_BY_TONE: Record<string, (brandName: string) => string> = {
+  premium:   (b) => `Everything ${b} offers — one clear price.`,
+  technical: (b) => `${b} pricing — built to scale with your team.`,
+  direct:    (_) => 'Simple pricing. No surprises.',
+};
+
 const CTA_HEADLINE_BY_TONE: Record<string, (brandName: string) => string> = {
   premium:   (b) => `Ready to experience ${b}?`,
   technical: (b) => `Start building with ${b} today.`,
@@ -212,6 +218,54 @@ function buildTestimonialSection(profile: ComposerStrategyProfile): Record<strin
   };
 }
 
+function buildPricingSection(profile: ComposerStrategyProfile): Record<string, unknown> {
+  const headlineFn = PRICING_HEADLINE_BY_TONE[profile.tone] ?? PRICING_HEADLINE_BY_TONE['premium'];
+  return {
+    eyebrow:       'Pricing',
+    headline:      headlineFn(profile.brand.name),
+    subheadline:   'Start free. Scale as you grow. No hidden fees.',
+    billingPeriod: 'monthly',
+    plans: [
+      {
+        name:        'Starter',
+        price:       'Free',
+        priceAnnual: '',
+        description: `Everything you need to get started with ${profile.brand.name}.`,
+        features:    'Core feature one\nCore feature two\nCore feature three\nCommunity support',
+        ctaLabel:    'Get started free',
+        ctaHref:     '#',
+        highlight:   'none',
+        badge:       '',
+      },
+      {
+        name:        'Pro',
+        price:       '$49/mo',
+        priceAnnual: '$39/mo',
+        description: `For growing teams that need the full power of ${profile.brand.name}.`,
+        features:    'Everything in Starter\nUnlimited projects\nAdvanced analytics\nPriority support',
+        ctaLabel:    'Start free trial',
+        ctaHref:     '#',
+        highlight:   'featured',
+        badge:       'Most Popular',
+      },
+      {
+        name:        'Growth',
+        price:       '$99/mo',
+        priceAnnual: '$79/mo',
+        description: 'For scaling teams with enterprise-grade needs.',
+        features:    'Everything in Pro\nCustom integrations\nDedicated account manager\nSLA guarantee',
+        ctaLabel:    'Talk to sales',
+        ctaHref:     '#',
+        highlight:   'none',
+        badge:       '',
+      },
+    ],
+    width:              'contained',
+    backgroundImageUrl: '',
+    // surface intentionally omitted — inherits page universe via SectionSurface
+  };
+}
+
 function buildCTASection(profile: ComposerStrategyProfile): Record<string, unknown> {
   const headlineFn = CTA_HEADLINE_BY_TONE[profile.tone] ?? CTA_HEADLINE_BY_TONE['premium'];
   return {
@@ -270,6 +324,7 @@ export function buildSectionProps(
     case 'HeroSection':        return buildHeroSection(profile);
     case 'GalleryShowcase':    return buildGalleryShowcase(profile);
     case 'TestimonialSection': return buildTestimonialSection(profile);
+    case 'PricingSection':     return buildPricingSection(profile);
     case 'CTASection':         return buildCTASection(profile);
     case 'LeadCapture':        return buildLeadCapture(profile);
     case 'FooterSection':      return buildFooterSection(profile);

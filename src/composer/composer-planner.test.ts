@@ -84,6 +84,48 @@ describe('planPageStructure — newsletter conditional', () => {
   });
 });
 
+describe('planPageStructure — pricing conditional', () => {
+  it('pricing prompt includes PricingSection', () => {
+    const plan = planPageStructure(
+      classifyIntent('SaaS pricing page with subscription plans and tiers'),
+      manifest,
+    );
+    expect(plan.some(s => s.registryName === 'PricingSection')).toBe(true);
+  });
+
+  it('non-pricing prompt excludes PricingSection', () => {
+    const plan = planPageStructure(
+      classifyIntent('simple about page for the team'),
+      manifest,
+    );
+    expect(plan.some(s => s.registryName === 'PricingSection')).toBe(false);
+  });
+
+  it('PricingSection appears before CTASection', () => {
+    const plan        = planPageStructure(
+      classifyIntent('SaaS pricing plans'),
+      manifest,
+    );
+    const pricingIdx  = plan.findIndex(s => s.registryName === 'PricingSection');
+    const ctaIdx      = plan.findIndex(s => s.registryName === 'CTASection');
+    if (pricingIdx !== -1) {
+      expect(pricingIdx).toBeLessThan(ctaIdx);
+    }
+  });
+
+  it('PricingSection appears after HeroSection', () => {
+    const plan       = planPageStructure(
+      classifyIntent('SaaS billing plans'),
+      manifest,
+    );
+    const heroIdx    = plan.findIndex(s => s.registryName === 'HeroSection');
+    const pricingIdx = plan.findIndex(s => s.registryName === 'PricingSection');
+    if (pricingIdx !== -1) {
+      expect(pricingIdx).toBeGreaterThan(heroIdx);
+    }
+  });
+});
+
 // ── Section order invariants ──────────────────────────────────────────────────
 
 describe('planPageStructure — section order', () => {
