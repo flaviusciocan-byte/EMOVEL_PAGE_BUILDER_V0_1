@@ -76,7 +76,8 @@ export function PromptPanel() {
     }
     const data = pageSchemaToPuckData(schema);
     // Clear stale canvas before loading new generated data.
-    localStorage.removeItem(STORAGE_KEY);
+    // Best-effort: removeItem can throw SecurityError in sandboxed/restricted contexts.
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* unavailable — proceed */ }
     dispatch({ type: 'setData', data: data as Partial<Data> });
     setComposerErrors([]);
     setLastComposerMeta({ title: schema.title, components: schema.components });
@@ -84,7 +85,7 @@ export function PromptPanel() {
   }
 
   function handleClearCanvas() {
-    localStorage.removeItem(STORAGE_KEY);
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* unavailable — proceed */ }
     dispatch({ type: 'setData', data: initialData as Partial<Data> });
     setLastComposerMeta(null);
     setComposerErrors([]);
