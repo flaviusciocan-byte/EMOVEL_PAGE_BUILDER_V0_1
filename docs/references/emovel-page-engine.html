@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMOVEL · Page Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* NOIR universe — accent is the only thing universes change */
+  --accent:#D4AF37; --accent-dim:#8A7330; --accent-soft:rgba(212,175,55,.14);
+  --blue:#2F6BFF; --blue-soft:rgba(47,107,255,.16);
+  --bg:#0A0A0B; --panel:#0D0D0F; --panel2:#111114; --card:#141417; --card2:#17171B;
+  --line:#222227; --txt:#F4F2EC; --txt2:#A7A29A; --txt3:#6E6A63; --black:#000;
+  --art-bg:#0E0E10; --art-panel:#161618;
+  --sans:'Inter',system-ui,sans-serif; --serif:'Cormorant Garamond',serif; --mono:'JetBrains Mono',monospace;
+  --top:56px; --rail:296px; --insp:320px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);overflow:hidden;
+  -webkit-font-smoothing:antialiased;font-size:13px}
+.mono{font-family:var(--mono)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:var(--accent-soft)}
+
+/* ============ TOP BAR ============ */
+.top{position:fixed;top:0;left:0;right:0;height:var(--top);background:var(--panel2);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;z-index:50}
+.brand{font-weight:700;font-size:16px;letter-spacing:.18em}
+.pe-tag{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--accent);
+  border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);background:var(--card);
+  padding:3px 8px;border-radius:3px;margin-left:14px}
+.universe{margin:0 auto;display:flex;gap:4px;background:var(--card);border:1px solid var(--line);
+  border-radius:7px;padding:4px}
+.uni{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--txt3);
+  padding:5px 11px;border-radius:5px;transition:.18s;border:1px solid transparent}
+.uni.active{color:var(--accent);background:var(--accent-soft);
+  border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.uni:hover:not(.active){color:var(--txt2)}
+.top-right{display:flex;align-items:center;gap:12px}
+.resp{display:flex;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:7px;padding:4px}
+.resp button{font-size:11px;color:var(--txt3);padding:4px 10px;border-radius:5px;transition:.15s;font-weight:500}
+.resp button.active{color:var(--accent)}
+.ghost{font-size:11px;color:var(--txt2);font-weight:500;border:1px solid var(--line);
+  padding:7px 16px;border-radius:7px;transition:.15s}
+.ghost:hover{color:var(--txt);border-color:var(--txt3)}
+.export{display:flex;align-items:center;gap:8px;background:var(--accent);color:var(--black);
+  font-weight:600;font-size:11.5px;padding:9px 18px;border-radius:7px;transition:.15s}
+.export:hover{filter:brightness(1.08)}
+.export .dot{width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.55)}
+
+/* ============ LAYOUT ============ */
+.shell{position:fixed;top:var(--top);left:0;right:0;bottom:0;display:flex}
+.rail{width:var(--rail);background:var(--panel);border-right:1px solid var(--line);
+  overflow-y:auto;flex-shrink:0;padding:22px 24px 40px}
+.canvas{flex:1;background:var(--bg);overflow:auto;position:relative}
+.insp{width:var(--insp);background:var(--panel);border-left:1px solid var(--line);
+  overflow-y:auto;flex-shrink:0;padding:22px 24px 40px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#1d1d22;border-radius:8px;border:3px solid var(--panel)}
+
+/* ============ RAIL ============ */
+.lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--txt3)}
+.rail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.search{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:9px 14px;margin-bottom:14px}
+.search .ic{width:6px;height:6px;border-radius:50%;border:1.5px solid var(--txt3)}
+.search input{background:none;border:none;color:var(--txt);font-size:11.5px;width:100%;outline:none}
+.search input::placeholder{color:var(--txt3)}
+.tabs{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:3px;margin-bottom:20px}
+.tab{flex:1;text-align:center;font-size:11px;font-weight:500;color:var(--txt3);padding:6px;border-radius:6px;transition:.15s}
+.tab.active{color:var(--accent);background:var(--accent-soft);
+  border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+.group{margin:18px 0 10px}
+.comp{display:flex;align-items:center;gap:12px;position:relative;background:var(--card);
+  border:1px solid var(--line);border-radius:8px;padding:11px 12px;margin-bottom:8px;
+  overflow:hidden;transition:.15s;cursor:pointer}
+.comp:hover{border-color:var(--txt3)}
+.comp .handle{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent-dim);opacity:.5}
+.comp.active{background:var(--card2);border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.comp.active .handle{background:var(--accent);opacity:1}
+.cb{width:16px;height:16px;border:1.4px solid var(--txt3);border-radius:4px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:.15s}
+.comp.active .cb{border-color:var(--accent)}
+.comp.active .cb::after{content:"";width:8px;height:8px;border-radius:2px;background:var(--accent)}
+.comp .nm{font-size:12.5px;font-weight:500;color:var(--txt2);flex:1}
+.comp.active .nm{color:var(--txt)}
+.badge{font-family:var(--mono);font-size:9px;letter-spacing:.04em;padding:4px 8px;border-radius:3px}
+.badge.gen{color:var(--blue);background:var(--blue-soft);border:1px solid color-mix(in srgb,var(--blue) 40%,transparent)}
+.badge.lock{color:var(--accent);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+.badge.asset{color:var(--blue);background:var(--blue-soft);border:1px solid color-mix(in srgb,var(--blue) 40%,transparent)}
+.divline{height:1px;background:var(--line);margin:18px 0}
+.assets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.asset{aspect-ratio:1;background:var(--black);border:1px solid var(--line);border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  transition:.15s;cursor:grab}
+.asset:hover{border-color:var(--accent-dim)}
+.asset .mark{width:30%;height:30%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.asset .cap{font-family:var(--mono);font-size:8px;letter-spacing:.06em;color:var(--txt3)}
+
+/* ============ CANVAS ============ */
+.canvas-bar{display:flex;justify-content:space-between;padding:18px 28px 0;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--txt3)}
+.stage{display:flex;justify-content:center;padding:50px 28px 40px}
+.stage-inner{width:860px;max-width:100%;transition:width .3s ease}
+.art{background:var(--art-bg);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.art-nav{display:flex;align-items:center;padding:26px 40px;border-bottom:1px solid var(--line)}
+.art-nav .b{font-weight:700;font-size:13px;letter-spacing:.16em}
+.art-nav .links{margin-left:auto;display:flex;gap:28px;align-items:center}
+.art-nav .links a{font-size:11px;font-weight:500;color:var(--txt2)}
+.art-nav .mini-cta{font-size:10.5px;font-weight:500;color:var(--accent);
+  border:1px solid color-mix(in srgb,var(--accent) 60%,transparent);padding:7px 14px;border-radius:6px}
+
+/* selected hero */
+.hero-wrap{position:relative;padding:40px}
+.hero{position:relative;display:flex;gap:40px;padding:20px;border-radius:4px;
+  outline:1.5px solid var(--accent);outline-offset:6px}
+.hero .handle-pt{position:absolute;width:8px;height:8px;background:var(--accent);
+  border:1.5px solid var(--bg);border-radius:2px}
+.hp-tl{top:-10px;left:-10px}.hp-tr{top:-10px;right:-10px}.hp-bl{bottom:-10px;left:-10px}.hp-br{bottom:-10px;right:-10px}
+.hero-label{position:absolute;top:-32px;left:-6px;font-family:var(--mono);font-size:8.5px;
+  letter-spacing:.04em;color:var(--black);background:var(--accent);padding:4px 8px;border-radius:3px}
+/* inline edit toolbar */
+.inline-tb{position:absolute;top:-76px;left:-6px;display:flex;align-items:center;gap:0;
+  background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:6px;
+  box-shadow:0 6px 18px rgba(0,0,0,.5);z-index:5}
+.inline-tb .tbtn{font-weight:600;font-size:13px;color:var(--txt2);width:28px;height:24px;
+  display:flex;align-items:center;justify-content:center;border-radius:5px}
+.inline-tb .tbtn:hover{background:var(--card);color:var(--txt)}
+.inline-tb .vsep{width:1px;height:20px;background:var(--line);margin:0 6px}
+.inline-tb .ai{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:500;color:var(--blue);
+  background:var(--blue-soft);border:1px solid color-mix(in srgb,var(--blue) 40%,transparent);
+  padding:5px 9px;border-radius:6px}
+.inline-tb .swatch{width:18px;height:18px;border-radius:5px;background:var(--accent);
+  border:1.5px solid var(--bg);margin-left:8px;position:relative}
+.inline-tb .swatch::after{content:"🔒";position:absolute;font-size:8px;right:-7px;bottom:-4px}
+
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.06em;
+  color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);
+  background:var(--card);padding:5px 9px;border-radius:3px}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:62px;line-height:1;margin:18px 0;letter-spacing:-.01em}
+.hero p{font-size:13px;line-height:1.62;color:var(--txt2);max-width:380px}
+.hero-cta{display:flex;gap:12px;margin-top:28px}
+.btn-pri{background:var(--accent);color:var(--black);font-weight:600;font-size:12.5px;padding:14px 28px;border-radius:8px}
+.btn-sec{border:1.2px solid var(--line);color:var(--txt2);font-weight:500;font-size:12px;padding:14px 24px;border-radius:8px}
+.prod-card{width:300px;flex-shrink:0;background:var(--art-panel);border:1px solid var(--line);
+  border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 0;min-height:360px}
+.prod-card .wing{width:34px;height:34px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);margin-bottom:28px}
+.prod-card .t{font-size:14px;font-weight:500;letter-spacing:.16em}
+.prod-card .s{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--txt3);margin-top:8px}
+.prod-card .rule{width:40px;height:1px;background:var(--accent);margin-top:18px}
+
+/* ============ INTENT / COMPOSER ============ */
+.intent{margin:0 28px 40px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;
+  padding:22px 24px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.intent .row1{display:flex;align-items:flex-start;gap:20px}
+.intent .it{flex:1}
+.intent .prompt{font-size:13.5px;color:var(--txt);margin-top:8px;line-height:1.5;max-width:560px}
+.compose{background:var(--accent);color:var(--black);font-weight:600;font-size:12.5px;
+  padding:13px 24px;border-radius:9px;white-space:nowrap;transition:.15s}
+.compose:hover{filter:brightness(1.08)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.chip{font-size:9.5px;color:var(--txt2);background:var(--card);border:1px solid var(--line);
+  padding:5px 9px;border-radius:5px}
+.intent .warn{display:flex;align-items:center;gap:10px;margin-top:16px;
+  font-size:10.5px;font-weight:500;color:var(--accent)}
+.intent .warn .d{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.intent .cx{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--txt3)}
+
+/* ============ INSPECTOR ============ */
+.insp h2{font-family:var(--serif);font-weight:400;font-size:20px}
+.insp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.insp-tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--accent);
+  background:var(--card);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:4px 8px;border-radius:3px}
+.fld{margin-bottom:18px}
+.fld .flbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.fld .ai-mini{font-family:var(--mono);font-size:8.5px;letter-spacing:.04em;color:var(--blue);
+  background:var(--blue-soft);border:1px solid color-mix(in srgb,var(--blue) 40%,transparent);padding:3px 6px;border-radius:4px}
+.fld input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;color:var(--txt);font-size:12px;font-family:inherit;outline:none;transition:.15s}
+.fld input:focus{border-color:var(--accent)}
+.fld input.lead{border-color:color-mix(in srgb,var(--accent) 70%,transparent)}
+.gov-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);
+  border-radius:8px;padding:8px 12px;margin-bottom:8px}
+.gov-row .gl{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--txt3)}
+.gov-row .gv{font-size:11.5px;font-weight:500;color:var(--txt2);margin-top:3px}
+.gov-row .plus{font-size:16px;color:var(--txt3)}
+.achip{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:8px;margin-bottom:24px}
+.achip .th{width:30px;height:30px;background:var(--black);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.achip .th .w{width:13px;height:13px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.achip .nm{font-size:11px;font-weight:500}
+.achip .sub{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;color:var(--txt3);margin-top:2px}
+.lockp{background:var(--card2);border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);
+  border-radius:10px;padding:16px}
+.lockp .lt{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--accent)}
+.lockp .ls{font-size:9.5px;color:var(--txt3);margin-top:5px}
+.lockp .lrow{display:flex;align-items:center;gap:14px;margin-top:14px}
+.lockp .lrow .d{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.lockp .lrow .ln{font-size:12px;font-weight:500;flex:1}
+.lockp .lk{font-family:var(--mono);font-size:8.5px;letter-spacing:.04em;color:var(--accent);
+  background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
+  padding:4px 9px;border-radius:4px;transition:.15s}
+.lockp .lrow.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.section-lbl{margin:22px 0 14px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top">
+  <span class="brand">EMOVEL</span>
+  <span class="pe-tag">PAGE ENGINE</span>
+  <div class="universe" id="universe">
+    <button class="uni active" data-accent="#D4AF37" data-dim="#8A7330">NOIR</button>
+    <button class="uni" data-accent="#C9A36A" data-dim="#8C6E40">IVORY</button>
+    <button class="uni" data-accent="#7FA8C9" data-dim="#4E6E86">NORDIC</button>
+    <button class="uni" data-accent="#C8794E" data-dim="#8A5234">TERRA</button>
+    <button class="uni" data-accent="#9A9A9A" data-dim="#5E5E5E">MONO</button>
+  </div>
+  <div class="top-right">
+    <div class="resp" id="resp">
+      <button class="active" data-w="860">Desktop</button>
+      <button data-w="600">Tablet</button>
+      <button data-w="380">Phone</button>
+    </div>
+    <button class="ghost">Preview</button>
+    <button class="export">Export HTML <span class="dot"></span></button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- LEFT RAIL -->
+  <aside class="rail">
+    <div class="rail-head"><span class="lbl">LIBRARY</span><span class="mono" style="font-size:11px;color:var(--txt2)">18</span></div>
+    <div class="search"><span class="ic"></span><input placeholder="Search components & assets"></div>
+    <div class="tabs"><button class="tab active">Sections</button><button class="tab">Assets</button></div>
+
+    <div class="lbl group">STRUCTURE</div>
+    <div class="comp"><span class="handle"></span><span class="cb"></span><span class="nm">NavigationBar</span><span class="badge lock">LOCK</span></div>
+    <div class="comp"><span class="handle"></span><span class="cb"></span><span class="nm">FooterSection</span><span class="badge gen">GEN</span></div>
+
+    <div class="lbl group">CONVERSION</div>
+    <div class="comp active"><span class="handle"></span><span class="cb"></span><span class="nm">HeroSection</span><span class="badge gen">GEN</span></div>
+    <div class="comp"><span class="handle"></span><span class="cb"></span><span class="nm">CTASection</span><span class="badge gen">GEN</span></div>
+    <div class="comp"><span class="handle"></span><span class="cb"></span><span class="nm">PricingSection</span><span class="badge lock">LOCK</span></div>
+
+    <div class="lbl group">VISUAL · 3D</div>
+    <div class="comp"><span class="handle"></span><span class="cb"></span><span class="nm">GalleryShowcase</span><span class="badge asset">ASSET</span></div>
+    <div class="comp"><span class="handle"></span><span class="cb"></span><span class="nm">ThreeDShowcase</span><span class="badge asset">ASSET</span></div>
+
+    <div class="divline"></div>
+    <div class="rail-head"><span class="lbl">ASSETS · EMOVEL LIBRARY</span><span class="mono" style="font-size:10px;color:var(--txt2)">12</span></div>
+    <div class="assets">
+      <div class="asset"><span class="mark"></span><span class="cap">CODEX</span></div>
+      <div class="asset"><span class="mark"></span><span class="cap">NOIR BG</span></div>
+      <div class="asset"><span class="mark"></span><span class="cap">WING</span></div>
+      <div class="asset"><span class="mark"></span><span class="cap">NOIR BG</span></div>
+      <div class="asset"><span class="mark"></span><span class="cap">3D WING</span></div>
+      <div class="asset"><span class="mark"></span><span class="cap">MONO E</span></div>
+    </div>
+  </aside>
+
+  <!-- CANVAS -->
+  <main class="canvas">
+    <div class="canvas-bar"><span id="canvas-meta">CANVAS · 1440 / Desktop</span><span>100% &nbsp;·&nbsp; <span id="canvas-uni">NOIR</span></span></div>
+
+    <div class="stage">
+      <div class="stage-inner" id="stage">
+        <div class="art">
+          <div class="art-nav">
+            <span class="b">EMOVEL</span>
+            <div class="links"><a>System</a><a>Universes</a><a>Pricing</a><span class="mini-cta">Get the Codex</span></div>
+          </div>
+          <div class="hero-wrap">
+            <div class="hero">
+              <span class="hero-label">HeroSection · cinematic · NOIR</span>
+              <div class="inline-tb">
+                <button class="tbtn" style="font-style:normal;font-weight:700">B</button>
+                <button class="tbtn" style="font-style:italic">i</button>
+                <span class="vsep"></span>
+                <button class="tbtn" style="font-size:11px">Link</button>
+                <span class="vsep"></span>
+                <span class="ai">✦ AI rewrite</span>
+                <span class="swatch"></span>
+              </div>
+              <span class="handle-pt hp-tl"></span><span class="handle-pt hp-tr"></span>
+              <span class="handle-pt hp-bl"></span><span class="handle-pt hp-br"></span>
+              <div>
+                <span class="eyebrow">VOLUME I — FIVE UNIVERSES</span>
+                <h1 id="hero-title">Cinematic Codex</h1>
+                <p id="hero-sub">A premium visual intelligence system for creators building cinematic product pages, digital assets, and AI-native brand experiences.</p>
+                <div class="hero-cta">
+                  <button class="btn-pri" id="hero-pri">Get the Codex</button>
+                  <button class="btn-sec" id="hero-sec">Preview System</button>
+                </div>
+              </div>
+              <div class="prod-card">
+                <span class="wing"></span>
+                <span class="t">CINEMATIC CODEX</span>
+                <span class="s">NOIR EDITION</span>
+                <span class="rule"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTENT / COMPOSER -->
+    <div class="intent">
+      <div class="row1">
+        <div class="it">
+          <span class="lbl">INTENT</span>
+          <p class="prompt">Premium landing page for Cinematic Codex — conversion-focused, NOIR universe, gallery proof.</p>
+        </div>
+        <button class="compose">Compose Page</button>
+      </div>
+      <div class="lbl" style="margin-top:18px">COMPOSITION · 10 SECTIONS</div>
+      <div class="chips">
+        <span class="chip">NavigationBar</span><span class="chip">HeroSection</span>
+        <span class="chip">TrustStrip</span><span class="chip">FeatureGrid</span>
+        <span class="chip">ProductShowcase</span><span class="chip">GalleryShowcase</span>
+        <span class="chip">PricingSection</span><span class="chip">FAQSection</span>
+        <span class="chip">LeadCapture</span><span class="chip">FooterSection</span>
+      </div>
+      <div class="warn"><span class="d"></span>1 missing asset — GalleryShowcase / image 03<span class="cx">COMPLEXITY · LOW</span></div>
+    </div>
+  </main>
+
+  <!-- INSPECTOR -->
+  <aside class="insp">
+    <div class="insp-head"><h2>HeroSection</h2><span class="insp-tag" id="insp-uni">NOIR</span></div>
+    <div class="divline" style="margin:0 0 18px"></div>
+
+    <div class="lbl">CONTENT</div>
+    <div style="height:16px"></div>
+
+    <div class="fld">
+      <div class="flbl"><span class="lbl">TITLE</span><span class="ai-mini">AI</span></div>
+      <input class="lead" id="in-title" value="Cinematic Codex">
+    </div>
+    <div class="fld">
+      <div class="flbl"><span class="lbl">SUBTITLE</span><span class="ai-mini">AI</span></div>
+      <input id="in-sub" value="A premium visual intelligence system…">
+    </div>
+    <div class="fld">
+      <div class="flbl"><span class="lbl">PRIMARY CTA</span><span class="ai-mini">AI</span></div>
+      <input id="in-pri" value="Get the Codex">
+    </div>
+    <div class="fld">
+      <div class="flbl"><span class="lbl">SECONDARY CTA</span><span class="ai-mini">AI</span></div>
+      <input id="in-sec" value="Preview System">
+    </div>
+
+    <div class="gov-row"><div><div class="gl">LAYOUT</div><div class="gv">Product-Card</div></div><span class="plus">+</span></div>
+    <div class="gov-row"><div><div class="gl">SURFACE</div><div class="gv">Cinematic</div></div><span class="plus">+</span></div>
+    <div class="gov-row" style="margin-bottom:20px"><div><div class="gl">MOTION</div><div class="gv">Cinematic</div></div><span class="plus">+</span></div>
+
+    <div class="lbl" style="margin-bottom:10px">ASSET</div>
+    <div class="achip">
+      <span class="th"><span class="w"></span></span>
+      <div><div class="nm">codex_cover_noir.png</div><div class="sub">EMOVEL LIBRARY</div></div>
+    </div>
+
+    <div class="lockp" id="lockp">
+      <div class="lt">AI LOCK</div>
+      <div class="ls">Governed by EMOVEL identity</div>
+      <div class="divline" style="margin:14px 0 0"></div>
+      <div class="lrow"><span class="d"></span><span class="ln">universe</span><button class="lk">LOCKED</button></div>
+      <div class="lrow"><span class="d"></span><span class="ln">palette</span><button class="lk">LOCKED</button></div>
+      <div class="lrow"><span class="d"></span><span class="ln">typography</span><button class="lk">LOCKED</button></div>
+      <div class="lrow"><span class="d"></span><span class="ln">price</span><button class="lk">LOCKED</button></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// universe switch — re-themes the single accent axis (governed)
+const root=document.documentElement;
+document.querySelectorAll('#universe .uni').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelector('#universe .active').classList.remove('active');
+    b.classList.add('active');
+    root.style.setProperty('--accent',b.dataset.accent);
+    root.style.setProperty('--accent-dim',b.dataset.dim);
+    root.style.setProperty('--accent-soft',b.dataset.accent+'24');
+    const n=b.textContent;
+    document.getElementById('canvas-uni').textContent=n;
+    document.getElementById('insp-uni').textContent=n;
+    document.querySelector('.hero-label').textContent='HeroSection · cinematic · '+n;
+  });
+});
+// responsive toggle — resizes the artboard
+document.querySelectorAll('#resp button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelector('#resp .active').classList.remove('active');
+    b.classList.add('active');
+    document.getElementById('stage').style.width=b.dataset.w+'px';
+    const w={860:'1440 / Desktop',600:'834 / Tablet',380:'390 / Phone'}[b.dataset.w];
+    document.getElementById('canvas-meta').textContent='CANVAS · '+w;
+  });
+});
+// inline editing — inspector fields drive the canvas live
+const bind=(id,fn)=>{const el=document.getElementById(id);el&&el.addEventListener('input',()=>fn(el.value))};
+bind('in-title',v=>document.getElementById('hero-title').textContent=v||'Untitled');
+bind('in-sub',v=>document.getElementById('hero-sub').textContent=v);
+bind('in-pri',v=>document.getElementById('hero-pri').textContent=v);
+bind('in-sec',v=>document.getElementById('hero-sec').textContent=v);
+// component selection
+document.querySelectorAll('.rail .comp').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.rail .comp.active').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+// locked governance — feedback when someone tries to override identity
+document.querySelectorAll('#lockp .lk').forEach(k=>{
+  k.addEventListener('click',()=>{
+    const row=k.closest('.lrow');row.classList.add('shake');
+    setTimeout(()=>row.classList.remove('shake'),350);
+  });
+});
+</script>
+</body>
+</html>
