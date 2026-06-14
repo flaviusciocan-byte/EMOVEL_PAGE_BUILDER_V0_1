@@ -14,7 +14,8 @@
 // Only active in `npm run dev`; the build output is a static SPA that does not use this server.
 
 import type { Plugin } from 'vite';
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import path from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
@@ -30,9 +31,9 @@ interface PageRecord {
   content: unknown;
 }
 
-function ensureDirs(): void {
-  fs.mkdirSync(PAGES_DIR, { recursive: true });
-  fs.mkdirSync(TRASH_DIR, { recursive: true });
+async function ensureDirs(): Promise<void> {
+  await fs.mkdir(PAGES_DIR, { recursive: true });
+  await fs.mkdir(TRASH_DIR, { recursive: true });
 }
 
 function slugToFile(slug: string): string {
@@ -49,10 +50,10 @@ function safeSlug(raw: string): string {
   );
 }
 
-function uniqueSlug(base: string): string {
+async function uniqueSlug(base: string): Promise<string> {
   let slug = base;
   let n = 0;
-  while (fs.existsSync(slugToFile(slug))) {
+  while (fsSync.existsSync(slugToFile(slug))) {
     n++;
     slug = `${base}-${n}`;
   }
@@ -68,9 +69,10 @@ function readBody(req: IncomingMessage): Promise<string> {
   });
 }
 
-function readPageFile(file: string): PageRecord | null {
+async function readPageFile(file: string): Promise<PageRecord | null> {
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf-8')) as PageRecord;
+    const content = await fs.readFile(file, 'utf-8');
+    return JSON.parse(content) as PageRecord;
   } catch {
     return null;
   }
@@ -107,121 +109,141 @@ async function handleRequest(
     return;
   }
 
-  // GET /api/pages — list all pages (metadata only, sorted newest first)
-  if (method === 'GET' && parts.length === 0) {
-    const files = fs.readdirSync(PAGES_DIR).filter(f => f.endsWith('.page.json'));
-    const pages = files
-      .map(f => readPageFile(path.join(PAGES_DIR, f)))
-      .filter((p): p is PageRecord => p !== null)
-      .map(({ slug, title, createdAt, modifiedAt, version }) => ({
-        slug, title, createdAt, modifiedAt, version,
-      }))
-      .sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt));
-    json(res, 200, pages);
-    return;
-  }
+  try {
+    // GET /api/pages — list all pages (metadata only, sorted newest first)
+    if (method === 'GET' && parts.length === 0) {
+      const files = await fs.readdir(PAGES_DIR);
+      const pageFiles = files.filter(f => f.endsWith('.page.json'));
+      
+      const pages = await Promise.all(
+        pageFiles.map(async (f) => readPageFile(path.join(PAGES_DIR, f)))
+      );
+      
+      const result = pages
+        .filter((p): p is PageRecord => p !== null)
+        .map(({ slug, title, createdAt, modifiedAt, version }) => ({
+          slug, title, createdAt, modifiedAt, version,
+        }))
+        .sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt));
+      
+      json(res, 200, result);
+      return;
+    }
 
-  // GET /api/pages/:slug — load full page
-  if (method === 'GET' && parts.length >= 1) {
-    const slug = safeSlug(parts[0]);
-    const page = readPageFile(slugToFile(slug));
-    if (!page) { json(res, 404, { error: 'Not found' }); return; }
-    json(res, 200, page);
-    return;
-  }
+    // GET /api/pages/:slug — load full page
+    if (method === 'GET' && parts.length >= 1) {
+      const slug = safeSlug(parts[0]);
+      const page = await readPageFile(slugToFile(slug));
+      if (!page) { json(res, 404, { error: 'Not found' }); return; }
+      json(res, 200, page);
+      return;
+    }
 
-  // POST /api/pages — create new page
-  if (method === 'POST' && parts.length === 0) {
-    const body = JSON.parse(await readBody(req)) as { title?: string; slug?: string; content?: unknown };
-    const title = String(body.title ?? 'Untitled Page');
-    const slug = uniqueSlug(safeSlug(String(body.slug ?? title)));
-    const now = new Date().toISOString();
-    const page: PageRecord = {
-      version: 1,
-      title,
-      slug,
-      createdAt: now,
-      modifiedAt: now,
-      content: body.content ?? { root: { props: { title } }, content: [] },
-    };
-    fs.writeFileSync(slugToFile(slug), JSON.stringify(page, null, 2), 'utf-8');
-    json(res, 201, page);
-    return;
-  }
+    // POST /api/pages — create new page
+    if (method === 'POST' && parts.length === 0) {
+      const body = JSON.parse(await readBody(req)) as { title?: string; slug?: string; content?: unknown };
+      const title = String(body.title ?? 'Untitled Page');
+      const slug = await uniqueSlug(safeSlug(String(body.slug ?? title)));
+      const now = new Date().toISOString();
+      const page: PageRecord = {
+        version: 1,
+        title,
+        slug,
+        createdAt: now,
+        modifiedAt: now,
+        content: body.content ?? { root: { props: { title } }, content: [] },
+      };
+      await fs.writeFile(slugToFile(slug), JSON.stringify(page, null, 2), 'utf-8');
+      json(res, 201, page);
+      return;
+    }
 
-  // PUT /api/pages/:slug — save / update page
-  if (method === 'PUT' && parts.length >= 1) {
-    const slug = safeSlug(parts[0]);
-    const body = JSON.parse(await readBody(req)) as { title?: string; content?: unknown };
-    const existing = readPageFile(slugToFile(slug));
-    const now = new Date().toISOString();
-    const page: PageRecord = {
-      version: 1,
-      ...(existing ?? {}),
-      slug,
-      title: String(body.title ?? existing?.title ?? 'Untitled Page'),
-      createdAt: existing?.createdAt ?? now,
-      modifiedAt: now,
-      content: body.content ?? existing?.content ?? { root: { props: { title: slug } }, content: [] },
-    };
-    fs.writeFileSync(slugToFile(slug), JSON.stringify(page, null, 2), 'utf-8');
-    json(res, 200, page);
-    return;
-  }
+    // PUT /api/pages/:slug — save / update page
+    if (method === 'PUT' && parts.length >= 1) {
+      const slug = safeSlug(parts[0]);
+      const body = JSON.parse(await readBody(req)) as { title?: string; content?: unknown };
+      const existing = await readPageFile(slugToFile(slug));
+      const now = new Date().toISOString();
+      const page: PageRecord = {
+        version: 1,
+        ...(existing ?? {}),
+        slug,
+        title: String(body.title ?? existing?.title ?? 'Untitled Page'),
+        createdAt: existing?.createdAt ?? now,
+        modifiedAt: now,
+        content: body.content ?? existing?.content ?? { root: { props: { title: slug } }, content: [] },
+      };
+      await fs.writeFile(slugToFile(slug), JSON.stringify(page, null, 2), 'utf-8');
+      json(res, 200, page);
+      return;
+    }
 
-  // PATCH /api/pages/:slug — rename only
-  if (method === 'PATCH' && parts.length >= 1) {
-    const slug = safeSlug(parts[0]);
-    const file = slugToFile(slug);
-    const existing = readPageFile(file);
-    if (!existing) { json(res, 404, { error: 'Not found' }); return; }
-    const body = JSON.parse(await readBody(req)) as { title?: string };
-    const updated: PageRecord = {
-      ...existing,
-      title: String(body.title ?? existing.title),
-      modifiedAt: new Date().toISOString(),
-    };
-    fs.writeFileSync(file, JSON.stringify(updated, null, 2), 'utf-8');
-    json(res, 200, updated);
-    return;
-  }
+    // PATCH /api/pages/:slug — rename only
+    if (method === 'PATCH' && parts.length >= 1) {
+      const slug = safeSlug(parts[0]);
+      const file = slugToFile(slug);
+      const existing = await readPageFile(file);
+      if (!existing) { json(res, 404, { error: 'Not found' }); return; }
+      const body = JSON.parse(await readBody(req)) as { title?: string };
+      const updated: PageRecord = {
+        ...existing,
+        title: String(body.title ?? existing.title),
+        modifiedAt: new Date().toISOString(),
+      };
+      await fs.writeFile(file, JSON.stringify(updated, null, 2), 'utf-8');
+      json(res, 200, updated);
+      return;
+    }
 
-  // DELETE /api/pages/:slug — move to trash (never hard-deletes)
-  if (method === 'DELETE' && parts.length >= 1) {
-    const slug = safeSlug(parts[0]);
-    const file = slugToFile(slug);
-    if (!fs.existsSync(file)) { json(res, 404, { error: 'Not found' }); return; }
-    const trashFile = path.join(TRASH_DIR, `${slug}-${Date.now()}.page.json`);
-    fs.renameSync(file, trashFile);
-    json(res, 200, { ok: true });
-    return;
-  }
+    // DELETE /api/pages/:slug — move to trash (never hard-deletes)
+    if (method === 'DELETE' && parts.length >= 1) {
+      const slug = safeSlug(parts[0]);
+      const file = slugToFile(slug);
+      if (!fsSync.existsSync(file)) { json(res, 404, { error: 'Not found' }); return; }
+      const trashFile = path.join(TRASH_DIR, `${slug}-${Date.now()}.page.json`);
+      await fs.rename(file, trashFile);
+      json(res, 200, { ok: true });
+      return;
+    }
 
-  // POST /api/pages/:slug/duplicate
-  if (method === 'POST' && parts.length >= 2 && parts[1] === 'duplicate') {
-    const slug = safeSlug(parts[0]);
-    const existing = readPageFile(slugToFile(slug));
-    if (!existing) { json(res, 404, { error: 'Not found' }); return; }
-    const body = JSON.parse(await readBody(req)) as { title?: string };
-    const newTitle = String(body.title ?? `${existing.title} Copy`);
-    const newSlug = uniqueSlug(safeSlug(newTitle));
-    const now = new Date().toISOString();
-    const page: PageRecord = { ...existing, title: newTitle, slug: newSlug, createdAt: now, modifiedAt: now };
-    fs.writeFileSync(slugToFile(newSlug), JSON.stringify(page, null, 2), 'utf-8');
-    json(res, 201, page);
-    return;
-  }
+    // POST /api/pages/:slug/duplicate
+    if (method === 'POST' && parts.length >= 2 && parts[1] === 'duplicate') {
+      const slug = safeSlug(parts[0]);
+      const existing = await readPageFile(slugToFile(slug));
+      if (!existing) { json(res, 404, { error: 'Not found' }); return; }
+      const body = JSON.parse(await readBody(req)) as { title?: string };
+      const newTitle = String(body.title ?? `${existing.title} Copy`);
+      const newSlug = await uniqueSlug(safeSlug(newTitle));
+      const now = new Date().toISOString();
+      const page: PageRecord = { ...existing, title: newTitle, slug: newSlug, createdAt: now, modifiedAt: now };
+      await fs.writeFile(slugToFile(newSlug), JSON.stringify(page, null, 2), 'utf-8');
+      json(res, 201, page);
+      return;
+    }
 
-  next();
+    next();
+  } catch (err) {
+    console.error('[Page Server Error]', err);
+    json(res, 500, { error: 'Internal server error' });
+  }
 }
 
 export function pageServerPlugin(): Plugin {
+  let initialized = false;
+
   return {
     name: 'emovel-page-server',
     configureServer(server) {
-      ensureDirs();
+      if (!initialized) {
+        void ensureDirs().catch(err => console.error('[Page Server] Failed to init dirs:', err));
+        initialized = true;
+      }
+
       server.middlewares.use('/api/pages', (req: IncomingMessage, res: ServerResponse, next: NextFn) => {
-        void handleRequest(req, res, next);
+        void handleRequest(req, res, next).catch(err => {
+          console.error('[Page Server] Request handler error:', err);
+          json(res, 500, { error: 'Internal server error' });
+        });
       });
     },
   };
