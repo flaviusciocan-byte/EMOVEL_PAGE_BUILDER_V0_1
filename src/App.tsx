@@ -11,6 +11,7 @@ import { PageContextProvider } from './storage/PageContext';
 import { BuilderModeContext } from './builder/BuilderModeContext';
 
 const STORAGE_KEY = 'emovel-page-data';
+const DEBOUNCE_SAVE_MS = 500; // Wait 500ms after last change before saving
 
 function loadSavedData(): Data {
   try {
@@ -32,17 +33,27 @@ function AppInner() {
   const themeRef = useRef(theme);
   themeRef.current = theme;
 
+  // Debounced autosave
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastDataRef = useRef<Data>(savedData);
+
   // Inject theme CSS vars into Puck's canvas iframe on every theme change.
   // CSS custom properties do not cross document boundaries, so vars set on
   // the outer ThemeProvider div are invisible inside the iframe. We write a
   // <style id="emovel-theme"> tag directly into the iframe's <head> instead.
   useEffect(() => {
     const STYLE_ID = 'emovel-theme';
+    let iframeRef: HTMLIFrameElement | null = null;
 
     function apply() {
-      const iframe = document.querySelector<HTMLIFrameElement>('iframe');
-      const doc = iframe?.contentDocument;
+      // Use cached iframe reference if available, otherwise query
+      if (!iframeRef) {
+        iframeRef = document.querySelector<HTMLIFrameElement>('iframe');
+      }
+      
+      const doc = iframeRef?.contentDocument;
       if (!doc?.head) return;
+      
       let el = doc.getElementById(STYLE_ID) as HTMLStyleElement | null;
       if (!el) {
         el = doc.createElement('style');
@@ -54,8 +65,12 @@ function AppInner() {
 
     apply();
     // Re-apply when the iframe reloads (Puck resets the iframe on data changes)
-    document.addEventListener('load', apply, true);
-    return () => document.removeEventListener('load', apply, true);
+    const handleLoad = () => {
+      iframeRef = null; // Clear cache on iframe reload
+      apply();
+    };
+    document.addEventListener('load', handleLoad, true);
+    return () => document.removeEventListener('load', handleLoad, true);
   }, [theme]);
 
   return (
@@ -66,13 +81,20 @@ function AppInner() {
         plugins={[legacySideBar]}
         overrides={puckOverrides}
         onAction={(_, newState) => {
-          // localStorage = fast autosave buffer. The authoritative copy is the file on disk
-          // (saved explicitly via the Save button in TopBar / PageListPanel).
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newState.data));
-          } catch {
-            // Storage full or unavailable — fail silently
+          // Debounced autosave: only write to localStorage after 500ms of inactivity
+          lastDataRef.current = newState.data;
+
+          if (autoSaveTimerRef.current) {
+            clearTimeout(autoSaveTimerRef.current);
           }
+
+          autoSaveTimerRef.current = setTimeout(() => {
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(lastDataRef.current));
+            } catch {
+              // Storage full or unavailable — fail silently
+            }
+          }, DEBOUNCE_SAVE_MS);
         }}
         onPublish={(data) => {
           // onPublish = ZIP static export. Saving to disk uses the Save button in TopBar.
