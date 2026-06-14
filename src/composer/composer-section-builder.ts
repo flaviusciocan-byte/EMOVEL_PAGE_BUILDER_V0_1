@@ -61,6 +61,40 @@ const HERO_SUBTITLE_BY_PAGE_TYPE: Record<PageType, (brandName: string, audience:
   about:     (b, a) => `Meet the team building ${b} for ${a}. Driven by craft, not convention.`,
 };
 
+const FOOTER_TAGLINE_BY_PAGE_TYPE: Record<PageType, (brandName: string, audience: string) => string> = {
+  saas:      (_b, a) => `Built for ${a} who demand more.`,
+  landing:   (b, _a) => `${b} — worth being part of.`,
+  portfolio: (_b, _a) => 'Every project built to an uncompromising standard.',
+  product:   (b, _a) => `${b} — quality you can feel.`,
+  about:     (b, _a) => `The people and craft behind ${b}.`,
+};
+
+// linkGroups.links uses the Puck stored format: "Label | href" per line (textarea string).
+// parseFooterLinks in puck.config.tsx converts this to CTALink[] at the render boundary.
+const FOOTER_LINK_GROUPS_BY_PAGE_TYPE: Record<PageType, Array<{ heading: string; links: string }>> = {
+  saas: [
+    { heading: 'Product', links: 'Features | #features\nPricing | #pricing\nChangelog | #changelog' },
+    { heading: 'Company', links: 'About | #about\nBlog | #blog\nContact | #contact'               },
+    { heading: 'Legal',   links: 'Privacy | #privacy\nTerms | #terms'                             },
+  ],
+  landing: [
+    { heading: 'About', links: 'Story | #about\nTeam | #team'       },
+    { heading: 'Legal', links: 'Privacy | #privacy\nTerms | #terms' },
+  ],
+  portfolio: [
+    { heading: 'Work',    links: 'Projects | #work\nProcess | #process' },
+    { heading: 'Contact', links: 'Get in touch | #contact'              },
+  ],
+  product: [
+    { heading: 'Products', links: 'Catalogue | #products\nAbout | #about' },
+    { heading: 'Legal',    links: 'Privacy | #privacy\nTerms | #terms'    },
+  ],
+  about: [
+    { heading: 'Company', links: 'Team | #team\nStory | #story\nContact | #contact' },
+    { heading: 'Legal',   links: 'Privacy | #privacy\nTerms | #terms'               },
+  ],
+};
+
 const CTA_HEADLINE_BY_TONE: Record<string, (brandName: string) => string> = {
   premium:   (b) => `Ready to experience ${b}?`,
   technical: (b) => `Start building with ${b} today.`,
@@ -207,6 +241,23 @@ function buildLeadCapture(profile: ComposerStrategyProfile): Record<string, unkn
   };
 }
 
+function buildFooterSection(profile: ComposerStrategyProfile): Record<string, unknown> {
+  const taglineFn = FOOTER_TAGLINE_BY_PAGE_TYPE[profile.pageType];
+  return {
+    logoText:    profile.brand.name,
+    tagline:     taglineFn(profile.brand.name, profile.audience),
+    linkGroups:  FOOTER_LINK_GROUPS_BY_PAGE_TYPE[profile.pageType],
+    copyright:   `© ${new Date().getFullYear()} ${profile.brand.name}. All rights reserved.`,
+    socialLinks: [
+      { label: 'Twitter',  href: '#' },
+      { label: 'LinkedIn', href: '#' },
+    ],
+    width:              'contained',
+    backgroundImageUrl: '',
+    // surface intentionally omitted — Puck default 'surface' is not a Registry value
+  };
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export function buildSectionProps(
@@ -221,6 +272,7 @@ export function buildSectionProps(
     case 'TestimonialSection': return buildTestimonialSection(profile);
     case 'CTASection':         return buildCTASection(profile);
     case 'LeadCapture':        return buildLeadCapture(profile);
+    case 'FooterSection':      return buildFooterSection(profile);
     default:
       throw new Error(
         `buildSectionProps: no builder for registry component "${registryName}". ` +

@@ -10,10 +10,9 @@ export interface PlannedSection {
 }
 
 // These components are excluded regardless of manifest status.
-// FooterSection: linkGroups.links serialization format not yet normalized in pageSchemaToPuckData.
 // FeatureGrid: maps to CardSection (single card); props are incompatible with a feature grid.
 // OfferSection: Puck-only component, not in Registry manifest.
-const NEVER_EMIT = new Set(['FooterSection', 'FeatureGrid', 'OfferSection']);
+const NEVER_EMIT = new Set(['FeatureGrid', 'OfferSection']);
 
 function isImplemented(name: string, manifest: ValidatorManifest): boolean {
   return manifest.components.some(
@@ -61,6 +60,11 @@ export function planPageStructure(
     add('LeadCapture',
       'Newsletter/email detected — captures leads who are not ready to convert immediately.');
   }
+
+  // ── Site footer ──────────────────────────────────────────────────────────────
+  // FooterSection always appears last — every generated page must close with a footer.
+
+  add('FooterSection', 'Site footer — closes every page with navigation links, copyright, and social links.');
 
   return plan;
 }

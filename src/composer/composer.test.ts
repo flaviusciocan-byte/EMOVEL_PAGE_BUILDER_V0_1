@@ -232,14 +232,72 @@ describe('buildRegistryPageSchema — GalleryShowcase props correctness', () => 
   });
 });
 
+// ── FooterSection ─────────────────────────────────────────────────────────────
+
+describe('buildRegistryPageSchema — FooterSection', () => {
+  it('always includes FooterSection', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    expect(schema.components.some(c => c.registryName === 'FooterSection')).toBe(true);
+  });
+
+  it('FooterSection is the last component', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    const last   = schema.components[schema.components.length - 1];
+    expect(last?.registryName).toBe('FooterSection');
+  });
+
+  it('FooterSection props include logoText, tagline, copyright, linkGroups, socialLinks', () => {
+    const schema  = buildRegistryPageSchema('', manifest);
+    const footer  = schema.components.find(c => c.registryName === 'FooterSection');
+    expect(footer?.props).toHaveProperty('logoText');
+    expect(footer?.props).toHaveProperty('tagline');
+    expect(footer?.props).toHaveProperty('copyright');
+    expect(footer?.props).toHaveProperty('linkGroups');
+    expect(footer?.props).toHaveProperty('socialLinks');
+  });
+
+  it('FooterSection linkGroups use "Label | href" textarea string format', () => {
+    const schema     = buildRegistryPageSchema('', manifest);
+    const footer     = schema.components.find(c => c.registryName === 'FooterSection');
+    const groups     = footer?.props.linkGroups as Array<{ heading: string; links: string }> | undefined;
+    expect(Array.isArray(groups)).toBe(true);
+    expect(groups!.length).toBeGreaterThan(0);
+    for (const group of groups!) {
+      expect(typeof group.heading).toBe('string');
+      expect(typeof group.links).toBe('string');
+      expect(group.links.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('FooterSection schema validates against real manifest', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    const result = validatePageSchema(schema, manifest);
+    expect(result.valid).toBe(true);
+  });
+
+  it('schema with FooterSection converts to Puck data including Footer type', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    const data   = pageSchemaToPuckData(schema);
+    expect(data.content.some(c => c.type === 'Footer')).toBe(true);
+  });
+
+  it('Footer is the last Puck content item', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    const data   = pageSchemaToPuckData(schema);
+    const last   = data.content[data.content.length - 1];
+    expect(last?.type).toBe('Footer');
+  });
+
+  it('FooterSection logoText contains brand name', () => {
+    const schema  = buildRegistryPageSchema('create a page for Acme', manifest);
+    const footer  = schema.components.find(c => c.registryName === 'FooterSection');
+    expect((footer?.props.logoText as string)).toContain('Acme');
+  });
+});
+
 // ── Exclusions ────────────────────────────────────────────────────────────────
 
 describe('buildRegistryPageSchema — exclusions', () => {
-  it('never includes FooterSection', () => {
-    const schema = buildRegistryPageSchema('full page with footer links', manifest);
-    expect(schema.components.some(c => c.registryName === 'FooterSection')).toBe(false);
-  });
-
   it('never includes FeatureGrid', () => {
     const schema = buildRegistryPageSchema('feature grid cards section', manifest);
     expect(schema.components.some(c => c.registryName === 'FeatureGrid')).toBe(false);

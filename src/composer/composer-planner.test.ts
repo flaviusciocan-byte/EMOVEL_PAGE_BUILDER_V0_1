@@ -124,17 +124,39 @@ describe('planPageStructure — section order', () => {
   });
 });
 
+// ── Footer placement ──────────────────────────────────────────────────────────
+
+describe('planPageStructure — FooterSection placement', () => {
+  it('always emits FooterSection', () => {
+    const plan = planPageStructure(classifyIntent(''), manifest);
+    expect(plan.some(s => s.registryName === 'FooterSection')).toBe(true);
+  });
+
+  it('FooterSection is the last section', () => {
+    const plan = planPageStructure(classifyIntent(''), manifest);
+    expect(plan[plan.length - 1]?.registryName).toBe('FooterSection');
+  });
+
+  it('FooterSection appears after CTASection', () => {
+    const plan    = planPageStructure(classifyIntent(''), manifest);
+    const ctaIdx  = plan.findIndex(s => s.registryName === 'CTASection');
+    const footIdx = plan.findIndex(s => s.registryName === 'FooterSection');
+    expect(footIdx).toBeGreaterThan(ctaIdx);
+  });
+
+  it('FooterSection appears after LeadCapture when both present', () => {
+    const plan    = planPageStructure(classifyIntent('newsletter email signup'), manifest);
+    const leadIdx = plan.findIndex(s => s.registryName === 'LeadCapture');
+    const footIdx = plan.findIndex(s => s.registryName === 'FooterSection');
+    if (leadIdx !== -1) {
+      expect(footIdx).toBeGreaterThan(leadIdx);
+    }
+  });
+});
+
 // ── Exclusions ────────────────────────────────────────────────────────────────
 
 describe('planPageStructure — never-emit exclusions', () => {
-  it('never emits FooterSection', () => {
-    const plan = planPageStructure(
-      classifyIntent('full page with footer navigation links'),
-      manifest,
-    );
-    expect(plan.some(s => s.registryName === 'FooterSection')).toBe(false);
-  });
-
   it('never emits FeatureGrid', () => {
     const plan = planPageStructure(
       classifyIntent('feature grid section with cards'),
