@@ -15,7 +15,13 @@ import type { ValidatorManifest }  from '../composer/page-schema-validator';
 import manifestJson                from '../../registry.manifest.json';
 
 const SAMPLE_PROMPT =
-  'Create an EMOVEL landing page for the Page Builder: prompt-generated editable pages, premium hero, feature grid, offer, pricing, CTA, FAQ, and footer.';
+  'Create a SaaS page for EMOVEL Page Builder with gallery screenshots, customer testimonials, pricing plans, newsletter signup, and footer.';
+
+// Minimal shape stored after a successful Registry Composer run.
+interface ComposerMeta {
+  title:      string;
+  components: Array<{ registryName: string }>;
+}
 
 function downloadJSON(filename: string, value: unknown) {
   const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' });
@@ -34,6 +40,7 @@ export function PromptPanel() {
   const [lastSpec, setLastSpec] = useState<PageSpec | null>(null);
   const [status, setStatus] = useState('');
   const [composerErrors, setComposerErrors] = useState<string[]>([]);
+  const [lastComposerMeta, setLastComposerMeta] = useState<ComposerMeta | null>(null);
 
   const previewSpec = useMemo(
     () => generatePageSpecFromPrompt(prompt, preset),
@@ -45,6 +52,7 @@ export function PromptPanel() {
     const data = pageSpecToPuckData(spec);
     dispatch({ type: 'setData', data: data as Partial<Data> });
     setLastSpec(spec);
+    setLastComposerMeta(null);
     setStatus(`Loaded ${spec.sections.length} sections into Puck.`);
   }
 
@@ -66,8 +74,15 @@ export function PromptPanel() {
     const data = pageSchemaToPuckData(schema);
     dispatch({ type: 'setData', data: data as Partial<Data> });
     setComposerErrors([]);
+    setLastComposerMeta({ title: schema.title, components: schema.components });
     setStatus(`[Registry] Loaded ${schema.components.length} validated sections.`);
   }
+
+  // Meta block: show Registry Composer result when available; fall back to PageSpec preview.
+  const metaTitle     = lastComposerMeta?.title                                         ?? previewSpec.title;
+  const metaSections  = lastComposerMeta?.components.length                             ?? previewSpec.sections.length;
+  const metaGenerator = lastComposerMeta ? 'Registry Composer v1'                       : previewSpec.meta.generator;
+  const metaNames     = lastComposerMeta?.components.map(c => c.registryName).join(' · ');
 
   return (
     <div className="emovel-prompt">
@@ -223,6 +238,16 @@ export function PromptPanel() {
           letter-spacing: 0.04em;
           line-height: 1.6;
         }
+
+        .emovel-prompt__names {
+          color: var(--shell-text3);
+          font-family: var(--shell-mono);
+          font-size: 8px;
+          letter-spacing: 0.04em;
+          line-height: 1.6;
+          word-break: break-word;
+          margin-top: 2px;
+        }
       `}</style>
 
       <p className="emovel-prompt__label">Prompt to page</p>
@@ -248,6 +273,7 @@ export function PromptPanel() {
         onChange={(event) => {
           setPrompt(event.target.value);
           setStatus('');
+          setLastComposerMeta(null);
         }}
         spellCheck={false}
         aria-label="Page generation prompt"
@@ -284,16 +310,21 @@ export function PromptPanel() {
       <div className="emovel-prompt__meta" aria-label="Generated page summary">
         <div className="emovel-prompt__row">
           <span>Title</span>
-          <strong>{previewSpec.title}</strong>
+          <strong>{metaTitle}</strong>
         </div>
         <div className="emovel-prompt__row">
           <span>Sections</span>
-          <strong>{previewSpec.sections.length}</strong>
+          <strong>{metaSections}</strong>
         </div>
         <div className="emovel-prompt__row">
           <span>Generator</span>
-          <strong>{previewSpec.meta.generator}</strong>
+          <strong>{metaGenerator}</strong>
         </div>
+        {metaNames && (
+          <div className="emovel-prompt__names" aria-label="Generated sections">
+            {metaNames}
+          </div>
+        )}
       </div>
 
       <div className="emovel-prompt__status" role="status">
