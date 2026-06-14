@@ -79,10 +79,9 @@ export function PromptPanel() {
   }
 
   // Meta block: show Registry Composer result when available; fall back to PageSpec preview.
-  const metaTitle     = lastComposerMeta?.title                                         ?? previewSpec.title;
-  const metaSections  = lastComposerMeta?.components.length                             ?? previewSpec.sections.length;
-  const metaGenerator = lastComposerMeta ? 'Registry Composer v1'                       : previewSpec.meta.generator;
-  const metaNames     = lastComposerMeta?.components.map(c => c.registryName).join(' · ');
+  const metaTitle     = lastComposerMeta?.title          ?? previewSpec.title;
+  const metaSections  = lastComposerMeta?.components.length ?? previewSpec.sections.length;
+  const metaGenerator = lastComposerMeta ? 'Registry Composer v1' : previewSpec.meta.generator;
 
   return (
     <div className="emovel-prompt">
@@ -239,15 +238,6 @@ export function PromptPanel() {
           line-height: 1.6;
         }
 
-        .emovel-prompt__names {
-          color: var(--shell-text3);
-          font-family: var(--shell-mono);
-          font-size: 8px;
-          letter-spacing: 0.04em;
-          line-height: 1.6;
-          word-break: break-word;
-          margin-top: 2px;
-        }
       `}</style>
 
       <p className="emovel-prompt__label">Prompt to page</p>
@@ -320,11 +310,6 @@ export function PromptPanel() {
           <span>Generator</span>
           <strong>{metaGenerator}</strong>
         </div>
-        {metaNames && (
-          <div className="emovel-prompt__names" aria-label="Generated sections">
-            {metaNames}
-          </div>
-        )}
       </div>
 
       <div className="emovel-prompt__status" role="status">
