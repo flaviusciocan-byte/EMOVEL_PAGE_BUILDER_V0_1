@@ -67,7 +67,7 @@ export function TopBar({ actions }: TopBarProps) {
 
         /* Wordmark: gold = brand rule applies here */
         .emovel-topbar__wordmark {
-          font-family: "Cinzel", serif;
+          font-family: "Clash Display", "Cinzel", serif;
           font-size: 13px;
           font-weight: 600;
           letter-spacing: 3px;

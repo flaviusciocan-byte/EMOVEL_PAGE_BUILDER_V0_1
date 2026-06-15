@@ -4,6 +4,24 @@
    Defines --shell-* tokens + bridges Puck's internal CSS vars to EMOVEL palette.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ── Self-hosted fonts ──────────────────────────────────────────────────────
+   Clash Display  → wordmark / headings  (replaces Cinzel CDN)
+   Hanken Grotesk → body copy / UI       (Satoshi slot; swap WOFF2 files when available)
+   JetBrains Mono → monospace shell
+   All served from public/fonts/ — zero external requests.
+   ─────────────────────────────────────────────────────────────────────────── */
+@font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/clash-display/clash-display-400.woff2') format('woff2'); }
+@font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/clash-display/clash-display-500.woff2') format('woff2'); }
+@font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/clash-display/clash-display-600.woff2') format('woff2'); }
+@font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/clash-display/clash-display-700.woff2') format('woff2'); }
+@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-400.woff2') format('woff2'); }
+@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-500.woff2') format('woff2'); }
+@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-600.woff2') format('woff2'); }
+@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-700.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/jetbrains-mono/jetbrains-mono-400.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/jetbrains-mono/jetbrains-mono-500.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/jetbrains-mono/jetbrains-mono-700.woff2') format('woff2'); }
+
 /* ── Shell token definitions (matches shellTokens in tokens.ts) ─────────── */
 :root {
   --shell-base:     #050505;

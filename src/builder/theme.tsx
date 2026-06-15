@@ -6,6 +6,7 @@ import { createContext, useContext, useState, type CSSProperties, type ReactNode
 import { themes, DEFAULT_THEME_ID, type ThemeConfig } from './themes';
 import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, type ColorTokens } from './tokens';
 import { deriveTheme, type ThemeInputs } from './derive-theme';
+import { FONT_FACES_DEV } from '../shell/font-faces';
 
 interface ThemeContextValue {
   themeId: string;
@@ -43,10 +44,10 @@ function buildCSSVars(theme: ThemeConfig): CSSProperties {
   return vars as CSSProperties;
 }
 
-/** CSS text block that defines all theme + system tokens as :root custom properties.
- *  Injected into Puck's canvas iframe so sections can resolve var(--color-*). */
+/** CSS text block injected into Puck's canvas iframe.
+ *  Includes self-hosted @font-face declarations + all theme/system tokens as :root vars. */
 export function buildThemeCSSText(theme: ThemeConfig): string {
-  const lines: string[] = [':root {'];
+  const lines: string[] = [FONT_FACES_DEV, ':root {'];
   for (const key of COLOR_KEYS) {
     lines.push(`  ${colorVar(key)}: ${theme.colors[key]};`);
   }

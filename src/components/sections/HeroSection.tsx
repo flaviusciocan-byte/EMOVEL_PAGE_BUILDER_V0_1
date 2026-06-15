@@ -189,7 +189,7 @@ const HERO_CSS = `
 
 .emovel-hero__eyebrow {
   margin: 0 0 1rem;
-  color: var(--color-secondary);
+  color: var(--color-primary);
   font-size: clamp(0.7rem, 1vw, 0.8rem);
   font-weight: 700;
   letter-spacing: 0.18em;
