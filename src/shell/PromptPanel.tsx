@@ -106,7 +106,7 @@ export function PromptPanel() {
           gap: 14px;
           padding: 14px;
           color: var(--shell-text);
-          font-family: "Hanken Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+          font-family: "Satoshi", system-ui, sans-serif;
         }
 
         .emovel-prompt__label {
@@ -127,7 +127,7 @@ export function PromptPanel() {
           border-radius: 6px;
           background: #101015;
           color: var(--shell-text);
-          font: 500 12px/1.55 "Hanken Grotesk", Inter, sans-serif;
+          font: 500 12px/1.55 "Satoshi", system-ui, sans-serif;
           resize: vertical;
           outline: none;
           box-sizing: border-box;

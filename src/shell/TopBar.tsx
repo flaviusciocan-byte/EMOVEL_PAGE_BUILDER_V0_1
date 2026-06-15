@@ -58,7 +58,7 @@ export function TopBar({ actions }: TopBarProps) {
           border-bottom: 1px solid var(--shell-b1);
           gap: 0;
           box-sizing: border-box;
-          font-family: "Hanken Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+          font-family: "Satoshi", system-ui, sans-serif;
           -webkit-font-smoothing: antialiased;
           flex-shrink: 0;
           position: relative;

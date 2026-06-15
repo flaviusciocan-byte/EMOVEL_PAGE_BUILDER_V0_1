@@ -131,7 +131,7 @@ export function PageListPanel() {
       display: 'flex',
       flexDirection: 'column' as const,
       gap: 0,
-      fontFamily: '"Hanken Grotesk", Inter, sans-serif',
+      fontFamily: '"Satoshi", system-ui, sans-serif',
     },
     toolbar: {
       display: 'flex',
@@ -223,7 +223,7 @@ export function PageListPanel() {
       background: '#101015',
       color: 'var(--shell-text)',
       fontSize: 11,
-      fontFamily: '"Hanken Grotesk", Inter, sans-serif',
+      fontFamily: '"Satoshi", system-ui, sans-serif',
       outline: 'none',
     },
     offline: {

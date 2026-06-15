@@ -69,7 +69,7 @@ export function LogoStripSection(props: LogoStripProps) {
         }
 
         .emovel-logostrip__logo-text {
-          font-family: "Cinzel", serif;
+          font-family: "Clash Display", "Cinzel", serif;
           font-size: 0.95rem;
           font-weight: 700;
           letter-spacing: 0.1em;

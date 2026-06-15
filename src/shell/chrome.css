@@ -5,8 +5,9 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Self-hosted fonts ──────────────────────────────────────────────────────
-   Clash Display  → wordmark / headings  (replaces Cinzel CDN)
-   Hanken Grotesk → body copy / UI       (Satoshi slot; swap WOFF2 files when available)
+   Clash Display  → wordmark / headings
+   Satoshi        → body copy / UI
+   Cinzel         → wordmark fallback
    JetBrains Mono → monospace shell
    All served from public/fonts/ — zero external requests.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -14,10 +15,12 @@
 @font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/clash-display/clash-display-500.woff2') format('woff2'); }
 @font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/clash-display/clash-display-600.woff2') format('woff2'); }
 @font-face { font-family: 'Clash Display'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/clash-display/clash-display-700.woff2') format('woff2'); }
-@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-400.woff2') format('woff2'); }
-@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-500.woff2') format('woff2'); }
-@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-600.woff2') format('woff2'); }
-@font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/hanken-grotesk/hanken-grotesk-700.woff2') format('woff2'); }
+@font-face { font-family: 'Satoshi'; font-style: normal; font-weight: 300; font-display: swap; src: url('/fonts/satoshi/satoshi-300.woff2') format('woff2'); }
+@font-face { font-family: 'Satoshi'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/satoshi/satoshi-400.woff2') format('woff2'); }
+@font-face { font-family: 'Satoshi'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/satoshi/satoshi-500.woff2') format('woff2'); }
+@font-face { font-family: 'Satoshi'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/satoshi/satoshi-700.woff2') format('woff2'); }
+@font-face { font-family: 'Cinzel'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/cinzel/cinzel-400.woff2') format('woff2'); }
+@font-face { font-family: 'Cinzel'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/cinzel/cinzel-600.woff2') format('woff2'); }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/jetbrains-mono/jetbrains-mono-400.woff2') format('woff2'); }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/jetbrains-mono/jetbrains-mono-500.woff2') format('woff2'); }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/jetbrains-mono/jetbrains-mono-700.woff2') format('woff2'); }
@@ -90,7 +93,7 @@ body {
   --puck-color-azure-02: color-mix(in srgb, var(--shell-blue) 70%, #ffffff);
   /* Rose → accent from page theme (keep as-is, used for non-chrome) */
   --puck-color-rose-07:  var(--color-primary, var(--shell-gold));
-  --puck-font-family: "Hanken Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+  --puck-font-family: "Satoshi", system-ui, sans-serif;
 }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────── */
