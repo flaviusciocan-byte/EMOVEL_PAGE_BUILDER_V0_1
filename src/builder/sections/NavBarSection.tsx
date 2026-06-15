@@ -61,7 +61,7 @@ export function NavBarSection(props: NavBarProps) {
 
         /* ── Logo ── */
         .emovel-navbar__logo {
-          font-family: "Cinzel", serif;
+          font-family: "Clash Display", "Cinzel", serif;
           font-size: 1rem;
           font-weight: 700;
           letter-spacing: 0.18em;

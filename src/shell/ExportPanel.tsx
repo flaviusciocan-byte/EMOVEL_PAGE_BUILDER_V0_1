@@ -91,7 +91,7 @@ export function ExportPanel() {
       display: 'flex',
       flexDirection: 'column' as const,
       gap: 0,
-      fontFamily: '"Hanken Grotesk", Inter, sans-serif',
+      fontFamily: '"Satoshi", system-ui, sans-serif',
       fontSize: 12,
       color: '#ededed',
     },

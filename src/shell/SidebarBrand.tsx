@@ -23,7 +23,7 @@ export function SidebarBrand() {
         }
 
         .emovel-sb__wordmark {
-          font-family: "Cinzel", serif;
+          font-family: "Clash Display", "Cinzel", serif;
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 3px;
