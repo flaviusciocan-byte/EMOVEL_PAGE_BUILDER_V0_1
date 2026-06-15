@@ -13,6 +13,9 @@ import { validatePageSchema }      from '../composer/page-schema-validator';
 import { pageSchemaToPuckData }    from '../composer/page-schema-to-puck';
 import type { ValidatorManifest }  from '../composer/page-schema-validator';
 import manifestJson                from '../../registry.manifest.json';
+import { initialData }             from '../builder/puck.config';
+
+const STORAGE_KEY = 'emovel-page-data';
 
 const SAMPLE_PROMPT =
   'Create a SaaS page for EMOVEL Page Builder with gallery screenshots, customer testimonials, pricing plans, newsletter signup, and footer.';
@@ -72,10 +75,21 @@ export function PromptPanel() {
       return;
     }
     const data = pageSchemaToPuckData(schema);
+    // Clear stale canvas before loading new generated data.
+    // Best-effort: removeItem can throw SecurityError in sandboxed/restricted contexts.
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* unavailable — proceed */ }
     dispatch({ type: 'setData', data: data as Partial<Data> });
     setComposerErrors([]);
     setLastComposerMeta({ title: schema.title, components: schema.components });
     setStatus(`[Registry] Loaded ${schema.components.length} validated sections.`);
+  }
+
+  function handleClearCanvas() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* unavailable — proceed */ }
+    dispatch({ type: 'setData', data: initialData as Partial<Data> });
+    setLastComposerMeta(null);
+    setComposerErrors([]);
+    setStatus('Canvas cleared.');
   }
 
   // Meta block: show Registry Composer result when available; fall back to PageSpec preview.
@@ -293,7 +307,18 @@ export function PromptPanel() {
           onClick={handleGenerateRegistryComposer}
           style={{ gridColumn: '1 / -1' }}
         >
-          Registry Composer
+          Compose Page
+        </button>
+      </div>
+
+      <div className="emovel-prompt__actions">
+        <button
+          type="button"
+          className="emovel-prompt__button"
+          onClick={handleClearCanvas}
+          style={{ gridColumn: '1 / -1' }}
+        >
+          Clear Canvas
         </button>
       </div>
 
