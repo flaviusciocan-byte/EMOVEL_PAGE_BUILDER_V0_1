@@ -151,6 +151,24 @@ describe('buildRegistryPageSchema — HeroSection props correctness', () => {
     expect((props.title as string).length).toBeGreaterThan(0);
   });
 
+  it('HeroSection title rewrites ClinicFlow intake copy into natural commercial English', () => {
+    const schema = buildRegistryPageSchema(
+      'create a SaaS page for ClinicFlow that helps clinic managers automated intake',
+      manifest,
+    );
+    const props = schema.components.find(c => c.registryName === 'HeroSection')?.props ?? {};
+    expect(props.title).toBe('ClinicFlow helps clinic managers streamline patient intake.');
+  });
+
+  it('HeroSection title avoids noun-phrase help patterns for extracted offers', () => {
+    const schema = buildRegistryPageSchema(
+      'create a SaaS page for ClinicFlow that helps clinic managers automated intake',
+      manifest,
+    );
+    const props = schema.components.find(c => c.registryName === 'HeroSection')?.props ?? {};
+    expect(props.title).not.toMatch(/helps clinic managers automated intake/i);
+  });
+
   it('HeroSection primaryCtaLabel is a non-empty string', () => {
     const props = heroProps();
     expect(typeof props.primaryCtaLabel).toBe('string');
