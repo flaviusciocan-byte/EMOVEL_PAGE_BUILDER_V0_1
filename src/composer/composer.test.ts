@@ -1,76 +1,69 @@
-import { describe, it, expect } from 'vitest';
-import { buildRegistryPageSchema } from './composer';
-import { validatePageSchema }      from './page-schema-validator';
-import { pageSchemaToPuckData }    from './page-schema-to-puck';
-import type { ValidatorManifest }  from './page-schema-validator';
-import manifestJson from '../../registry.manifest.json';
+import { describe, it, expect } from "vitest";
+import { buildRegistryPageSchema } from "./composer";
+import { validatePageSchema } from "./page-schema-validator";
+import { pageSchemaToPuckData } from "./page-schema-to-puck";
+import type { ValidatorManifest } from "./page-schema-validator";
+import manifestJson from "../../registry.manifest.json";
 
 const manifest = manifestJson as ValidatorManifest;
 
 // ── Output shape ──────────────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — output shape', () => {
-  it('returns registryVersion from manifest', () => {
-    const schema = buildRegistryPageSchema('', manifest);
+describe("buildRegistryPageSchema — output shape", () => {
+  it("returns registryVersion from manifest", () => {
+    const schema = buildRegistryPageSchema("", manifest);
     expect(schema.registryVersion).toBe(manifest.registryVersion);
   });
 
-  it('returns a non-empty title', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    expect(typeof schema.title).toBe('string');
+  it("returns a non-empty title", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    expect(typeof schema.title).toBe("string");
     expect(schema.title.length).toBeGreaterThan(0);
   });
 
-  it('returns components array', () => {
-    const schema = buildRegistryPageSchema('', manifest);
+  it("returns components array", () => {
+    const schema = buildRegistryPageSchema("", manifest);
     expect(Array.isArray(schema.components)).toBe(true);
   });
 
-  it('minimum 3 components (NavigationBar + HeroSection + CTASection)', () => {
-    const schema = buildRegistryPageSchema('', manifest);
+  it("minimum 3 components (NavigationBar + HeroSection + CTASection)", () => {
+    const schema = buildRegistryPageSchema("", manifest);
     expect(schema.components.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('always includes NavigationBar, HeroSection, CTASection', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    const names  = schema.components.map(c => c.registryName);
-    expect(names).toContain('NavigationBar');
-    expect(names).toContain('HeroSection');
-    expect(names).toContain('CTASection');
+  it("always includes NavigationBar, HeroSection, CTASection", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const names = schema.components.map((c) => c.registryName);
+    expect(names).toContain("NavigationBar");
+    expect(names).toContain("HeroSection");
+    expect(names).toContain("CTASection");
   });
 
-  it('title includes brand name', () => {
-    const schema = buildRegistryPageSchema('create a page for Acme', manifest);
-    expect(schema.title).toContain('Acme');
+  it("title includes brand name", () => {
+    const schema = buildRegistryPageSchema("create a page for Acme", manifest);
+    expect(schema.title).toContain("Acme");
   });
 
-  it('different prompts produce different titles', () => {
-    const a = buildRegistryPageSchema('page for Acme', manifest);
-    const b = buildRegistryPageSchema('page for Notion', manifest);
+  it("different prompts produce different titles", () => {
+    const a = buildRegistryPageSchema("page for Acme", manifest);
+    const b = buildRegistryPageSchema("page for Notion", manifest);
     expect(a.title).not.toBe(b.title);
   });
 });
 
 // ── Validation gate ───────────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — validation gate (golden tests)', () => {
-  it('empty prompt schema validates against real manifest', () => {
-    const schema = buildRegistryPageSchema('', manifest);
+describe("buildRegistryPageSchema — validation gate (golden tests)", () => {
+  it("empty prompt schema validates against real manifest", () => {
+    const schema = buildRegistryPageSchema("", manifest);
     const result = validatePageSchema(schema, manifest);
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
 
-  it('gallery prompt schema validates against real manifest', () => {
-    const schema = buildRegistryPageSchema('product gallery with screenshots', manifest);
-    const result = validatePageSchema(schema, manifest);
-    expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
-  });
-
-  it('full-featured prompt schema validates against real manifest', () => {
+  it("gallery prompt schema validates against real manifest", () => {
     const schema = buildRegistryPageSchema(
-      'show gallery screenshots testimonials reviews newsletter email signup',
+      "product gallery with screenshots",
       manifest,
     );
     const result = validatePageSchema(schema, manifest);
@@ -78,8 +71,21 @@ describe('buildRegistryPageSchema — validation gate (golden tests)', () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it('about page schema validates', () => {
-    const schema = buildRegistryPageSchema('about the team and company story', manifest);
+  it("full-featured prompt schema validates against real manifest", () => {
+    const schema = buildRegistryPageSchema(
+      "show gallery screenshots testimonials reviews newsletter email signup",
+      manifest,
+    );
+    const result = validatePageSchema(schema, manifest);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("about page schema validates", () => {
+    const schema = buildRegistryPageSchema(
+      "about the team and company story",
+      manifest,
+    );
     const result = validatePageSchema(schema, manifest);
     expect(result.valid).toBe(true);
   });
@@ -87,144 +93,177 @@ describe('buildRegistryPageSchema — validation gate (golden tests)', () => {
 
 // ── Puck data conversion ──────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema → pageSchemaToPuckData', () => {
-  it('schema converts to Puck data without throwing', () => {
-    const schema = buildRegistryPageSchema('', manifest);
+describe("buildRegistryPageSchema → pageSchemaToPuckData", () => {
+  it("schema converts to Puck data without throwing", () => {
+    const schema = buildRegistryPageSchema("", manifest);
     expect(() => pageSchemaToPuckData(schema)).not.toThrow();
   });
 
-  it('gallery prompt output Puck data includes Screenshot Gallery', () => {
-    const schema = buildRegistryPageSchema('show gallery of screenshots', manifest);
-    const data   = pageSchemaToPuckData(schema);
-    expect(data.content.some(c => c.type === 'Screenshot Gallery')).toBe(true);
+  it("gallery prompt output Puck data includes Screenshot Gallery", () => {
+    const schema = buildRegistryPageSchema(
+      "show gallery of screenshots",
+      manifest,
+    );
+    const data = pageSchemaToPuckData(schema);
+    expect(data.content.some((c) => c.type === "Screenshot Gallery")).toBe(
+      true,
+    );
   });
 
-  it('newsletter prompt output Puck data includes Newsletter', () => {
-    const schema = buildRegistryPageSchema('add newsletter email signup', manifest);
-    const data   = pageSchemaToPuckData(schema);
-    expect(data.content.some(c => c.type === 'Newsletter')).toBe(true);
+  it("newsletter prompt output Puck data includes Newsletter", () => {
+    const schema = buildRegistryPageSchema(
+      "add newsletter email signup",
+      manifest,
+    );
+    const data = pageSchemaToPuckData(schema);
+    expect(data.content.some((c) => c.type === "Newsletter")).toBe(true);
   });
 
-  it('output Puck data always includes Nav Bar and Hero', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    const data   = pageSchemaToPuckData(schema);
-    expect(data.content.some(c => c.type === 'Nav Bar')).toBe(true);
-    expect(data.content.some(c => c.type === 'Hero')).toBe(true);
+  it("output Puck data always includes Nav Bar and Hero", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const data = pageSchemaToPuckData(schema);
+    expect(data.content.some((c) => c.type === "Nav Bar")).toBe(true);
+    expect(data.content.some((c) => c.type === "Hero")).toBe(true);
   });
 
-  it('output Puck data always includes CTA Section', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    const data   = pageSchemaToPuckData(schema);
-    expect(data.content.some(c => c.type === 'CTA Section')).toBe(true);
+  it("output Puck data always includes CTA Section", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const data = pageSchemaToPuckData(schema);
+    expect(data.content.some((c) => c.type === "CTA Section")).toBe(true);
   });
 });
 
 // ── HeroSection props shape ───────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — HeroSection props correctness', () => {
+describe("buildRegistryPageSchema — HeroSection props correctness", () => {
   function heroProps() {
-    const schema = buildRegistryPageSchema('', manifest);
-    return schema.components.find(c => c.registryName === 'HeroSection')?.props ?? {};
+    const schema = buildRegistryPageSchema("", manifest);
+    return (
+      schema.components.find((c) => c.registryName === "HeroSection")?.props ??
+      {}
+    );
   }
 
   it('HeroSection props use "title" not "headline"', () => {
     const props = heroProps();
-    expect(props).toHaveProperty('title');
-    expect(props).not.toHaveProperty('headline');
+    expect(props).toHaveProperty("title");
+    expect(props).not.toHaveProperty("headline");
   });
 
   it('HeroSection props use "primaryCtaLabel" not "primaryCTA"', () => {
     const props = heroProps();
-    expect(props).toHaveProperty('primaryCtaLabel');
-    expect(props).not.toHaveProperty('primaryCTA');
+    expect(props).toHaveProperty("primaryCtaLabel");
+    expect(props).not.toHaveProperty("primaryCTA");
   });
 
   it('HeroSection props use "subtitle" not "description"', () => {
     const props = heroProps();
-    expect(props).toHaveProperty('subtitle');
-    expect(props).not.toHaveProperty('description');
+    expect(props).toHaveProperty("subtitle");
+    expect(props).not.toHaveProperty("description");
   });
 
-  it('HeroSection title is a non-empty string', () => {
+  it("HeroSection title is a non-empty string", () => {
     const props = heroProps();
-    expect(typeof props.title).toBe('string');
+    expect(typeof props.title).toBe("string");
     expect((props.title as string).length).toBeGreaterThan(0);
   });
 
-  it('HeroSection primaryCtaLabel is a non-empty string', () => {
+  it("HeroSection primaryCtaLabel is a non-empty string", () => {
     const props = heroProps();
-    expect(typeof props.primaryCtaLabel).toBe('string');
+    expect(typeof props.primaryCtaLabel).toBe("string");
     expect((props.primaryCtaLabel as string).length).toBeGreaterThan(0);
   });
 
-  it('HeroSection primaryCtaHref is present', () => {
-    expect(heroProps()).toHaveProperty('primaryCtaHref');
+  it("HeroSection primaryCtaHref is present", () => {
+    expect(heroProps()).toHaveProperty("primaryCtaHref");
   });
 
   it('HeroSection enableCinematicLogo is "true"', () => {
-    expect(heroProps().enableCinematicLogo).toBe('true');
+    expect(heroProps().enableCinematicLogo).toBe("true");
   });
 
   it('HeroSection motionPattern is "depth-push"', () => {
-    expect(heroProps().motionPattern).toBe('depth-push');
+    expect(heroProps().motionPattern).toBe("depth-push");
   });
 });
 
 // ── CTASection props shape ────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — CTASection props correctness', () => {
+describe("buildRegistryPageSchema — CTASection props correctness", () => {
   function ctaProps() {
-    const schema = buildRegistryPageSchema('', manifest);
-    return schema.components.find(c => c.registryName === 'CTASection')?.props ?? {};
+    const schema = buildRegistryPageSchema("", manifest);
+    return (
+      schema.components.find((c) => c.registryName === "CTASection")?.props ??
+      {}
+    );
   }
 
   it('CTASection has "headline" field', () => {
-    expect(ctaProps()).toHaveProperty('headline');
+    expect(ctaProps()).toHaveProperty("headline");
   });
 
   it('CTASection has "primaryAction" field', () => {
-    expect(ctaProps()).toHaveProperty('primaryAction');
+    expect(ctaProps()).toHaveProperty("primaryAction");
   });
 
   it('CTASection has "secondaryAction" field', () => {
-    expect(ctaProps()).toHaveProperty('secondaryAction');
+    expect(ctaProps()).toHaveProperty("secondaryAction");
   });
 
   it('CTASection surface is "inverted"', () => {
-    expect(ctaProps().surface).toBe('inverted');
+    expect(ctaProps().surface).toBe("inverted");
   });
 
-  it('CTASection headline is a non-empty string', () => {
+  it("CTASection headline is a non-empty string", () => {
     const props = ctaProps();
-    expect(typeof props.headline).toBe('string');
+    expect(typeof props.headline).toBe("string");
     expect((props.headline as string).length).toBeGreaterThan(0);
   });
 });
 
 // ── GalleryShowcase props ─────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — GalleryShowcase props correctness', () => {
-  it('gallery prompt includes GalleryShowcase component', () => {
-    const schema = buildRegistryPageSchema('product gallery screenshots', manifest);
-    expect(schema.components.some(c => c.registryName === 'GalleryShowcase')).toBe(true);
+describe("buildRegistryPageSchema — GalleryShowcase props correctness", () => {
+  it("gallery prompt includes GalleryShowcase component", () => {
+    const schema = buildRegistryPageSchema(
+      "product gallery screenshots",
+      manifest,
+    );
+    expect(
+      schema.components.some((c) => c.registryName === "GalleryShowcase"),
+    ).toBe(true);
   });
 
-  it('GalleryShowcase shots use assets/references/ paths', () => {
-    const schema   = buildRegistryPageSchema('product gallery screenshots', manifest);
-    const gallery  = schema.components.find(c => c.registryName === 'GalleryShowcase');
-    const shots    = gallery?.props.shots as Array<{ imageUrl: string }> | undefined;
+  it("GalleryShowcase shots use assets/references/ paths", () => {
+    const schema = buildRegistryPageSchema(
+      "product gallery screenshots",
+      manifest,
+    );
+    const gallery = schema.components.find(
+      (c) => c.registryName === "GalleryShowcase",
+    );
+    const shots = gallery?.props.shots as
+      | Array<{ imageUrl: string }>
+      | undefined;
     expect(shots).toBeDefined();
     expect(shots!.length).toBeGreaterThan(0);
     for (const shot of shots!) {
-      expect(typeof shot.imageUrl).toBe('string');
-      expect(shot.imageUrl.startsWith('assets/references/')).toBe(true);
+      expect(typeof shot.imageUrl).toBe("string");
+      expect(shot.imageUrl.startsWith("assets/references/")).toBe(true);
     }
   });
 
-  it('GalleryShowcase shots have caption and alt', () => {
-    const schema   = buildRegistryPageSchema('product gallery screenshots', manifest);
-    const gallery  = schema.components.find(c => c.registryName === 'GalleryShowcase');
-    const shots    = gallery?.props.shots as Array<{ caption: string; alt: string }> | undefined;
+  it("GalleryShowcase shots have caption and alt", () => {
+    const schema = buildRegistryPageSchema(
+      "product gallery screenshots",
+      manifest,
+    );
+    const gallery = schema.components.find(
+      (c) => c.registryName === "GalleryShowcase",
+    );
+    const shots = gallery?.props.shots as
+      | Array<{ caption: string; alt: string }>
+      | undefined;
     for (const shot of shots!) {
       expect(shot.caption.length).toBeGreaterThan(0);
       expect(shot.alt.length).toBeGreaterThan(0);
@@ -234,91 +273,112 @@ describe('buildRegistryPageSchema — GalleryShowcase props correctness', () => 
 
 // ── FooterSection ─────────────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — FooterSection', () => {
-  it('always includes FooterSection', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    expect(schema.components.some(c => c.registryName === 'FooterSection')).toBe(true);
+describe("buildRegistryPageSchema — FooterSection", () => {
+  it("always includes FooterSection", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    expect(
+      schema.components.some((c) => c.registryName === "FooterSection"),
+    ).toBe(true);
   });
 
-  it('FooterSection is the last component', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    const last   = schema.components[schema.components.length - 1];
-    expect(last?.registryName).toBe('FooterSection');
+  it("FooterSection is the last component", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const last = schema.components[schema.components.length - 1];
+    expect(last?.registryName).toBe("FooterSection");
   });
 
-  it('FooterSection props include logoText, tagline, copyright, linkGroups, socialLinks', () => {
-    const schema  = buildRegistryPageSchema('', manifest);
-    const footer  = schema.components.find(c => c.registryName === 'FooterSection');
-    expect(footer?.props).toHaveProperty('logoText');
-    expect(footer?.props).toHaveProperty('tagline');
-    expect(footer?.props).toHaveProperty('copyright');
-    expect(footer?.props).toHaveProperty('linkGroups');
-    expect(footer?.props).toHaveProperty('socialLinks');
+  it("FooterSection props include logoText, tagline, copyright, linkGroups, socialLinks", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const footer = schema.components.find(
+      (c) => c.registryName === "FooterSection",
+    );
+    expect(footer?.props).toHaveProperty("logoText");
+    expect(footer?.props).toHaveProperty("tagline");
+    expect(footer?.props).toHaveProperty("copyright");
+    expect(footer?.props).toHaveProperty("linkGroups");
+    expect(footer?.props).toHaveProperty("socialLinks");
   });
 
   it('FooterSection linkGroups use "Label | href" textarea string format', () => {
-    const schema     = buildRegistryPageSchema('', manifest);
-    const footer     = schema.components.find(c => c.registryName === 'FooterSection');
-    const groups     = footer?.props.linkGroups as Array<{ heading: string; links: string }> | undefined;
+    const schema = buildRegistryPageSchema("", manifest);
+    const footer = schema.components.find(
+      (c) => c.registryName === "FooterSection",
+    );
+    const groups = footer?.props.linkGroups as
+      | Array<{ heading: string; links: string }>
+      | undefined;
     expect(Array.isArray(groups)).toBe(true);
     expect(groups!.length).toBeGreaterThan(0);
     for (const group of groups!) {
-      expect(typeof group.heading).toBe('string');
-      expect(typeof group.links).toBe('string');
+      expect(typeof group.heading).toBe("string");
+      expect(typeof group.links).toBe("string");
       expect(group.links.length).toBeGreaterThan(0);
     }
   });
 
-  it('FooterSection schema validates against real manifest', () => {
-    const schema = buildRegistryPageSchema('', manifest);
+  it("FooterSection schema validates against real manifest", () => {
+    const schema = buildRegistryPageSchema("", manifest);
     const result = validatePageSchema(schema, manifest);
     expect(result.valid).toBe(true);
   });
 
-  it('schema with FooterSection converts to Puck data including Footer type', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    const data   = pageSchemaToPuckData(schema);
-    expect(data.content.some(c => c.type === 'Footer')).toBe(true);
+  it("schema with FooterSection converts to Puck data including Footer type", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const data = pageSchemaToPuckData(schema);
+    expect(data.content.some((c) => c.type === "Footer")).toBe(true);
   });
 
-  it('Footer is the last Puck content item', () => {
-    const schema = buildRegistryPageSchema('', manifest);
-    const data   = pageSchemaToPuckData(schema);
-    const last   = data.content[data.content.length - 1];
-    expect(last?.type).toBe('Footer');
+  it("Footer is the last Puck content item", () => {
+    const schema = buildRegistryPageSchema("", manifest);
+    const data = pageSchemaToPuckData(schema);
+    const last = data.content[data.content.length - 1];
+    expect(last?.type).toBe("Footer");
   });
 
-  it('FooterSection logoText contains brand name', () => {
-    const schema  = buildRegistryPageSchema('create a page for Acme', manifest);
-    const footer  = schema.components.find(c => c.registryName === 'FooterSection');
-    expect((footer?.props.logoText as string)).toContain('Acme');
+  it("FooterSection logoText contains brand name", () => {
+    const schema = buildRegistryPageSchema("create a page for Acme", manifest);
+    const footer = schema.components.find(
+      (c) => c.registryName === "FooterSection",
+    );
+    expect(footer?.props.logoText as string).toContain("Acme");
   });
 });
 
 // ── PricingSection ────────────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — PricingSection', () => {
-  const PRICING_PROMPT = 'SaaS pricing page with subscription plans';
+describe("buildRegistryPageSchema — PricingSection", () => {
+  const PRICING_PROMPT = "SaaS pricing page with subscription plans";
 
-  it('pricing prompt includes PricingSection', () => {
+  it("pricing prompt includes PricingSection", () => {
     const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    expect(schema.components.some(c => c.registryName === 'PricingSection')).toBe(true);
+    expect(
+      schema.components.some((c) => c.registryName === "PricingSection"),
+    ).toBe(true);
   });
 
-  it('non-pricing prompt excludes PricingSection', () => {
-    const schema = buildRegistryPageSchema('simple about page for the team', manifest);
-    expect(schema.components.some(c => c.registryName === 'PricingSection')).toBe(false);
+  it("non-pricing prompt excludes PricingSection", () => {
+    const schema = buildRegistryPageSchema(
+      "simple about page for the team",
+      manifest,
+    );
+    expect(
+      schema.components.some((c) => c.registryName === "PricingSection"),
+    ).toBe(false);
   });
 
-  it('PricingSection appears before CTASection', () => {
-    const schema      = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    const pricingIdx  = schema.components.findIndex(c => c.registryName === 'PricingSection');
-    const ctaIdx      = schema.components.findIndex(c => c.registryName === 'CTASection');
+  it("PricingSection appears before CTASection", () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricingIdx = schema.components.findIndex(
+      (c) => c.registryName === "PricingSection",
+    );
+    const ctaIdx = schema.components.findIndex(
+      (c) => c.registryName === "CTASection",
+    );
     expect(pricingIdx).toBeGreaterThan(-1);
     expect(pricingIdx).toBeLessThan(ctaIdx);
   });
 
-  it('pricing schema validates against real manifest', () => {
+  it("pricing schema validates against real manifest", () => {
     const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
     const result = validatePageSchema(schema, manifest);
     expect(result.valid).toBe(true);
@@ -327,70 +387,130 @@ describe('buildRegistryPageSchema — PricingSection', () => {
 
   it('pageSchemaToPuckData converts PricingSection to "Pricing Table"', () => {
     const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    const data   = pageSchemaToPuckData(schema);
-    expect(data.content.some(c => c.type === 'Pricing Table')).toBe(true);
+    const data = pageSchemaToPuckData(schema);
+    expect(data.content.some((c) => c.type === "Pricing Table")).toBe(true);
   });
 
-  it('PricingSection emits exactly 3 plans', () => {
-    const schema   = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    const pricing  = schema.components.find(c => c.registryName === 'PricingSection');
-    const plans    = pricing?.props.plans as unknown[];
+  it("PricingSection emits exactly 3 plans", () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(
+      (c) => c.registryName === "PricingSection",
+    );
+    const plans = pricing?.props.plans as unknown[];
     expect(Array.isArray(plans)).toBe(true);
     expect(plans!.length).toBe(3);
   });
 
-  it('plans have name, price, description, features, ctaLabel, highlight, badge', () => {
-    const schema  = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
-    const plans   = pricing?.props.plans as Array<Record<string, unknown>>;
+  it("plans have name, price, description, features, ctaLabel, highlight, badge", () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(
+      (c) => c.registryName === "PricingSection",
+    );
+    const plans = pricing?.props.plans as Array<Record<string, unknown>>;
     for (const plan of plans) {
-      expect(typeof plan.name).toBe('string');
-      expect(typeof plan.price).toBe('string');
-      expect(typeof plan.description).toBe('string');
-      expect(typeof plan.features).toBe('string');
-      expect(typeof plan.ctaLabel).toBe('string');
-      expect(typeof plan.highlight).toBe('string');
-      expect(typeof plan.badge).toBe('string');
+      expect(typeof plan.name).toBe("string");
+      expect(typeof plan.price).toBe("string");
+      expect(typeof plan.description).toBe("string");
+      expect(typeof plan.features).toBe("string");
+      expect(typeof plan.ctaLabel).toBe("string");
+      expect(typeof plan.highlight).toBe("string");
+      expect(typeof plan.badge).toBe("string");
     }
   });
 
-  it('plan features are newline-separated strings', () => {
-    const schema  = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
-    const plans   = pricing?.props.plans as Array<{ features: string }>;
+  it("plan features are newline-separated strings", () => {
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(
+      (c) => c.registryName === "PricingSection",
+    );
+    const plans = pricing?.props.plans as Array<{ features: string }>;
     for (const plan of plans) {
-      expect(typeof plan.features).toBe('string');
+      expect(typeof plan.features).toBe("string");
       expect(plan.features.length).toBeGreaterThan(0);
-      expect(plan.features).toContain('\n');
+      expect(plan.features).toContain("\n");
     }
   });
 
   it('Pro plan has highlight "featured" and badge "Most Popular"', () => {
-    const schema  = buildRegistryPageSchema(PRICING_PROMPT, manifest);
-    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
-    const plans   = pricing?.props.plans as Array<{ name: string; highlight: string; badge: string }>;
-    const pro     = plans.find(p => p.name === 'Pro');
-    expect(pro?.highlight).toBe('featured');
-    expect(pro?.badge).toBe('Most Popular');
+    const schema = buildRegistryPageSchema(PRICING_PROMPT, manifest);
+    const pricing = schema.components.find(
+      (c) => c.registryName === "PricingSection",
+    );
+    const plans = pricing?.props.plans as Array<{
+      name: string;
+      highlight: string;
+      badge: string;
+    }>;
+    const pro = plans.find((p) => p.name === "Pro");
+    expect(pro?.highlight).toBe("featured");
+    expect(pro?.badge).toBe("Most Popular");
   });
 
-  it('headline contains brand name for premium tone', () => {
-    const schema  = buildRegistryPageSchema('SaaS pricing plans for Acme', manifest);
-    const pricing = schema.components.find(c => c.registryName === 'PricingSection');
-    expect((pricing?.props.headline as string)).toContain('Acme');
+  it("headline contains brand name for premium tone", () => {
+    const schema = buildRegistryPageSchema(
+      "SaaS pricing plans for Acme",
+      manifest,
+    );
+    const pricing = schema.components.find(
+      (c) => c.registryName === "PricingSection",
+    );
+    expect(pricing?.props.headline as string).toContain("Acme");
   });
 });
 
 // ── Exclusions ────────────────────────────────────────────────────────────────
 
-describe('buildRegistryPageSchema — exclusions', () => {
-  it('never includes FeatureGrid', () => {
-    const schema = buildRegistryPageSchema('feature grid cards section', manifest);
-    expect(schema.components.some(c => c.registryName === 'FeatureGrid')).toBe(false);
+describe("buildRegistryPageSchema — exclusions", () => {
+  it("never includes FeatureGrid", () => {
+    const schema = buildRegistryPageSchema(
+      "feature grid cards section",
+      manifest,
+    );
+    expect(
+      schema.components.some((c) => c.registryName === "FeatureGrid"),
+    ).toBe(false);
   });
 
-  it('no gallery prompt excludes GalleryShowcase', () => {
-    const schema = buildRegistryPageSchema('simple SaaS landing page', manifest);
-    expect(schema.components.some(c => c.registryName === 'GalleryShowcase')).toBe(false);
+  it("no gallery prompt excludes GalleryShowcase", () => {
+    const schema = buildRegistryPageSchema(
+      "simple SaaS landing page",
+      manifest,
+    );
+    expect(
+      schema.components.some((c) => c.registryName === "GalleryShowcase"),
+    ).toBe(false);
+  });
+});
+
+// ── ComposerBrief v1 visible copy ────────────────────────────────────────────
+
+describe("buildRegistryPageSchema — ComposerBrief copy", () => {
+  const prompt =
+    "Create a SaaS pricing page for ClinicFlow, a healthcare platform for clinic managers who need automated intake, with HIPAA-ready forms, SMS reminders, and analytics. Trusted by 200 clinics. Book a demo. Starts at $29/mo. Add newsletter signup.";
+
+  it("improves Hero, CTA, Pricing, LeadCapture, and Footer copy from prompt details", () => {
+    const schema = buildRegistryPageSchema(prompt, manifest);
+    const propsFor = (name: string) =>
+      schema.components.find((c) => c.registryName === name)?.props as Record<
+        string,
+        unknown
+      >;
+
+    expect(propsFor("HeroSection").title).toContain(
+      "ClinicFlow helps clinic managers",
+    );
+    expect(propsFor("HeroSection").subtitle).toContain("HIPAA-ready forms");
+    expect(propsFor("CTASection").headline).toBe(
+      "Book a demo with ClinicFlow.",
+    );
+    expect(propsFor("PricingSection").headline).toBe(
+      "ClinicFlow pricing — $29/mo for clinic managers.",
+    );
+    expect(propsFor("LeadCapture").subheadline).toContain(
+      "healthcare insights",
+    );
+    expect(propsFor("FooterSection").tagline).toContain(
+      "ClinicFlow helps clinic managers",
+    );
   });
 });
