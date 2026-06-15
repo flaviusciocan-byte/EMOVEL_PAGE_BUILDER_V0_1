@@ -45,8 +45,8 @@ const NAV_LINKS_BY_PAGE_TYPE: Record<PageType, Array<{ label: string; href: stri
 
 // ── Hero title / subtitle templates ──────────────────────────────────────────
 
-const HERO_TITLE_BY_PAGE_TYPE: Record<PageType, (brandName: string) => string> = {
-  saas:      (b) => `${b} — Build smarter, ship faster.`,
+const HERO_TITLE_BY_PAGE_TYPE: Record<PageType, (brandName: string, audience: string, action: ComposerStrategyProfile['heroAction']) => string> = {
+  saas:      (b, a, action) => action ? `${b} helps ${a} ${action.verb} ${action.object}.` : `${b} — Build smarter, ship faster.`,
   landing:   (b) => `${b} — Join the next generation.`,
   portfolio: (_) => 'Work that speaks for itself.',
   product:   (b) => `${b} — Quality you can feel.`,
@@ -131,7 +131,7 @@ function buildHeroSection(profile: ComposerStrategyProfile): Record<string, unkn
 
   return {
     eyebrow:             eyebrowByTone[profile.tone] ?? profile.brand.name,
-    title:               HERO_TITLE_BY_PAGE_TYPE[profile.pageType](profile.brand.name),
+    title:               HERO_TITLE_BY_PAGE_TYPE[profile.pageType](profile.brand.name, profile.audience, profile.heroAction),
     subtitle:            HERO_SUBTITLE_BY_PAGE_TYPE[profile.pageType](profile.brand.name, profile.audience),
     primaryCtaLabel:     profile.primaryCTA.label,
     primaryCtaHref:      profile.primaryCTA.href,
