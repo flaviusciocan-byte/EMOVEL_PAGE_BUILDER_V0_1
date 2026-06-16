@@ -394,11 +394,43 @@ function renderBody(data: Data): string {
   );
 }
 
+/** Backfill: ensure root.props.composerBrief is set before export.
+ *  Preserves any existing composerBrief; builds a minimal stub from root.props.title when absent.
+ *  This makes browser Publish work correctly for pages created before ComposerBrief existed,
+ *  pages loaded from saved files, and pages generated via the old Generate Page path. */
+function ensureComposerBrief(data: Data): Data {
+  const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+  if (rootProps?.composerBrief) return data;
+
+  const rawTitle = (rootProps as { title?: unknown } | undefined)?.title;
+  const title    = typeof rawTitle === 'string' && rawTitle ? rawTitle : undefined;
+
+  const brief: ComposerBrief = {
+    projectName:          title,
+    audience:             undefined,
+    coreOffer:            undefined,
+    primaryAction:        undefined,
+    pageType:             undefined,
+    activationDepth:      undefined,
+    progressMomentum:     undefined,
+    emotionalSignalIndex: undefined,
+  };
+
+  return {
+    ...data,
+    root: {
+      ...data.root,
+      props: { ...(rootProps ?? {}), composerBrief: brief },
+    } as Data['root'],
+  };
+}
+
 /** Render body + Composer Brief splice (brief goes right after the Hero section). */
 function buildBodyWithBrief(data: Data): string {
-  const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+  const filled    = ensureComposerBrief(data);
+  const rootProps = (filled.root as { props?: Record<string, unknown> }).props;
   const brief     = rootProps?.composerBrief as ComposerBrief | undefined;
-  return insertAfterHero(renderBody(data), renderComposerBriefHTML(brief));
+  return insertAfterHero(renderBody(filled), renderComposerBriefHTML(brief));
 }
 
 /** Full index.html document with inline styles and IO micro-script. */
