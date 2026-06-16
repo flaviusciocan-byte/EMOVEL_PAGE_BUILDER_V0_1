@@ -5,14 +5,17 @@
  * Runner: node --experimental-strip-types scripts/verify-export.mts
  *
  * Strategy:
- *  1. Bundle src/builder/publish.ts via esbuild (CJS format — avoids CJS-in-ESM
- *     issues from @puckeditor/core's Radix/react-remove-scroll dep chain).
- *  2. Load the bundle with createRequire (CJS from ESM context).
- *  3. Call buildPageHTML() with two test Data objects:
- *       • hero-depth-push   — motionPattern: 'depth-push',      enableCinematicLogo: 'true'
- *       • hero-staggered    — motionPattern: 'staggered-rise',  enableCinematicLogo: 'true'
- *  4. Write both to scripts/_out/*.html.
- *  5. Read files back and assert on real content (no hardcoded expected strings).
+ *  1. Bundle src/builder/publish.ts via esbuild (CJS — avoids ESM/CJS issues
+ *     from @puckeditor/core's Radix/react-remove-scroll dep chain).
+ *  2. Bundle the composer pipeline (src/composer/composer.ts +
+ *     page-schema-to-puck.ts) separately — pure TS, no React runtime.
+ *  3. Load both bundles with createRequire.
+ *  4. Call buildPageHTML() with:
+ *       • hero-depth-push   — motionPattern: 'depth-push'
+ *       • hero-staggered    — motionPattern: 'staggered-rise'
+ *       • clinicflow-launch — full composer pipeline: prompt → schema → puck → HTML
+ *  5. Write all three to scripts/_out/*.html.
+ *  6. Read files back and assert on real content.
  *  Exit code 1 if any assertion fails.
  */
 
@@ -50,7 +53,33 @@ await build({
 });
 console.log('[harness] bundle ready');
 
-// ── 2. Load bundle ────────────────────────────────────────────────────────────
+// ── 1b. Bundle composer pipeline ─────────────────────────────────────────────
+// Pure TypeScript — no React/Puck runtime. Bundles composer.ts +
+// page-schema-to-puck.ts via a stdin entry that re-exports both.
+
+const COMPOSE_BUNDLE = join(OUT_DIR, '_compose.cjs');
+
+console.log('[harness] bundling composer pipeline…');
+await build({
+  stdin: {
+    contents: [
+      `export { buildRegistryPageSchema } from './src/composer/composer';`,
+      `export { pageSchemaToPuckData }    from './src/composer/page-schema-to-puck';`,
+    ].join('\n'),
+    loader:     'ts',
+    resolveDir: ROOT,
+  },
+  bundle:   true,
+  platform: 'node',
+  format:   'cjs',
+  loader:   { '.ts': 'ts', '.json': 'json' },
+  outfile:  COMPOSE_BUNDLE,
+  define:   { 'process.env.NODE_ENV': '"production"' },
+  logLevel: 'error',
+});
+console.log('[harness] composer bundle ready');
+
+// ── 2. Load bundles ───────────────────────────────────────────────────────────
 
 const req = createRequire(import.meta.url);
 const pub = req(BUNDLE) as {
@@ -62,6 +91,13 @@ if (typeof pub.buildPageHTML !== 'function') {
   console.error('[harness] FATAL: buildPageHTML not exported from bundle');
   process.exit(1);
 }
+
+const compose = req(COMPOSE_BUNDLE) as {
+  buildRegistryPageSchema: (prompt: string, manifest: unknown) => unknown;
+  pageSchemaToPuckData:    (schema: unknown) => unknown;
+};
+
+const REGISTRY_MANIFEST = JSON.parse(readFileSync(join(ROOT, 'registry.manifest.json'), 'utf8'));
 
 // ── 3. Test fixtures ──────────────────────────────────────────────────────────
 
@@ -102,6 +138,10 @@ function makeData(motionPattern: string, title: string) {
 const DATA_DEPTH    = makeData('depth-push',      'Depth Push Test');
 const DATA_STAGGER  = makeData('staggered-rise',  'Staggered Rise Test');
 
+const CLINICFLOW_PROMPT =
+  'launch page for ClinicFlow — helps clinic managers automate intake, ' +
+  'organize appointments, and reduce front-desk admin work';
+
 // ── 4. Generate + write ───────────────────────────────────────────────────────
 
 console.log('[harness] generating depth-push export…');
@@ -115,6 +155,14 @@ const HTML_STAGGER = pub.buildPageHTML(DATA_STAGGER, EMOVEL_THEME);
 const PATH_STAGGER = join(OUT_DIR, 'hero-staggered.html');
 writeFileSync(PATH_STAGGER, HTML_STAGGER, 'utf8');
 console.log(`[harness] written: ${PATH_STAGGER} (${HTML_STAGGER.length} chars)`);
+
+console.log('[harness] generating clinicflow-launch export (full composer pipeline)…');
+const clinicSchema = compose.buildRegistryPageSchema(CLINICFLOW_PROMPT, REGISTRY_MANIFEST);
+const clinicData   = compose.pageSchemaToPuckData(clinicSchema);
+const HTML_CLINIC  = pub.buildPageHTML(clinicData, EMOVEL_THEME);
+const PATH_CLINIC  = join(OUT_DIR, 'clinicflow-launch.html');
+writeFileSync(PATH_CLINIC, HTML_CLINIC, 'utf8');
+console.log(`[harness] written: ${PATH_CLINIC} (${HTML_CLINIC.length} chars)`);
 
 // ── 5. Assert on REAL file content ────────────────────────────────────────────
 // Rules:
@@ -321,6 +369,42 @@ assert('no panel animation for staggered-rise (no emovel-staggered-rise panel ru
 
 runRegistryV11Checks(D, 'hero-depth-push');
 runRegistryV11Checks(S, 'hero-staggered');
+
+// ── Assertions on clinicflow-launch.html ──────────────────────────────────────
+
+console.log('\n── clinicflow-launch.html ────────────────────────────────────');
+const C = readFileSync(PATH_CLINIC, 'utf8');
+
+assert('[clinicflow] Composer Brief section present',
+  C.includes('Composer Brief'),
+  lineOf(C, 'Composer Brief'));
+
+assert('[clinicflow] ClinicFlow brand name present',
+  C.includes('ClinicFlow'),
+  lineOf(C, 'ClinicFlow'));
+
+assert('[clinicflow] "Product / Project" field label present',
+  C.includes('Product / Project'),
+  lineOf(C, 'Product / Project'));
+
+assert('[clinicflow] "Core Offer" field label present',
+  C.includes('Core Offer'),
+  lineOf(C, 'Core Offer'));
+
+assert('[clinicflow] "Activation Depth" field label present',
+  C.includes('Activation Depth'),
+  lineOf(C, 'Activation Depth'));
+
+assert('[clinicflow] "Launch Page" page type present',
+  C.includes('Launch Page'),
+  lineOf(C, 'Launch Page'));
+
+const notDetectedCount = (C.match(/Not detected/g) ?? []).length;
+assert('[clinicflow] "Not detected" appears ≥ 3 times (Spine metrics absent)',
+  notDetectedCount >= 3,
+  `found ${notDetectedCount} occurrence(s)`);
+
+runRegistryV11Checks(C, 'clinicflow-launch');
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 

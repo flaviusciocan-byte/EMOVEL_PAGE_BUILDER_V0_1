@@ -25,11 +25,25 @@ export interface PageSchemaComponent {
   props: PageSchemaSharedProps & Record<string, unknown>;
 }
 
+/** Structured intent extracted by the Composer for downstream consumption.
+ *  Fields are optional — set to undefined when the prompt does not supply them. */
+export interface ComposerBrief {
+  projectName:          string | undefined;
+  audience:             string | undefined;
+  coreOffer:            string | undefined;
+  primaryAction:        string | undefined;
+  pageType:             string | undefined;
+  activationDepth:      string | undefined;
+  progressMomentum:     string | undefined;
+  emotionalSignalIndex: string | undefined;
+}
+
 /** Full Page Schema produced by the Composer and consumed by the Validation Gate. */
 export interface PageSchema {
   registryVersion: string;
   title:           string;
   components:      PageSchemaComponent[];
+  composerBrief?:  ComposerBrief;
 }
 
 /** Result returned by validatePageSchema(). */
