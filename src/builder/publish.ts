@@ -33,6 +33,7 @@ import {
 } from '../motion/patterns';
 import { FONT_FACES_EXPORT, FONT_EXPORT_ASSETS } from '../shell/font-faces';
 import type { KeyframeState, KeyframesDescriptor } from '../motion/patterns';
+import type { ComposerBrief } from '../composer/page-schema';
 
 // Canonical asset location: public/assets/...
 // Page data references them as "assets/..." (root-relative, resolved by Vite / the exported HTML).
@@ -320,6 +321,65 @@ function slugify(str: string): string {
     .replace(/^-|-$/g, '') || 'page';
 }
 
+// ── Composer Brief export section ─────────────────────────────────────────────
+// Rendered into the static HTML only — not visible in the live Builder UI.
+// Inserted immediately after the first Hero section (emovel-hero class).
+
+const BRIEF_CSS = `
+.emovel-brief{background:var(--color-surface);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);}
+.emovel-brief__inner{width:min(100%,72rem);margin:0 auto;padding:clamp(2rem,4vw,3rem) clamp(1.25rem,4vw,3.25rem);}
+.emovel-brief__eyebrow{margin:0 0 1.5rem;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary);}
+.emovel-brief__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));gap:.75rem 2rem;margin:0;padding:0;}
+.emovel-brief__row{display:flex;flex-direction:column;gap:.2rem;padding:.65rem 0;border-bottom:1px solid var(--color-border);}
+.emovel-brief__term{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--color-textSecondary);}
+.emovel-brief__value{margin:0;font-size:.875rem;line-height:1.4;color:var(--color-textPrimary);}
+.emovel-brief__value--missing{color:var(--color-textSecondary);font-style:italic;}
+`.trim();
+
+const BRIEF_FIELDS: ReadonlyArray<[keyof ComposerBrief, string]> = [
+  ['projectName',          'Product / Project'],
+  ['audience',             'Audience'],
+  ['coreOffer',            'Core Offer'],
+  ['primaryAction',        'Primary Action'],
+  ['pageType',             'Page Type'],
+  ['activationDepth',      'Activation Depth'],
+  ['progressMomentum',     'Progress Momentum'],
+  ['emotionalSignalIndex', 'Emotional Signal Index'],
+];
+
+/** Pure renderer — no React, no DOM.  Exported for unit-testing. */
+export function renderComposerBriefHTML(brief: ComposerBrief | undefined): string {
+  if (!brief) return '';
+  const rows = BRIEF_FIELDS.map(([key, label]) => {
+    const raw = brief[key];
+    const val = raw !== undefined
+      ? `<dd class="emovel-brief__value">${escapeHTML(String(raw))}</dd>`
+      : `<dd class="emovel-brief__value emovel-brief__value--missing">Not detected</dd>`;
+    return `<div class="emovel-brief__row"><dt class="emovel-brief__term">${escapeHTML(label)}</dt>${val}</div>`;
+  }).join('');
+  return (
+    `<section class="emovel-brief" aria-label="Composer Brief">` +
+    `<style>${BRIEF_CSS}</style>` +
+    `<div class="emovel-brief__inner">` +
+    `<p class="emovel-brief__eyebrow">Composer Brief</p>` +
+    `<dl class="emovel-brief__grid">${rows}</dl>` +
+    `</div></section>`
+  );
+}
+
+/** Inserts `insert` immediately after the Hero section's closing </section> tag.
+ *  Falls back to after the first </section> if no emovel-hero found,
+ *  or prepends if no </section> exists at all. */
+function insertAfterHero(bodyHTML: string, insert: string): string {
+  if (!insert) return bodyHTML;
+  const heroIdx   = bodyHTML.indexOf('emovel-hero');
+  const searchFrom = heroIdx !== -1 ? heroIdx : 0;
+  const closeIdx  = bodyHTML.indexOf('</section>', searchFrom);
+  if (closeIdx === -1) return insert + bodyHTML;
+  const at = closeIdx + '</section>'.length;
+  return bodyHTML.slice(0, at) + insert + bodyHTML.slice(at);
+}
+
 function normalizeExportAssetPaths(html: string): string {
   return EXPORT_ASSET_PATHS.reduce(
     (nextHTML, [builderPath, exportPath]) => nextHTML.split(builderPath).join(exportPath),
@@ -332,6 +392,13 @@ function renderBody(data: Data): string {
   return renderToStaticMarkup(
     createElement(Render, { config, data }),
   );
+}
+
+/** Render body + Composer Brief splice (brief goes right after the Hero section). */
+function buildBodyWithBrief(data: Data): string {
+  const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+  const brief     = rootProps?.composerBrief as ComposerBrief | undefined;
+  return insertAfterHero(renderBody(data), renderComposerBriefHTML(brief));
 }
 
 /** Full index.html document with inline styles and IO micro-script. */
@@ -371,7 +438,7 @@ export function buildPageHTML(data: Data, theme: ThemeConfig): string {
     typeof (data.root as { props?: { title?: string } })?.props?.title === 'string'
       ? ((data.root as { props: { title: string } }).props.title || 'page')
       : 'page';
-  return buildIndexHTML(renderBody(data), title, buildStyleCSS(theme), buildIOScript());
+  return buildIndexHTML(buildBodyWithBrief(data), title, buildStyleCSS(theme), buildIOScript());
 }
 
 // ─── ZIP download ─────────────────────────────────────────────────────────────
@@ -418,7 +485,7 @@ export async function publishToZip(
       ? ((data.root as { props: { title: string } }).props.title || 'page')
       : 'page';
 
-  const bodyHTML  = renderBody(data);
+  const bodyHTML  = buildBodyWithBrief(data);
   const styleCSS  = buildStyleCSS(theme);
   const ioScript  = buildIOScript();
   const indexHTML = buildIndexHTML(bodyHTML, title, styleCSS, ioScript);
