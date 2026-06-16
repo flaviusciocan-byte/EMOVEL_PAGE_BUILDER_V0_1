@@ -3,6 +3,10 @@ import { renderComposerBriefHTML, buildPageHTML } from './publish';
 import type { ComposerBrief } from '../composer/page-schema';
 import type { ThemeConfig } from './themes';
 import type { Data } from '@puckeditor/core';
+import { buildRegistryPageSchema } from '../composer/composer';
+import { pageSchemaToPuckData }    from '../composer/page-schema-to-puck';
+import type { ValidatorManifest }  from '../composer/page-schema-validator';
+import manifestJson from '../../registry.manifest.json';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -191,5 +195,70 @@ describe('buildPageHTML — composerBrief appears in exported HTML', () => {
     };
     const html = buildPageHTML(dataWithout, MIN_THEME);
     expect(html).not.toContain('Composer Brief');
+  });
+});
+
+// ── ClinicFlow full-pipeline fixture ──────────────────────────────────────────
+// Uses the real composer → schema → puck-data → export pipeline end-to-end.
+// Prompt mirrors: "ClinicFlow helps clinic managers automate intake, organize
+// appointments, and reduce front-desk admin work."
+
+const CLINICFLOW_PROMPT =
+  'launch page for ClinicFlow — helps clinic managers automate intake, ' +
+  'organize appointments, and reduce front-desk admin work';
+
+const MANIFEST = manifestJson as ValidatorManifest;
+
+describe('ClinicFlow full-pipeline export — Composer Brief present', () => {
+  function buildClinicFlowHTML(): string {
+    const schema = buildRegistryPageSchema(CLINICFLOW_PROMPT, MANIFEST);
+    const data   = pageSchemaToPuckData(schema);
+    return buildPageHTML(data, MIN_THEME);
+  }
+
+  it('composer extracts ClinicFlow as brand name', () => {
+    const schema = buildRegistryPageSchema(CLINICFLOW_PROMPT, MANIFEST);
+    expect(schema.composerBrief?.projectName).toBe('ClinicFlow');
+  });
+
+  it('composer sets pageType to Launch Page', () => {
+    const schema = buildRegistryPageSchema(CLINICFLOW_PROMPT, MANIFEST);
+    expect(schema.composerBrief?.pageType).toBe('Launch Page');
+  });
+
+  it('Puck root.props carries composerBrief after conversion', () => {
+    const schema    = buildRegistryPageSchema(CLINICFLOW_PROMPT, MANIFEST);
+    const data      = pageSchemaToPuckData(schema);
+    const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+    expect(rootProps?.composerBrief).toBeDefined();
+  });
+
+  it('exported HTML contains "Composer Brief"', () => {
+    expect(buildClinicFlowHTML()).toContain('Composer Brief');
+  });
+
+  it('exported HTML contains "ClinicFlow"', () => {
+    expect(buildClinicFlowHTML()).toContain('ClinicFlow');
+  });
+
+  it('exported HTML contains "Product / Project" label', () => {
+    expect(buildClinicFlowHTML()).toContain('Product / Project');
+  });
+
+  it('exported HTML contains "Core Offer" label', () => {
+    expect(buildClinicFlowHTML()).toContain('Core Offer');
+  });
+
+  it('exported HTML contains "Launch Page" page type', () => {
+    expect(buildClinicFlowHTML()).toContain('Launch Page');
+  });
+
+  it('exported HTML contains "Activation Depth" label', () => {
+    expect(buildClinicFlowHTML()).toContain('Activation Depth');
+  });
+
+  it('exported HTML contains "Not detected" for undefined Spine metrics', () => {
+    const count = (buildClinicFlowHTML().match(/Not detected/g) ?? []).length;
+    expect(count).toBeGreaterThanOrEqual(3); // activationDepth + progressMomentum + emotionalSignalIndex
   });
 });
