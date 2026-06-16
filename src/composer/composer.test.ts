@@ -394,3 +394,79 @@ describe('buildRegistryPageSchema — exclusions', () => {
     expect(schema.components.some(c => c.registryName === 'GalleryShowcase')).toBe(false);
   });
 });
+
+// ── ComposerBrief ─────────────────────────────────────────────────────────────
+
+describe('buildRegistryPageSchema — composerBrief', () => {
+  it('schema includes composerBrief object', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    expect(schema.composerBrief).toBeDefined();
+    expect(typeof schema.composerBrief).toBe('object');
+  });
+
+  it('composerBrief has all eight fields', () => {
+    const brief = buildRegistryPageSchema('', manifest).composerBrief!;
+    expect(brief).toHaveProperty('projectName');
+    expect(brief).toHaveProperty('audience');
+    expect(brief).toHaveProperty('coreOffer');
+    expect(brief).toHaveProperty('primaryAction');
+    expect(brief).toHaveProperty('pageType');
+    expect(brief).toHaveProperty('activationDepth');
+    expect(brief).toHaveProperty('progressMomentum');
+    expect(brief).toHaveProperty('emotionalSignalIndex');
+  });
+
+  it('projectName reflects extracted brand name', () => {
+    const brief = buildRegistryPageSchema('launch page for ClinicFlow', manifest).composerBrief!;
+    expect(brief.projectName).toBe('ClinicFlow');
+  });
+
+  it('audience is a non-empty string', () => {
+    const brief = buildRegistryPageSchema('', manifest).composerBrief!;
+    expect(typeof brief.audience).toBe('string');
+    expect((brief.audience as string).length).toBeGreaterThan(0);
+  });
+
+  it('primaryAction reflects CTA label', () => {
+    const brief = buildRegistryPageSchema('', manifest).composerBrief!;
+    expect(typeof brief.primaryAction).toBe('string');
+    expect((brief.primaryAction as string).length).toBeGreaterThan(0);
+  });
+
+  it('pageType is populated from PAGE_TYPE_LABELS', () => {
+    const brief = buildRegistryPageSchema('SaaS landing page', manifest).composerBrief!;
+    expect(typeof brief.pageType).toBe('string');
+    expect((brief.pageType as string).length).toBeGreaterThan(0);
+  });
+
+  it('activationDepth / progressMomentum / emotionalSignalIndex are undefined', () => {
+    const brief = buildRegistryPageSchema('', manifest).composerBrief!;
+    expect(brief.activationDepth).toBeUndefined();
+    expect(brief.progressMomentum).toBeUndefined();
+    expect(brief.emotionalSignalIndex).toBeUndefined();
+  });
+});
+
+describe('pageSchemaToPuckData — composerBrief preserved in root props', () => {
+  it('Puck root.props contains composerBrief', () => {
+    const schema = buildRegistryPageSchema('', manifest);
+    const data   = pageSchemaToPuckData(schema);
+    const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+    expect(rootProps).toHaveProperty('composerBrief');
+  });
+
+  it('Puck root composerBrief matches schema composerBrief', () => {
+    const schema = buildRegistryPageSchema('launch page for ClinicFlow', manifest);
+    const data   = pageSchemaToPuckData(schema);
+    const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+    expect(rootProps?.composerBrief).toEqual(schema.composerBrief);
+  });
+
+  it('Puck root composerBrief.projectName matches brand', () => {
+    const schema = buildRegistryPageSchema('launch page for ClinicFlow', manifest);
+    const data   = pageSchemaToPuckData(schema);
+    const rootProps = (data.root as { props?: Record<string, unknown> }).props;
+    const brief  = rootProps?.composerBrief as Record<string, unknown> | undefined;
+    expect(brief?.projectName).toBe('ClinicFlow');
+  });
+});

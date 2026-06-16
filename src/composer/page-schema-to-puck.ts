@@ -46,7 +46,7 @@ export function pageSchemaToPuckData(schema: PageSchema): Data {
   });
 
   return {
-    root: { props: { title: schema.title } },
+    root: { props: { title: schema.title, composerBrief: schema.composerBrief } },
     content,
     zones: {},
   } as Data;
