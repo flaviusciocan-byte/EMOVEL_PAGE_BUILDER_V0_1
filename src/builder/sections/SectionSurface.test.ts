@@ -116,3 +116,45 @@ describe('SectionSurface — className and id forwarding', () => {
     expect(html).toContain('id="features"');
   });
 });
+
+// ── undefined / null prop guard ───────────────────────────────────────────────
+
+describe('SectionSurface — undefined/null surface and width guard', () => {
+  it('falls back to "transparent" when surface is undefined', () => {
+    const html = renderToStaticMarkup(
+      createElement(SectionSurface, { surface: undefined as unknown as SurfaceVariant, width: 'contained', children: 'x' }),
+    );
+    expect(html).toContain('emovel-surf--transparent');
+    expect(html).not.toContain('emovel-surf--undefined');
+  });
+
+  it('falls back to "contained" when width is undefined', () => {
+    const html = renderToStaticMarkup(
+      createElement(SectionSurface, { surface: 'base', width: undefined as unknown as WidthVariant, children: 'x' }),
+    );
+    expect(html).toContain('emovel-surf--contained');
+    expect(html).not.toContain('emovel-surf--undefined');
+  });
+
+  it('falls back to "transparent" when surface is null', () => {
+    const html = renderToStaticMarkup(
+      createElement(SectionSurface, { surface: null as unknown as SurfaceVariant, width: 'contained', children: 'x' }),
+    );
+    expect(html).not.toContain('--undefined');
+    expect(html).not.toContain('--null');
+  });
+
+  it('never emits "--undefined" or "--null" in className for any falsy prop', () => {
+    for (const bad of [undefined, null] as unknown[]) {
+      const html = renderToStaticMarkup(
+        createElement(SectionSurface, {
+          surface: bad as SurfaceVariant,
+          width: bad as WidthVariant,
+          children: 'x',
+        }),
+      );
+      expect(html).not.toContain('--undefined');
+      expect(html).not.toContain('--null');
+    }
+  });
+});

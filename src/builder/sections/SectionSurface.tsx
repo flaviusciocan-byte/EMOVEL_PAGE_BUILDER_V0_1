@@ -94,8 +94,8 @@ export function SectionSurface({
 
   const outerClass = [
     'emovel-surf',
-    `emovel-surf--${surface}`,
-    `emovel-surf--${width}`,
+    `emovel-surf--${surface ?? 'transparent'}`,
+    `emovel-surf--${width   ?? 'contained'}`,
     className,
   ]
     .filter(Boolean)
