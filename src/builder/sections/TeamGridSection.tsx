@@ -49,7 +49,7 @@ export function TeamGridSection(props: TeamGridProps) {
           align-items: center;
           gap: 0.45rem;
           margin: 0 0 0.75rem;
-          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-family: var(--font-mono);
           font-size: clamp(0.68rem, 1vw, 0.78rem);
           font-weight: 600;
           letter-spacing: 0.14em;
@@ -99,7 +99,7 @@ export function TeamGridSection(props: TeamGridProps) {
           background: var(--color-surface);
           border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
-          box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+          box-shadow: var(--shadow-card);
           transition:
             border-color var(--motion-duration) var(--motion-ease),
             transform var(--motion-duration) var(--motion-ease),
@@ -109,7 +109,7 @@ export function TeamGridSection(props: TeamGridProps) {
         .emovel-teamgrid__card:hover {
           border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
           transform: translateY(-2px);
-          box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.08);
+          box-shadow: var(--shadow-card-hover);
         }
 
         .emovel-teamgrid__avatar {

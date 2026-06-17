@@ -4,7 +4,7 @@
 
 import { createContext, useContext, useState, type CSSProperties, type ReactNode } from 'react';
 import { themes, DEFAULT_THEME_ID, type ThemeConfig } from './themes';
-import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, type ColorTokens } from './tokens';
+import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, shadow, fontStack, type ColorTokens } from './tokens';
 import { deriveTheme, type ThemeInputs } from './derive-theme';
 import { FONT_FACES_DEV } from '../shell/font-faces';
 
@@ -30,16 +30,22 @@ function buildCSSVars(theme: ThemeConfig): CSSProperties {
     vars[colorVar(key)] = theme.colors[key];
   }
 
-  vars[cssVarNames.radiusSm]      = radius.sm;
-  vars[cssVarNames.radiusMd]      = radius.md;
-  vars[cssVarNames.radiusLg]      = radius.lg;
-  vars[cssVarNames.radiusPill]    = radius.pill;
-  vars[cssVarNames.spaceSectionV] = space.sectionV;
-  vars[cssVarNames.spaceSectionH] = space.sectionH;
-  vars[cssVarNames.spaceHeroV]    = space.heroV;
-  vars[cssVarNames.spaceHeroH]    = space.heroH;
-  vars[cssVarNames.motionEase]    = motion.ease;
-  vars[cssVarNames.motionDuration]= motion.duration;
+  vars[cssVarNames.radiusSm]           = radius.sm;
+  vars[cssVarNames.radiusMd]           = radius.md;
+  vars[cssVarNames.radiusLg]           = radius.lg;
+  vars[cssVarNames.radiusPill]         = radius.pill;
+  vars[cssVarNames.spaceSectionV]      = space.sectionV;
+  vars[cssVarNames.spaceSectionH]      = space.sectionH;
+  vars[cssVarNames.spaceHeroV]         = space.heroV;
+  vars[cssVarNames.spaceHeroH]         = space.heroH;
+  vars[cssVarNames.spaceXs]            = space.xs;
+  vars[cssVarNames.spaceSm]            = space.sm;
+  vars[cssVarNames.motionEase]         = motion.ease;
+  vars[cssVarNames.motionDuration]     = motion.duration;
+  vars[cssVarNames.shadowCard]         = shadow.card;
+  vars[cssVarNames.shadowCardHover]    = shadow.cardHover;
+  vars[cssVarNames.shadowPrimaryGlow]  = shadow.primaryGlow;
+  vars[cssVarNames.fontMono]           = fontStack.mono;
 
   return vars as CSSProperties;
 }
@@ -59,8 +65,14 @@ export function buildThemeCSSText(theme: ThemeConfig): string {
   lines.push(`  ${cssVarNames.spaceSectionH}: ${space.sectionH};`);
   lines.push(`  ${cssVarNames.spaceHeroV}: ${space.heroV};`);
   lines.push(`  ${cssVarNames.spaceHeroH}: ${space.heroH};`);
+  lines.push(`  ${cssVarNames.spaceXs}: ${space.xs};`);
+  lines.push(`  ${cssVarNames.spaceSm}: ${space.sm};`);
   lines.push(`  ${cssVarNames.motionEase}: ${motion.ease};`);
   lines.push(`  ${cssVarNames.motionDuration}: ${motion.duration};`);
+  lines.push(`  ${cssVarNames.shadowCard}: ${shadow.card};`);
+  lines.push(`  ${cssVarNames.shadowCardHover}: ${shadow.cardHover};`);
+  lines.push(`  ${cssVarNames.shadowPrimaryGlow}: ${shadow.primaryGlow};`);
+  lines.push(`  ${cssVarNames.fontMono}: ${fontStack.mono};`);
   lines.push('}');
   return lines.join('\n');
 }

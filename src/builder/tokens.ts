@@ -39,6 +39,18 @@ export const space = {
   sectionH: '52px',   // horizontal padding for standard sections
   heroV: '64px',      // vertical padding for hero
   heroH: '52px',      // horizontal padding for hero
+  xs: '8px',
+  sm: '16px',
+} as const;
+
+export const shadow = {
+  card:        '0 1px 2px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06)',
+  cardHover:   '0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.08)',
+  primaryGlow: '0 6px 20px color-mix(in srgb, var(--color-primary) 32%, transparent)',
+} as const;
+
+export const fontStack = {
+  mono: '"JetBrains Mono", ui-monospace, monospace',
 } as const;
 
 export const motion = {
@@ -93,6 +105,12 @@ export const cssVarNames = {
   spaceSectionH: '--space-section-h',
   spaceHeroV: '--space-hero-v',
   spaceHeroH: '--space-hero-h',
+  spaceXs: '--space-xs',
+  spaceSm: '--space-sm',
   motionEase: '--motion-ease',
   motionDuration: '--motion-duration',
+  shadowCard: '--shadow-card',
+  shadowCardHover: '--shadow-card-hover',
+  shadowPrimaryGlow: '--shadow-primary-glow',
+  fontMono: '--font-mono',
 } as const;

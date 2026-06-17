@@ -31,7 +31,7 @@ export function FeatureGridSection(props: FeatureGridProps) {
           align-items: center;
           gap: 0.45rem;
           margin: 0 0 0.85rem;
-          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-family: var(--font-mono);
           font-size: clamp(0.68rem, 1vw, 0.78rem);
           font-weight: 600;
           letter-spacing: 0.14em;
@@ -89,7 +89,7 @@ export function FeatureGridSection(props: FeatureGridProps) {
         .emovel-featuregrid__card:hover {
           border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
           transform: translateY(-2px);
-          box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.08);
+          box-shadow: var(--shadow-card-hover);
         }
 
         .emovel-featuregrid__icon {
