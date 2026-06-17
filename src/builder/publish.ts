@@ -367,19 +367,6 @@ export function renderComposerBriefHTML(brief: ComposerBrief | undefined): strin
   );
 }
 
-/** Inserts `insert` immediately after the Hero section's closing </section> tag.
- *  Falls back to after the first </section> if no emovel-hero found,
- *  or prepends if no </section> exists at all. */
-function insertAfterHero(bodyHTML: string, insert: string): string {
-  if (!insert) return bodyHTML;
-  const heroIdx   = bodyHTML.indexOf('emovel-hero');
-  const searchFrom = heroIdx !== -1 ? heroIdx : 0;
-  const closeIdx  = bodyHTML.indexOf('</section>', searchFrom);
-  if (closeIdx === -1) return insert + bodyHTML;
-  const at = closeIdx + '</section>'.length;
-  return bodyHTML.slice(0, at) + insert + bodyHTML.slice(at);
-}
-
 function normalizeExportAssetPaths(html: string): string {
   return EXPORT_ASSET_PATHS.reduce(
     (nextHTML, [builderPath, exportPath]) => nextHTML.split(builderPath).join(exportPath),
@@ -392,45 +379,6 @@ function renderBody(data: Data): string {
   return renderToStaticMarkup(
     createElement(Render, { config, data }),
   );
-}
-
-/** Backfill: ensure root.props.composerBrief is set before export.
- *  Preserves any existing composerBrief; builds a minimal stub from root.props.title when absent.
- *  This makes browser Publish work correctly for pages created before ComposerBrief existed,
- *  pages loaded from saved files, and pages generated via the old Generate Page path. */
-function ensureComposerBrief(data: Data): Data {
-  const rootProps = (data.root as { props?: Record<string, unknown> }).props;
-  if (rootProps?.composerBrief) return data;
-
-  const rawTitle = (rootProps as { title?: unknown } | undefined)?.title;
-  const title    = typeof rawTitle === 'string' && rawTitle ? rawTitle : undefined;
-
-  const brief: ComposerBrief = {
-    projectName:          title,
-    audience:             undefined,
-    coreOffer:            undefined,
-    primaryAction:        undefined,
-    pageType:             undefined,
-    activationDepth:      undefined,
-    progressMomentum:     undefined,
-    emotionalSignalIndex: undefined,
-  };
-
-  return {
-    ...data,
-    root: {
-      ...data.root,
-      props: { ...(rootProps ?? {}), composerBrief: brief },
-    } as Data['root'],
-  };
-}
-
-/** Render body + Composer Brief splice (brief goes right after the Hero section). */
-function buildBodyWithBrief(data: Data): string {
-  const filled    = ensureComposerBrief(data);
-  const rootProps = (filled.root as { props?: Record<string, unknown> }).props;
-  const brief     = rootProps?.composerBrief as ComposerBrief | undefined;
-  return insertAfterHero(renderBody(filled), renderComposerBriefHTML(brief));
 }
 
 /** Full index.html document with inline styles and IO micro-script. */
@@ -470,7 +418,7 @@ export function buildPageHTML(data: Data, theme: ThemeConfig): string {
     typeof (data.root as { props?: { title?: string } })?.props?.title === 'string'
       ? ((data.root as { props: { title: string } }).props.title || 'page')
       : 'page';
-  return buildIndexHTML(buildBodyWithBrief(data), title, buildStyleCSS(theme), buildIOScript());
+  return buildIndexHTML(renderBody(data), title, buildStyleCSS(theme), buildIOScript());
 }
 
 // ─── ZIP download ─────────────────────────────────────────────────────────────
@@ -517,7 +465,7 @@ export async function publishToZip(
       ? ((data.root as { props: { title: string } }).props.title || 'page')
       : 'page';
 
-  const bodyHTML  = buildBodyWithBrief(data);
+  const bodyHTML  = renderBody(data);
   const styleCSS  = buildStyleCSS(theme);
   const ioScript  = buildIOScript();
   const indexHTML = buildIndexHTML(bodyHTML, title, styleCSS, ioScript);

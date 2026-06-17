@@ -375,36 +375,55 @@ runRegistryV11Checks(S, 'hero-staggered');
 console.log('\n── clinicflow-launch.html ────────────────────────────────────');
 const C = readFileSync(PATH_CLINIC, 'utf8');
 
-assert('[clinicflow] Composer Brief section present',
-  C.includes('Composer Brief'),
-  lineOf(C, 'Composer Brief'));
-
 assert('[clinicflow] ClinicFlow brand name present',
   C.includes('ClinicFlow'),
   lineOf(C, 'ClinicFlow'));
 
-assert('[clinicflow] "Product / Project" field label present',
-  C.includes('Product / Project'),
-  lineOf(C, 'Product / Project'));
-
-assert('[clinicflow] "Core Offer" field label present',
-  C.includes('Core Offer'),
-  lineOf(C, 'Core Offer'));
-
-assert('[clinicflow] "Activation Depth" field label present',
-  C.includes('Activation Depth'),
-  lineOf(C, 'Activation Depth'));
-
-assert('[clinicflow] "Launch Page" page type present',
-  C.includes('Launch Page'),
-  lineOf(C, 'Launch Page'));
-
-const notDetectedCount = (C.match(/Not detected/g) ?? []).length;
-assert('[clinicflow] "Not detected" appears ≥ 3 times (Spine metrics absent)',
-  notDetectedCount >= 3,
-  `found ${notDetectedCount} occurrence(s)`);
-
 runRegistryV11Checks(C, 'clinicflow-launch');
+
+// ── Defect 1 guard — Composer Brief diagnostic must not appear in any export ──
+// These are permanent regression assertions. Any appearance of these strings
+// means build-canvas chrome has leaked into a deliverable export.
+
+console.log('\n── Defect 1 guard — Composer Brief absent in all exports ─────');
+
+assert('[hero-depth-push] no "Composer Brief" in export',
+  !D.includes('Composer Brief'), lineOf(D, 'Composer Brief'));
+assert('[hero-depth-push] no "Activation Depth" in export',
+  !D.includes('Activation Depth'), lineOf(D, 'Activation Depth'));
+assert('[hero-depth-push] no "Emotional Signal Index" in export',
+  !D.includes('Emotional Signal Index'), lineOf(D, 'Emotional Signal Index'));
+assert('[hero-depth-push] no "Not detected" in export',
+  !D.includes('Not detected'), lineOf(D, 'Not detected'));
+
+assert('[hero-staggered] no "Composer Brief" in export',
+  !S.includes('Composer Brief'), lineOf(S, 'Composer Brief'));
+assert('[hero-staggered] no "Activation Depth" in export',
+  !S.includes('Activation Depth'), lineOf(S, 'Activation Depth'));
+assert('[hero-staggered] no "Emotional Signal Index" in export',
+  !S.includes('Emotional Signal Index'), lineOf(S, 'Emotional Signal Index'));
+assert('[hero-staggered] no "Not detected" in export',
+  !S.includes('Not detected'), lineOf(S, 'Not detected'));
+
+assert('[clinicflow] no "Composer Brief" in export',
+  !C.includes('Composer Brief'), lineOf(C, 'Composer Brief'));
+assert('[clinicflow] no "Activation Depth" in export',
+  !C.includes('Activation Depth'), lineOf(C, 'Activation Depth'));
+assert('[clinicflow] no "Emotional Signal Index" in export',
+  !C.includes('Emotional Signal Index'), lineOf(C, 'Emotional Signal Index'));
+assert('[clinicflow] no "Not detected" in export',
+  !C.includes('Not detected'), lineOf(C, 'Not detected'));
+
+// ── Defect 2 guard — no --undefined / --null in any class attribute ───────────
+
+console.log('\n── Defect 2 guard — no --undefined / --null class values ─────');
+
+assert('[hero-depth-push] no "--undefined" class', !D.includes('--undefined'), lineOf(D, '--undefined'));
+assert('[hero-depth-push] no "--null" class',      !D.includes('--null'),      lineOf(D, '--null'));
+assert('[hero-staggered] no "--undefined" class',  !S.includes('--undefined'), lineOf(S, '--undefined'));
+assert('[hero-staggered] no "--null" class',       !S.includes('--null'),      lineOf(S, '--null'));
+assert('[clinicflow] no "--undefined" class',      !C.includes('--undefined'), lineOf(C, '--undefined'));
+assert('[clinicflow] no "--null" class',           !C.includes('--null'),      lineOf(C, '--null'));
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 
