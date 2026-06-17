@@ -238,3 +238,19 @@ describe('classifyIntent — profile completeness', () => {
     expect(classifyIntent('').audience.length).toBeGreaterThan(0);
   });
 });
+
+// ── Commercial copy extraction ───────────────────────────────────────────────
+
+describe('classifyIntent — commercial hero copy fields', () => {
+  it('extracts a natural ClinicFlow audience and action', () => {
+    const profile = classifyIntent(
+      'create a SaaS page for ClinicFlow that helps clinic managers automated intake',
+    );
+    expect(profile.audience).toBe('clinic managers');
+    expect(profile.heroAction).toEqual({ verb: 'streamline', object: 'patient intake' });
+  });
+
+  it('keeps heroAction null when no offer is extracted', () => {
+    expect(classifyIntent('').heroAction).toBeNull();
+  });
+});

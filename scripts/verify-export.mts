@@ -293,6 +293,30 @@ function runRegistryV11Checks(html: string, fileLabel: string): void {
   );
 }
 
+// ── Naked-hex scanner regression coverage ────────────────────────────────────
+
+console.log('\n── Naked-hex scanner regression coverage ────────────────');
+
+const ANCHOR_REGRESSION_HTML = '<a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#about">About</a><a href="#get-started">Get started</a>';
+assert('findNakedHex ignores internal anchor href values',
+  findNakedHex(ANCHOR_REGRESSION_HTML).length === 0,
+  `found: ${findNakedHex(ANCHOR_REGRESSION_HTML).join(', ')}`);
+
+const ROOT_HEX_REGRESSION_HTML = '<style>:root { --color-primary: #D4AF37; }</style>';
+assert('findNakedHex allows token hex values inside :root',
+  findNakedHex(ROOT_HEX_REGRESSION_HTML).length === 0,
+  `found: ${findNakedHex(ROOT_HEX_REGRESSION_HTML).join(', ')}`);
+
+const CSS_HEX_REGRESSION_HTML = '<style>.bad { color: #fff; }</style>';
+assert('findNakedHex detects CSS hex colors outside :root',
+  findNakedHex(CSS_HEX_REGRESSION_HTML).includes('#fff'),
+  `found: ${findNakedHex(CSS_HEX_REGRESSION_HTML).join(', ')}`);
+
+const CSS_COLOR_MIX_REGRESSION_HTML = '<style>.bad { background: color-mix(in srgb, var(--color-primary), #fff 20%); }</style>';
+assert('findNakedHex detects CSS hex colors inside color-mix() outside :root',
+  findNakedHex(CSS_COLOR_MIX_REGRESSION_HTML).includes('#fff'),
+  `found: ${findNakedHex(CSS_COLOR_MIX_REGRESSION_HTML).join(', ')}`);
+
 // ── Assertions on hero-depth-push.html ────────────────────────────────────────
 
 console.log('\n── hero-depth-push.html ──────────────────────────────────────');
