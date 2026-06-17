@@ -150,6 +150,32 @@ describe('classifyIntent — brand extraction', () => {
   it('defaults brand to EMOVEL when no pattern matches', () => {
     expect(classifyIntent('just a generic SaaS page').brand.name).toBe('EMOVEL');
   });
+
+  // Subject-verb pattern: "BrandName helps/is/enables… "
+  it('extracts brand when prompt starts with "BrandName helps"', () => {
+    expect(classifyIntent('ClinicFlow helps clinic managers automate intake').brand.name).toBe('ClinicFlow');
+  });
+
+  it('extracts brand from full ClinicFlow prompt (grammatical subject)', () => {
+    const prompt = 'launch page for ClinicFlow — helps clinic managers automate intake, organize appointments, and reduce front-desk admin work';
+    expect(classifyIntent(prompt).brand.name).toBe('ClinicFlow');
+  });
+
+  it('extracts brand when prompt starts with "BrandName is"', () => {
+    expect(classifyIntent('Acme is a platform for creative teams').brand.name).toBe('Acme');
+  });
+
+  it('extracts brand when prompt starts with "BrandName enables"', () => {
+    expect(classifyIntent('DataPulse enables real-time analytics for data teams').brand.name).toBe('DataPulse');
+  });
+
+  it('extracts brand when prompt starts with "BrandName streamlines"', () => {
+    expect(classifyIntent('Taskify streamlines project management').brand.name).toBe('Taskify');
+  });
+
+  it('does not extract lowercase word as brand (subject-verb pattern requires uppercase)', () => {
+    expect(classifyIntent('software helps teams ship faster').brand.name).toBe('EMOVEL');
+  });
 });
 
 // ── CTA labels ────────────────────────────────────────────────────────────────

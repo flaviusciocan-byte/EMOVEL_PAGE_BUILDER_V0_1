@@ -25,6 +25,8 @@ function extractBrandName(prompt: string): string {
     /\bfor\s+([A-Z][A-Za-z0-9]+)/,
     /\bcalled\s+([A-Z][A-Za-z0-9]+)/,
     /\bbrand\s+([A-Z][A-Za-z0-9]+)/,
+    // Brand as grammatical subject: "ClinicFlow helps clinic managers…"
+    /^([A-Z][A-Za-z0-9]+)\s+(?:helps?|is|lets?|enables?|makes?|allows?|provides?|delivers?|offers?|builds?|creates?|serves?|gives?|automates?|streamlines?|simplifies?|powers?)\b/,
   ];
   for (const pattern of patterns) {
     const match = prompt.match(pattern);
