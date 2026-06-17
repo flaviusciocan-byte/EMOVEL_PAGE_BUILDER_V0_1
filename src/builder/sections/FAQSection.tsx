@@ -31,7 +31,7 @@ export function FAQSection(props: FAQProps) {
           align-items: center;
           gap: 0.45rem;
           margin: 0 0 0.75rem;
-          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-family: var(--font-mono);
           font-size: clamp(0.68rem, 1vw, 0.78rem);
           font-weight: 600;
           letter-spacing: 0.14em;

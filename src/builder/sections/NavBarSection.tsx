@@ -136,7 +136,7 @@ export function NavBarSection(props: NavBarProps) {
 
         .emovel-navbar__cta:hover {
           transform: translateY(-1px);
-          box-shadow: 0 6px 20px color-mix(in srgb, var(--color-primary) 32%, transparent);
+          box-shadow: var(--shadow-primary-glow);
         }
 
         /* ══════════════════════════════════════════════════════

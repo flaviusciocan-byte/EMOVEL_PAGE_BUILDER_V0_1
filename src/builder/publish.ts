@@ -23,6 +23,8 @@ import {
   radius,
   space,
   motion,
+  shadow,
+  fontStack,
 } from './tokens';
 import {
   PATTERNS,
@@ -241,18 +243,24 @@ export function buildStyleCSS(theme: ThemeConfig): string {
     (key) => `  ${colorVar(key)}: ${theme.colors[key]};`,
   );
 
-  // System tokens (radius, space, base motion)
+  // System tokens (radius, space, base motion, shadow, font)
   const systemVars = [
-    `  ${cssVarNames.radiusSm}:      ${radius.sm};`,
-    `  ${cssVarNames.radiusMd}:      ${radius.md};`,
-    `  ${cssVarNames.radiusLg}:      ${radius.lg};`,
-    `  ${cssVarNames.radiusPill}:    ${radius.pill};`,
-    `  ${cssVarNames.spaceSectionV}: ${space.sectionV};`,
-    `  ${cssVarNames.spaceSectionH}: ${space.sectionH};`,
-    `  ${cssVarNames.spaceHeroV}:    ${space.heroV};`,
-    `  ${cssVarNames.spaceHeroH}:    ${space.heroH};`,
-    `  ${cssVarNames.motionEase}:    ${motion.ease};`,
-    `  ${cssVarNames.motionDuration}:${motion.duration};`,
+    `  ${cssVarNames.radiusSm}:          ${radius.sm};`,
+    `  ${cssVarNames.radiusMd}:          ${radius.md};`,
+    `  ${cssVarNames.radiusLg}:          ${radius.lg};`,
+    `  ${cssVarNames.radiusPill}:        ${radius.pill};`,
+    `  ${cssVarNames.spaceSectionV}:     ${space.sectionV};`,
+    `  ${cssVarNames.spaceSectionH}:     ${space.sectionH};`,
+    `  ${cssVarNames.spaceHeroV}:        ${space.heroV};`,
+    `  ${cssVarNames.spaceHeroH}:        ${space.heroH};`,
+    `  ${cssVarNames.spaceXs}:           ${space.xs};`,
+    `  ${cssVarNames.spaceSm}:           ${space.sm};`,
+    `  ${cssVarNames.motionEase}:        ${motion.ease};`,
+    `  ${cssVarNames.motionDuration}:    ${motion.duration};`,
+    `  ${cssVarNames.shadowCard}:        ${shadow.card};`,
+    `  ${cssVarNames.shadowCardHover}:   ${shadow.cardHover};`,
+    `  ${cssVarNames.shadowPrimaryGlow}: ${shadow.primaryGlow};`,
+    `  ${cssVarNames.fontMono}:          ${fontStack.mono};`,
   ];
 
   // Extended motion tokens (T5 — full set from tokens.motion.css)

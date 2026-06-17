@@ -66,7 +66,7 @@ export function ProductGridSection(props: ProductGridProps) {
           border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
           background: var(--color-surface);
-          box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+          box-shadow: var(--shadow-card);
           transition:
             transform var(--motion-duration) var(--motion-ease),
             border-color var(--motion-duration) var(--motion-ease),

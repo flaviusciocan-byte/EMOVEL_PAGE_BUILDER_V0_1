@@ -35,7 +35,7 @@ export function OfferSection(props: OfferProps) {
           gap: 0.45rem;
           margin: 0 0 0.9rem;
           color: var(--color-textSecondary);
-          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-family: var(--font-mono);
           font-size: 0.72rem;
           font-weight: 600;
           letter-spacing: 0.14em;

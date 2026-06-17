@@ -425,6 +425,32 @@ assert('[hero-staggered] no "--null" class',       !S.includes('--null'),      l
 assert('[clinicflow] no "--undefined" class',      !C.includes('--undefined'), lineOf(C, '--undefined'));
 assert('[clinicflow] no "--null" class',           !C.includes('--null'),      lineOf(C, '--null'));
 
+// ── Token expansion guard — 6 required-now tokens must appear in :root ────────
+// Regression guard: ensures new tokens are emitted by buildStyleCSS on every export.
+
+console.log('\n── Token expansion — 6 new tokens present in :root ───────────');
+
+for (const [label, html] of [['hero-depth-push', D], ['hero-staggered', S], ['clinicflow', C]] as const) {
+  assert(`[${label}] :root contains --shadow-card`,        html.includes('--shadow-card:'),        lineOf(html, '--shadow-card:'));
+  assert(`[${label}] :root contains --shadow-card-hover`,  html.includes('--shadow-card-hover:'),  lineOf(html, '--shadow-card-hover:'));
+  assert(`[${label}] :root contains --shadow-primary-glow`,html.includes('--shadow-primary-glow:'),lineOf(html, '--shadow-primary-glow:'));
+  assert(`[${label}] :root contains --font-mono`,          html.includes('--font-mono:'),          lineOf(html, '--font-mono:'));
+  assert(`[${label}] :root contains --space-xs`,           html.includes('--space-xs:'),           lineOf(html, '--space-xs:'));
+  assert(`[${label}] :root contains --space-sm`,           html.includes('--space-sm:'),           lineOf(html, '--space-sm:'));
+}
+
+// ── Font-mono guard — no hardcoded "JetBrains Mono" in section CSS ────────────
+
+console.log('\n── Font-mono guard — no hardcoded JetBrains Mono in section CSS ─');
+
+for (const [label, html] of [['hero-depth-push', D], ['hero-staggered', S], ['clinicflow', C]] as const) {
+  // @font-face declarations use single quotes and are fine. Section CSS previously used double quotes.
+  // Only double-quoted font-family values indicate a hardcoded section CSS regression.
+  const noHardcodedMono = !html.includes('font-family: "JetBrains Mono"');
+  assert(`[${label}] no hardcoded font-family: "JetBrains Mono" in section CSS`, noHardcodedMono,
+    lineOf(html, 'font-family: "JetBrains Mono"'));
+}
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 
 console.log(`\n── result: ${failures === 0 ? 'ALL PASS' : `${failures} FAILURE(S)`} ──────────────────────────────`);
