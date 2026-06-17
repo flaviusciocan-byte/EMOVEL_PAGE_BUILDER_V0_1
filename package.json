@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "verify:export": "node --experimental-strip-types scripts/verify-export.mts",
+    "verify-export": "node --experimental-strip-types scripts/verify-export.mts",
     "generate:registry-manifest": "node --experimental-strip-types scripts/generate-registry-manifest.mts",
     "test": "vitest run"
   },
