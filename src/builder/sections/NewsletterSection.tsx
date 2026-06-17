@@ -144,7 +144,7 @@ export function NewsletterSection(props: NewsletterProps) {
           padding: 0.75rem 1.25rem;
           border-radius: var(--radius-md);
           background: var(--color-primary);
-          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, #fff);
+          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, var(--color-onPrimary));
           color: var(--color-background);
           font: inherit;
           font-size: 0.9rem;

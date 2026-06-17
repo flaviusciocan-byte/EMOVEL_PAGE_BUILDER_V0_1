@@ -25,6 +25,7 @@ import {
   motion,
   shadow,
   fontStack,
+  palette,
 } from './tokens';
 import {
   PATTERNS,
@@ -261,6 +262,7 @@ export function buildStyleCSS(theme: ThemeConfig): string {
     `  ${cssVarNames.shadowCardHover}:   ${shadow.cardHover};`,
     `  ${cssVarNames.shadowPrimaryGlow}: ${shadow.primaryGlow};`,
     `  ${cssVarNames.fontMono}:          ${fontStack.mono};`,
+    `  ${cssVarNames.colorOnPrimary}:    ${palette.onPrimary};`,
   ];
 
   // Extended motion tokens (T5 — full set from tokens.motion.css)

@@ -190,17 +190,59 @@ function lineOf(html: string, needle: string): string {
 
 // ─── Registry v1.1 helper functions ──────────────────────────────────────────
 
-/** Strip all :root { ... } blocks so the remainder can be scanned for naked hex values. */
-function stripRootBlocks(html: string): string {
-  // [^{}]* matches multi-line content — :root blocks have no nested braces.
-  return html.replace(/:root\s*\{[^{}]*\}/g, '');
+/**
+ * Extract only CSS text from an HTML document.
+ * Collects <style>...</style> block contents and style="..." attribute values.
+ * Deliberately excludes href, src, id, class, and all other non-CSS attributes
+ * so that anchor fragments like href="#features" are never mistaken for colors.
+ */
+function extractCSS(html: string): string {
+  const styleTags    = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]);
+  const inlineStyles = [...html.matchAll(/\bstyle="([^"]*)"/g)].map(m => m[1]);
+  return [...styleTags, ...inlineStyles].join('\n');
 }
 
-/** Naked hex color strings outside any :root block — must be empty for token-origin compliance. */
-function findNakedHex(html: string): string[] {
-  return [...stripRootBlocks(html).matchAll(/#[0-9a-fA-F]{3,6}(?![0-9a-fA-F])/g)]
-    .map(m => m[0]);
+/** Strip all :root { ... } blocks so the remainder can be scanned for naked hex values. */
+function stripRootBlocks(css: string): string {
+  // [^{}]* matches multi-line content — :root blocks have no nested braces.
+  return css.replace(/:root\s*\{[^{}]*\}/g, '');
 }
+
+/** Naked hex color strings in section CSS outside any :root block.
+ *  Receives full HTML; extracts CSS first so href="#features" is never a hit. */
+function findNakedHex(html: string): string[] {
+  const css = stripRootBlocks(extractCSS(html));
+  return [...css.matchAll(/#[0-9a-fA-F]{3,6}(?![0-9a-fA-F])/g)].map(m => m[0]);
+}
+
+// ── Self-test: prove href="#features" is ignored, color:#abcdef is caught ───
+// These run at harness start — a failure here means the gate itself is broken.
+(function selfTestFindNakedHex() {
+  // Positive: genuine naked hex in section CSS must be caught
+  const withCssHex = `<html><body><section><style>.foo { color: #abcdef; }</style></section></body></html>`;
+  const caught = findNakedHex(withCssHex);
+  if (!caught.includes('#abcdef')) {
+    console.error('[self-test] FAIL: findNakedHex should catch color:#abcdef in section CSS');
+    process.exit(1);
+  }
+
+  // Negative: href anchor fragment must NOT be caught
+  const withHref = `<html><body><a href="#features">Learn more</a><a href="#fea">x</a></body></html>`;
+  const fromHref = findNakedHex(withHref);
+  if (fromHref.length > 0) {
+    console.error(`[self-test] FAIL: findNakedHex must ignore href anchors, found: ${fromHref.join(', ')}`);
+    process.exit(1);
+  }
+
+  // Negative: id/class attributes must NOT be caught
+  const withAttr = `<html><body><div id="abc" class="def abc123"></div></body></html>`;
+  if (findNakedHex(withAttr).length > 0) {
+    console.error('[self-test] FAIL: findNakedHex must ignore id/class attributes');
+    process.exit(1);
+  }
+
+  console.log('[self-test] PASS  findNakedHex: href anchors ignored, CSS hex caught correctly');
+})();
 
 /** Asset paths found in src="assets/..." attributes. */
 function extractAssetSrcs(html: string): string[] {

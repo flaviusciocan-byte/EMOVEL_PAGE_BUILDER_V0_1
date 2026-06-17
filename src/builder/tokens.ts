@@ -49,6 +49,12 @@ export const shadow = {
   primaryGlow: '0 6px 20px color-mix(in srgb, var(--color-primary) 32%, transparent)',
 } as const;
 
+// Fixed blend target: white used as the light end of color-mix() tints.
+// Not theme-dependent — always #FFFFFF. Eliminates naked hex in section CSS.
+export const palette = {
+  onPrimary: '#FFFFFF',
+} as const;
+
 export const fontStack = {
   mono: '"JetBrains Mono", ui-monospace, monospace',
 } as const;
@@ -113,4 +119,5 @@ export const cssVarNames = {
   shadowCardHover: '--shadow-card-hover',
   shadowPrimaryGlow: '--shadow-primary-glow',
   fontMono: '--font-mono',
+  colorOnPrimary: '--color-onPrimary',
 } as const;

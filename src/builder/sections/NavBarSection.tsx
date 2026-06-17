@@ -122,7 +122,7 @@ export function NavBarSection(props: NavBarProps) {
           padding: 0.55rem 1.15rem;
           border-radius: var(--radius-md);
           background: var(--color-primary);
-          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, #fff);
+          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, var(--color-onPrimary));
           color: var(--color-background);
           font-size: 0.875rem;
           font-weight: 700;
@@ -267,7 +267,7 @@ export function NavBarSection(props: NavBarProps) {
           padding: 0.65rem 1.15rem;
           border-radius: var(--radius-md);
           background: var(--color-primary);
-          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, #fff);
+          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, var(--color-onPrimary));
           color: var(--color-background);
           font-size: 0.875rem;
           font-weight: 700;
