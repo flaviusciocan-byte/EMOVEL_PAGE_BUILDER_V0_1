@@ -4,7 +4,7 @@
 
 import { createContext, useContext, useState, type CSSProperties, type ReactNode } from 'react';
 import { themes, DEFAULT_THEME_ID, type ThemeConfig } from './themes';
-import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, shadow, fontStack, type ColorTokens } from './tokens';
+import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, shadow, fontStack, palette, type ColorTokens } from './tokens';
 import { deriveTheme, type ThemeInputs } from './derive-theme';
 import { FONT_FACES_DEV } from '../shell/font-faces';
 
@@ -46,6 +46,7 @@ function buildCSSVars(theme: ThemeConfig): CSSProperties {
   vars[cssVarNames.shadowCardHover]    = shadow.cardHover;
   vars[cssVarNames.shadowPrimaryGlow]  = shadow.primaryGlow;
   vars[cssVarNames.fontMono]           = fontStack.mono;
+  vars[cssVarNames.colorOnPrimary]     = palette.onPrimary;
 
   return vars as CSSProperties;
 }
@@ -73,6 +74,7 @@ export function buildThemeCSSText(theme: ThemeConfig): string {
   lines.push(`  ${cssVarNames.shadowCardHover}: ${shadow.cardHover};`);
   lines.push(`  ${cssVarNames.shadowPrimaryGlow}: ${shadow.primaryGlow};`);
   lines.push(`  ${cssVarNames.fontMono}: ${fontStack.mono};`);
+  lines.push(`  ${cssVarNames.colorOnPrimary}: ${palette.onPrimary};`);
   lines.push('}');
   return lines.join('\n');
 }

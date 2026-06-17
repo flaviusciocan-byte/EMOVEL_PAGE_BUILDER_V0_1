@@ -245,7 +245,7 @@ export function PricingTableSection(props: PricingTableProps) {
 
         .emovel-pricing__card--featured .emovel-pricing__cta {
           background: var(--color-primary);
-          border-color: color-mix(in srgb, var(--color-primary) 80%, white);
+          border-color: color-mix(in srgb, var(--color-primary) 80%, var(--color-onPrimary));
           color: var(--color-background);
         }
 

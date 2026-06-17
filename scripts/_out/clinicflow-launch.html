@@ -56,6 +56,7 @@
   --shadow-card-hover:   0 2px 8px rgba(0,0,0,.12), 0 12px 32px rgba(0,0,0,.08);
   --shadow-primary-glow: 0 6px 20px color-mix(in srgb, var(--color-primary) 32%, transparent);
   --font-mono:          "JetBrains Mono", ui-monospace, monospace;
+  --color-onPrimary:    #FFFFFF;
   --motion-duration-fast: 0.2s;
   --motion-duration-base: 0.4s;
   --motion-duration-slow: 0.7s;
@@ -355,7 +356,7 @@ a { color: inherit; }
           padding: 0.55rem 1.15rem;
           border-radius: var(--radius-md);
           background: var(--color-primary);
-          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, #fff);
+          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, var(--color-onPrimary));
           color: var(--color-background);
           font-size: 0.875rem;
           font-weight: 700;
@@ -500,7 +501,7 @@ a { color: inherit; }
           padding: 0.65rem 1.15rem;
           border-radius: var(--radius-md);
           background: var(--color-primary);
-          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, #fff);
+          border: 1px solid color-mix(in srgb, var(--color-primary) 80%, var(--color-onPrimary));
           color: var(--color-background);
           font-size: 0.875rem;
           font-weight: 700;
