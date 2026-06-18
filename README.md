@@ -97,3 +97,4 @@ There is no other Hero. `src/builder/sections/` contains all other section compo
 
 Editor shell uses fixed dark chrome colors (see `tokens.ts` shell section).
 Page themes are defined in `src/builder/themes.ts` — EMOVEL Luxury Tech is the default.
+
