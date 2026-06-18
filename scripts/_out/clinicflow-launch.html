@@ -203,10 +203,9 @@ a { color: inherit; }
     transform: none;
   }
 }
-  </style>
-</head>
-<body>
-<div><nav class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-navbar emovel-navbar--sticky" aria-label="Site navigation"><style>.emovel-surf {
+
+/* Surface + width shared classes */
+.emovel-surf {
   position: relative;
   color: var(--color-textPrimary);
   container-type: inline-size;
@@ -259,7 +258,11 @@ a { color: inherit; }
 /* Image surface: force white text for legibility over the dark overlay */
 .emovel-surf--image .emovel-surf__content {
   color: rgba(255,255,255,1);
-}</style><div class="emovel-surf__content"><style>
+}
+  </style>
+</head>
+<body>
+<div><nav class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-navbar emovel-navbar--sticky" aria-label="Site navigation"><div class="emovel-surf__content"><style>
         /* ── Base ── */
         .emovel-navbar {
           border-bottom: 1px solid var(--color-border);
@@ -522,60 +525,7 @@ a { color: inherit; }
           .emovel-navbar__panel     { max-height: 0 !important; border-top-width: 0 !important; }
           .emovel-navbar__hamburger { display: none !important; }
         }
-      </style><input type="checkbox" id="emnav-Rh" class="emovel-navbar__toggle" aria-hidden="true" tabindex="-1"/><div class="emovel-navbar__bar"><a class="emovel-navbar__logo" href="#">ClinicFlow</a><ul class="emovel-navbar__links" role="list"><li><a class="emovel-navbar__link" href="#about">About</a></li><li><a class="emovel-navbar__link" href="#faq">FAQ</a></li></ul><span class="emovel-navbar__spacer"></span><a class="emovel-navbar__cta" href="#waitlist">Join the waitlist</a><label for="emnav-Rh" class="emovel-navbar__hamburger" aria-label="Toggle navigation menu"><span class="emovel-navbar__ham-1"></span><span class="emovel-navbar__ham-2"></span><span class="emovel-navbar__ham-3"></span></label></div><div class="emovel-navbar__panel" role="region" aria-label="Mobile navigation"><div class="emovel-navbar__panel-inner"><ul class="emovel-navbar__panel-links" role="list"><li><a class="emovel-navbar__panel-link" href="#about">About</a></li><li><a class="emovel-navbar__panel-link" href="#faq">FAQ</a></li></ul><a class="emovel-navbar__panel-cta" href="#waitlist">Join the waitlist</a></div></div></div></nav><section class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-hero"><style>.emovel-surf {
-  position: relative;
-  color: var(--color-textPrimary);
-  container-type: inline-size;
-}
-
-/* ── Surface backgrounds ── */
-.emovel-surf--transparent { background: transparent; }
-.emovel-surf--base        { background: var(--color-background); }
-.emovel-surf--surface     { background: var(--color-surface); }
-.emovel-surf--surfaceAlt  { background: var(--color-surfaceAlt); }
-.emovel-surf--image       { background: var(--color-background); }
-.emovel-surf--gradient {
-  background: linear-gradient(180deg, var(--color-background) 0%, var(--color-surface) 100%);
-}
-
-/* ── Width ── */
-.emovel-surf--contained { /* natural block width — no override needed */ }
-.emovel-surf--full-bleed {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-}
-
-/* ── Image background layer ── */
-.emovel-surf__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* ── Dark gradient overlay — always dark so text ≥ AA over any photo ── */
-.emovel-surf__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(0,0,0,.12) 0%,
-    rgba(0,0,0,.62) 50%,
-    rgba(0,0,0,.82) 100%
-  );
-}
-
-/* ── Content wrapper — lifts section content above bg/overlay layers ── */
-.emovel-surf__content {
-  position: relative;
-  z-index: 1;
-}
-
-/* Image surface: force white text for legibility over the dark overlay */
-.emovel-surf--image .emovel-surf__content {
-  color: rgba(255,255,255,1);
-}</style><div class="emovel-surf__content"><style>.emovel-hero {
+      </style><input type="checkbox" id="emnav-Rh" class="emovel-navbar__toggle" aria-hidden="true" tabindex="-1"/><div class="emovel-navbar__bar"><a class="emovel-navbar__logo" href="#">ClinicFlow</a><ul class="emovel-navbar__links" role="list"><li><a class="emovel-navbar__link" href="#about">About</a></li><li><a class="emovel-navbar__link" href="#faq">FAQ</a></li></ul><span class="emovel-navbar__spacer"></span><a class="emovel-navbar__cta" href="#waitlist">Join the waitlist</a><label for="emnav-Rh" class="emovel-navbar__hamburger" aria-label="Toggle navigation menu"><span class="emovel-navbar__ham-1"></span><span class="emovel-navbar__ham-2"></span><span class="emovel-navbar__ham-3"></span></label></div><div class="emovel-navbar__panel" role="region" aria-label="Mobile navigation"><div class="emovel-navbar__panel-inner"><ul class="emovel-navbar__panel-links" role="list"><li><a class="emovel-navbar__panel-link" href="#about">About</a></li><li><a class="emovel-navbar__panel-link" href="#faq">FAQ</a></li></ul><a class="emovel-navbar__panel-cta" href="#waitlist">Join the waitlist</a></div></div></div></nav><section class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-hero"><div class="emovel-surf__content"><style>.emovel-hero {
   --hero-perspective: 1200px;
   --hero-btn-dur: var(--motion-duration, 180ms);
   --hero-btn-ease: var(--motion-ease, cubic-bezier(.22, 1, .36, 1));
@@ -726,60 +676,7 @@ a { color: inherit; }
     width: 100%;
     text-align: center;
   }
-}</style><div class="emovel-hero__glow" aria-hidden="true"></div><div class="emovel-hero__inner"><div class="emovel-hero__panel"><div class="emovel-hero__logo"><svg class="emovel-hero__wings" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="wing-left"><path d="M112 40 C82 18,42 22,8 40 C42 58,82 62,112 40Z" fill="currentColor" opacity="0.85"></path><path d="M112 40 C87 26,56 29,30 40 C56 51,87 54,112 40Z" fill="currentColor" opacity="0.50"></path><path d="M112 40 C92 32,70 34,52 40 C70 46,92 48,112 40Z" fill="currentColor" opacity="0.28"></path></g><g class="wing-right"><path d="M128 40 C158 18,198 22,232 40 C198 58,158 62,128 40Z" fill="currentColor" opacity="0.85"></path><path d="M128 40 C153 26,184 29,210 40 C184 51,153 54,128 40Z" fill="currentColor" opacity="0.50"></path><path d="M128 40 C148 32,170 34,188 40 C170 46,148 48,128 40Z" fill="currentColor" opacity="0.28"></path></g></svg></div><p class="emovel-hero__eyebrow">Now live — ClinicFlow</p><h1 class="emovel-hero__title">ClinicFlow — Join the next generation.</h1><p class="emovel-hero__subtitle">Be among the first early adopters and innovators to experience what ClinicFlow can do. Limited spots available.</p><div class="emovel-hero__actions"><a class="emovel-hero__btn emovel-hero__btn--primary" href="#waitlist">Join the waitlist</a><a class="emovel-hero__btn emovel-hero__btn--secondary" href="#features">Learn more</a></div></div></div></div></section><section class="emovel-surf emovel-surf--inverted emovel-surf--contained emovel-cta"><style>.emovel-surf {
-  position: relative;
-  color: var(--color-textPrimary);
-  container-type: inline-size;
-}
-
-/* ── Surface backgrounds ── */
-.emovel-surf--transparent { background: transparent; }
-.emovel-surf--base        { background: var(--color-background); }
-.emovel-surf--surface     { background: var(--color-surface); }
-.emovel-surf--surfaceAlt  { background: var(--color-surfaceAlt); }
-.emovel-surf--image       { background: var(--color-background); }
-.emovel-surf--gradient {
-  background: linear-gradient(180deg, var(--color-background) 0%, var(--color-surface) 100%);
-}
-
-/* ── Width ── */
-.emovel-surf--contained { /* natural block width — no override needed */ }
-.emovel-surf--full-bleed {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-}
-
-/* ── Image background layer ── */
-.emovel-surf__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* ── Dark gradient overlay — always dark so text ≥ AA over any photo ── */
-.emovel-surf__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(0,0,0,.12) 0%,
-    rgba(0,0,0,.62) 50%,
-    rgba(0,0,0,.82) 100%
-  );
-}
-
-/* ── Content wrapper — lifts section content above bg/overlay layers ── */
-.emovel-surf__content {
-  position: relative;
-  z-index: 1;
-}
-
-/* Image surface: force white text for legibility over the dark overlay */
-.emovel-surf--image .emovel-surf__content {
-  color: rgba(255,255,255,1);
-}</style><div class="emovel-surf__content"><style>
+}</style><div class="emovel-hero__glow" aria-hidden="true"></div><div class="emovel-hero__inner"><div class="emovel-hero__panel"><div class="emovel-hero__logo"><svg class="emovel-hero__wings" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="wing-left"><path d="M112 40 C82 18,42 22,8 40 C42 58,82 62,112 40Z" fill="currentColor" opacity="0.85"></path><path d="M112 40 C87 26,56 29,30 40 C56 51,87 54,112 40Z" fill="currentColor" opacity="0.50"></path><path d="M112 40 C92 32,70 34,52 40 C70 46,92 48,112 40Z" fill="currentColor" opacity="0.28"></path></g><g class="wing-right"><path d="M128 40 C158 18,198 22,232 40 C198 58,158 62,128 40Z" fill="currentColor" opacity="0.85"></path><path d="M128 40 C153 26,184 29,210 40 C184 51,153 54,128 40Z" fill="currentColor" opacity="0.50"></path><path d="M128 40 C148 32,170 34,188 40 C170 46,148 48,128 40Z" fill="currentColor" opacity="0.28"></path></g></svg></div><p class="emovel-hero__eyebrow">Now live — ClinicFlow</p><h1 class="emovel-hero__title">ClinicFlow — Join the next generation.</h1><p class="emovel-hero__subtitle">Be among the first clinic managers to experience what ClinicFlow can do. Limited spots available.</p><div class="emovel-hero__actions"><a class="emovel-hero__btn emovel-hero__btn--primary" href="#waitlist">Join the waitlist</a><a class="emovel-hero__btn emovel-hero__btn--secondary" href="#features">Learn more</a></div></div></div></div></section><section class="emovel-surf emovel-surf--inverted emovel-surf--contained emovel-cta"><div class="emovel-surf__content"><style>
         .emovel-cta {
           overflow: hidden;
           border-top: 1px solid var(--color-border);
@@ -908,60 +805,7 @@ a { color: inherit; }
             width: 100%;
           }
         }
-      </style><div class="emovel-cta__inner"><div class="emovel-cta__panel"><div class="emovel-cta__content"><h2 class="emovel-cta__headline">Join ClinicFlow — it takes under a minute.</h2><p class="emovel-cta__subheadline">Join early adopters and innovators who use ClinicFlow to build with confidence.</p><div class="emovel-cta__actions" aria-label="Call to action"><a class="emovel-cta__button emovel-cta__button--primary" href="#primary-action">Join the waitlist</a><a class="emovel-cta__button emovel-cta__button--secondary" href="#secondary-action">Learn more</a></div><p class="emovel-cta__support">No commitment required.</p></div></div></div></div></section><footer class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-footer"><style>.emovel-surf {
-  position: relative;
-  color: var(--color-textPrimary);
-  container-type: inline-size;
-}
-
-/* ── Surface backgrounds ── */
-.emovel-surf--transparent { background: transparent; }
-.emovel-surf--base        { background: var(--color-background); }
-.emovel-surf--surface     { background: var(--color-surface); }
-.emovel-surf--surfaceAlt  { background: var(--color-surfaceAlt); }
-.emovel-surf--image       { background: var(--color-background); }
-.emovel-surf--gradient {
-  background: linear-gradient(180deg, var(--color-background) 0%, var(--color-surface) 100%);
-}
-
-/* ── Width ── */
-.emovel-surf--contained { /* natural block width — no override needed */ }
-.emovel-surf--full-bleed {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-}
-
-/* ── Image background layer ── */
-.emovel-surf__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* ── Dark gradient overlay — always dark so text ≥ AA over any photo ── */
-.emovel-surf__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(0,0,0,.12) 0%,
-    rgba(0,0,0,.62) 50%,
-    rgba(0,0,0,.82) 100%
-  );
-}
-
-/* ── Content wrapper — lifts section content above bg/overlay layers ── */
-.emovel-surf__content {
-  position: relative;
-  z-index: 1;
-}
-
-/* Image surface: force white text for legibility over the dark overlay */
-.emovel-surf--image .emovel-surf__content {
-  color: rgba(255,255,255,1);
-}</style><div class="emovel-surf__content"><style>
+      </style><div class="emovel-cta__inner"><div class="emovel-cta__panel"><div class="emovel-cta__content"><h2 class="emovel-cta__headline">Join ClinicFlow — it takes under a minute.</h2><p class="emovel-cta__subheadline">Join clinic managers who use ClinicFlow to build with confidence.</p><div class="emovel-cta__actions" aria-label="Call to action"><a class="emovel-cta__button emovel-cta__button--primary" href="#primary-action">Join the waitlist</a><a class="emovel-cta__button emovel-cta__button--secondary" href="#secondary-action">Learn more</a></div><p class="emovel-cta__support">No commitment required.</p></div></div></div></div></section><footer class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-footer"><div class="emovel-surf__content"><style>
         .emovel-footer {
           border-top: 1px solid var(--color-border);
           color: var(--color-textSecondary);
