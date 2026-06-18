@@ -7,6 +7,7 @@ import { themes, DEFAULT_THEME_ID, type ThemeConfig } from './themes';
 import { COLOR_KEYS, colorVar, cssVarNames, radius, space, motion, shadow, fontStack, palette, type ColorTokens } from './tokens';
 import { deriveTheme, type ThemeInputs } from './derive-theme';
 import { FONT_FACES_DEV } from '../shell/font-faces';
+import { SURF_CSS } from './sections/SectionSurface';
 
 interface ThemeContextValue {
   themeId: string;
@@ -76,6 +77,7 @@ export function buildThemeCSSText(theme: ThemeConfig): string {
   lines.push(`  ${cssVarNames.fontMono}: ${fontStack.mono};`);
   lines.push(`  ${cssVarNames.colorOnPrimary}: ${palette.onPrimary};`);
   lines.push('}');
+  lines.push('', SURF_CSS);
   return lines.join('\n');
 }
 

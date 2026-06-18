@@ -203,10 +203,9 @@ a { color: inherit; }
     transform: none;
   }
 }
-  </style>
-</head>
-<body>
-<div><section class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-hero"><style>.emovel-surf {
+
+/* Surface + width shared classes */
+.emovel-surf {
   position: relative;
   color: var(--color-textPrimary);
   container-type: inline-size;
@@ -259,7 +258,11 @@ a { color: inherit; }
 /* Image surface: force white text for legibility over the dark overlay */
 .emovel-surf--image .emovel-surf__content {
   color: rgba(255,255,255,1);
-}</style><div class="emovel-surf__content"><style>.emovel-hero {
+}
+  </style>
+</head>
+<body>
+<div><section class="emovel-surf emovel-surf--transparent emovel-surf--contained emovel-hero"><div class="emovel-surf__content"><style>.emovel-hero {
   --hero-perspective: 1200px;
   --hero-btn-dur: var(--motion-duration, 180ms);
   --hero-btn-ease: var(--motion-ease, cubic-bezier(.22, 1, .36, 1));

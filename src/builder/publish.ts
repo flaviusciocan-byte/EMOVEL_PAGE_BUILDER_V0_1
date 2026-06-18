@@ -35,6 +35,7 @@ import {
   MOTION_REDUCED_CSS_VARS,
 } from '../motion/patterns';
 import { FONT_FACES_EXPORT, FONT_EXPORT_ASSETS } from '../shell/font-faces';
+import { SURF_CSS } from './sections/SectionSurface';
 import type { KeyframeState, KeyframesDescriptor } from '../motion/patterns';
 import type { ComposerBrief } from '../composer/page-schema';
 
@@ -311,6 +312,9 @@ export function buildStyleCSS(theme: ThemeConfig): string {
     'a { color: inherit; }',
     '',
     buildMotionCSS(),
+    '',
+    '/* Surface + width shared classes */',
+    SURF_CSS,
   ].join('\n');
 }
 

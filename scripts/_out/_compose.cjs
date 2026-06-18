@@ -75,6 +75,94 @@ var AUDIENCE_BY_PAGE_TYPE = {
   product: "buyers and enthusiasts",
   about: "candidates and partners"
 };
+var ACTION_VERBS = [
+  "automate",
+  "streamline",
+  "launch",
+  "build",
+  "manage",
+  "convert",
+  "organize",
+  "scale"
+];
+var GERUND_TO_VERB = {
+  automating: "automate",
+  streamlining: "streamline",
+  launching: "launch",
+  building: "build",
+  managing: "manage",
+  converting: "convert",
+  organizing: "organize",
+  scaling: "scale"
+};
+var PAST_TO_VERB = {
+  automated: "automate",
+  streamlined: "streamline",
+  launched: "launch",
+  built: "build",
+  managed: "manage",
+  converted: "convert",
+  organized: "organize",
+  scaled: "scale"
+};
+function cleanPhrase(value) {
+  return value.replace(/[.!?]+$/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+function humanizeOfferObject(rawObject) {
+  const object = cleanPhrase(rawObject).replace(/^the\s+/, "").replace(/^(their|your|our)\s+/, "");
+  if (/^intake$/.test(object)) return "patient intake";
+  if (/^forms?$/.test(object)) return "digital forms";
+  if (/^leads?$/.test(object)) return "lead conversion";
+  if (/^workflows?$/.test(object)) return "team workflows";
+  if (/^operations?$/.test(object)) return "daily operations";
+  return object || "workflows";
+}
+function preferCommercialVerb(verb, object) {
+  const normalizedVerb = cleanPhrase(verb);
+  const normalizedObject = cleanPhrase(object);
+  if (/intake|workflow|operations?|process/.test(normalizedObject)) return "streamline";
+  if (/site|page|landing|app|product/.test(normalizedObject)) return "launch";
+  if (/lead|signup|visitor|conversion/.test(normalizedObject)) return "convert";
+  if (/content|task|data|file/.test(normalizedObject)) return "organize";
+  if (/team|project|client|clinic|practice/.test(normalizedObject)) return "manage";
+  if (/growth|revenue|business/.test(normalizedObject)) return "scale";
+  if (normalizedVerb in GERUND_TO_VERB) return GERUND_TO_VERB[normalizedVerb];
+  if (normalizedVerb in PAST_TO_VERB) return PAST_TO_VERB[normalizedVerb];
+  if (ACTION_VERBS.includes(normalizedVerb)) return normalizedVerb;
+  return "streamline";
+}
+function extractAudience(prompt, pageType) {
+  const lower = prompt.toLowerCase();
+  const patterns = [
+    /helps?\s+([a-z][a-z\s-]{2,60}?)\s+(?:automated?|automating|streamline|streamlining|launch|launching|build|building|manage|managing|convert|converting|organize|organizing|scale|scaling)\b/,
+    /for\s+[A-Z][A-Za-z0-9]+\s+(?:that\s+)?helps?\s+([a-z][a-z\s-]{2,60}?)\s+/,
+    /for\s+([a-z][a-z\s-]{2,50}?)(?:\s+who\b|\s+that\b|[.,]|$)/
+  ];
+  for (const pattern of patterns) {
+    const match = prompt.match(pattern);
+    if (match?.[1]) {
+      const audience = cleanPhrase(match[1]).replace(/^(the|a|an)\s+/, "");
+      if (audience && !/^(landing page|page|website|site)$/.test(audience)) return audience;
+    }
+  }
+  if (/clinic|patient|intake/.test(lower)) return "clinic managers";
+  return AUDIENCE_BY_PAGE_TYPE[pageType];
+}
+function extractHeroAction(prompt) {
+  const patterns = [
+    /helps?\s+[a-z][a-z\s-]{2,60}?\s+(automated?|automating|streamline|streamlining|launch|launching|build|building|manage|managing|convert|converting|organize|organizing|scale|scaling)\s+([a-z][a-z\s-]{2,80})/i,
+    /(?:to|for)\s+(automated?|automating|streamline|streamlining|launch|launching|build|building|manage|managing|convert|converting|organize|organizing|scale|scaling)\s+([a-z][a-z\s-]{2,80})/i
+  ];
+  for (const pattern of patterns) {
+    const match = prompt.match(pattern);
+    if (match?.[1] && match[2]) {
+      const object = humanizeOfferObject(match[2]);
+      return { verb: preferCommercialVerb(match[1], object), object };
+    }
+  }
+  if (/intake/.test(prompt.toLowerCase())) return { verb: "streamline", object: "patient intake" };
+  return null;
+}
 function classifyIntent(prompt) {
   const lower = prompt.toLowerCase();
   const hasGallery = /\b(gallery|screenshot|screenshots|showcase|demo|preview)\b/.test(lower);
@@ -99,13 +187,16 @@ function classifyIntent(prompt) {
   }
   const brandName = extractBrandName(prompt);
   const ctas = CTA_BY_PAGE_TYPE[pageType];
+  const audience = extractAudience(prompt, pageType);
+  const heroAction = extractHeroAction(prompt);
   return {
     pageType,
     brand: {
       name: brandName,
       tagline: TAGLINE_BY_PAGE_TYPE[pageType]
     },
-    audience: AUDIENCE_BY_PAGE_TYPE[pageType],
+    audience,
+    heroAction,
     primaryCTA: ctas.primary,
     secondaryCTA: ctas.secondary,
     tone,
@@ -194,7 +285,7 @@ var NAV_LINKS_BY_PAGE_TYPE = {
   ]
 };
 var HERO_TITLE_BY_PAGE_TYPE = {
-  saas: (b) => `${b} \u2014 Build smarter, ship faster.`,
+  saas: (b, a, action) => action ? `${b} helps ${a} ${action.verb} ${action.object}.` : `${b} \u2014 Build smarter, ship faster.`,
   landing: (b) => `${b} \u2014 Join the next generation.`,
   portfolio: (_) => "Work that speaks for itself.",
   product: (b) => `${b} \u2014 Quality you can feel.`,
@@ -267,7 +358,7 @@ function buildHeroSection(profile) {
   };
   return {
     eyebrow: eyebrowByTone[profile.tone] ?? profile.brand.name,
-    title: HERO_TITLE_BY_PAGE_TYPE[profile.pageType](profile.brand.name),
+    title: HERO_TITLE_BY_PAGE_TYPE[profile.pageType](profile.brand.name, profile.audience, profile.heroAction),
     subtitle: HERO_SUBTITLE_BY_PAGE_TYPE[profile.pageType](profile.brand.name, profile.audience),
     primaryCtaLabel: profile.primaryCTA.label,
     primaryCtaHref: profile.primaryCTA.href,

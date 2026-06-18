@@ -20,7 +20,7 @@ export interface SectionSurfaceProps {
 // All surface + width logic lives here — one place, not copy-pasted per section.
 // Overlay uses the same dark gradient invariant as CardSection's image variant.
 
-const SURF_CSS = `
+export const SURF_CSS = `
 .emovel-surf {
   position: relative;
   color: var(--color-textPrimary);
@@ -103,8 +103,6 @@ export function SectionSurface({
 
   const inner = (
     <>
-      <style>{SURF_CSS}</style>
-
       {hasBg ? (
         <div
           className="emovel-surf__bg"
