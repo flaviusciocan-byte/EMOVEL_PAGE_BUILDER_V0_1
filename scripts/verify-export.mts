@@ -517,6 +517,30 @@ for (const [label, html] of [['hero-depth-push', D], ['hero-staggered', S], ['cl
     lineOf(html, 'font-family: "JetBrains Mono"'));
 }
 
+// ── SURF_CSS deduplication — marker must appear exactly once ──────────────────
+// Marker: first unique class from SURF_CSS that cannot appear any other way.
+// If SectionSurface ever re-adds inline <style>{SURF_CSS}</style>, count rises above 1.
+
+console.log('\n── SURF_CSS deduplication — exactly-once per export ───────────────');
+
+const SURF_MARKER = '.emovel-surf--transparent { background: transparent; }';
+
+function countOccurrences(haystack: string, needle: string): number {
+  let count = 0;
+  let pos = 0;
+  while ((pos = haystack.indexOf(needle, pos)) !== -1) { count++; pos += needle.length; }
+  return count;
+}
+
+for (const [label, html] of [['hero-depth-push', D], ['hero-staggered', S], ['clinicflow', C]] as const) {
+  const n = countOccurrences(html, SURF_MARKER);
+  assert(
+    `[${label}] SURF_CSS marker appears exactly once (got ${n})`,
+    n === 1,
+    `expected 1 occurrence, found ${n}`,
+  );
+}
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 
 console.log(`\n── result: ${failures === 0 ? 'ALL PASS' : `${failures} FAILURE(S)`} ──────────────────────────────`);
