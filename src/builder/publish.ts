@@ -15,7 +15,7 @@ import JSZip from 'jszip';
 
 import { config } from './puck.config';
 import type { ThemeConfig } from './themes';
-import { collectLocalAssetRefs } from './export-validator';
+import { collectLocalAssetRefs, validateRequiredAssets } from './export-validator';
 import {
   COLOR_KEYS,
   colorVar,
@@ -452,6 +452,15 @@ export async function publishToZip(
   data:  Data,
   theme: ThemeConfig,
 ): Promise<void> {
+  // ── Empty-state policy — validate required assets for components marked requiresAssets ─
+  const requiredErrors = validateRequiredAssets(data);
+  if (requiredErrors.length > 0) {
+    throw new Error(
+      `EMOVEL export blocked — EMPTY-STATE POLICY VIOLATION\n` +
+      requiredErrors.join('\n'),
+    );
+  }
+
   // ── Asset validation — block export if any local asset ref is missing ────────
   const assetRefs = collectLocalAssetRefs(data);
   if (assetRefs.length > 0) {

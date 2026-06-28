@@ -72,6 +72,68 @@ export function collectLocalAssetRefs(data: Data): string[] {
 }
 
 /**
+ * Registry entries that require real assets for export.
+ * Maps registry component name → required asset field paths.
+ * When a component is present in page data and marked requiresAssets,
+ * the empty-state policy blocks export if required fields are empty.
+ */
+const REQUIRED_ASSET_COMPONENTS: Record<string, ReadonlyArray<readonly string[]>> = {
+  GalleryShowcase: [['shots'], ['shots', 'imageUrl']],
+};
+
+/**
+ * Validate empty-state policy: components with requiresAssets: true
+ * must have non-empty values in their required asset fields.
+ * Returns error strings; empty array = valid.
+ */
+export function validateRequiredAssets(data: Data): string[] {
+  const errors: string[] = [];
+
+  for (const item of (data.content ?? [])) {
+    const props = item.props as Record<string, unknown>;
+    const type = item.type as string;
+
+    // Map Puck component type back to registry name
+    let registryName: string | null = null;
+    for (const [regName, puckType] of Object.entries({
+      'GalleryShowcase': 'Screenshot Gallery',
+    })) {
+      if (puckType === type) { registryName = regName; break; }
+    }
+
+    if (!registryName) continue;
+    const requiredPaths = REQUIRED_ASSET_COMPONENTS[registryName];
+    if (!requiredPaths) continue;
+
+    for (const path of requiredPaths) {
+      if (path.length === 1) {
+        // Direct prop check: e.g. shots must be non-empty array
+        const val = props[path[0]];
+        if (!Array.isArray(val) || val.length === 0) {
+          errors.push(`MISSING REQUIRED ASSET: ${registryName}.${path[0]} must have at least one item`);
+        }
+      } else if (path.length === 2) {
+        // Nested array field: e.g. shots[].imageUrl must be non-empty for at least one item
+        const arr = props[path[0]];
+        if (Array.isArray(arr)) {
+          const hasNonEmpty = arr.some((item: unknown) => {
+            if (item && typeof item === 'object') {
+              return Boolean((item as Record<string, unknown>)[path[1]]);
+            }
+            return false;
+          });
+          if (!hasNonEmpty) {
+            errors.push(`MISSING REQUIRED ASSET: ${registryName}.${path[0]}[].${path[1]} must have at least one non-empty value`);
+          }
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
  * Validate all local asset references in a Puck Data object.
  * Returns an array of error strings; empty array = valid.
  *
@@ -83,7 +145,11 @@ export function validatePageForExport(
   data: Data,
   existsFn: (assetPath: string) => boolean,
 ): string[] {
-  return collectLocalAssetRefs(data)
+  const assetErrors = collectLocalAssetRefs(data)
     .filter(ref => !existsFn(ref))
     .map(ref => `MISSING ASSET: ${ref}`);
+
+  const requiredErrors = validateRequiredAssets(data);
+
+  return [...assetErrors, ...requiredErrors];
 }

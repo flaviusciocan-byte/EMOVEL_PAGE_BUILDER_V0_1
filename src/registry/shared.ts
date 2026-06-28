@@ -3,7 +3,7 @@
 
 /** Allowed values — used by the manifest generator so TypeScript is the single source of truth. */
 export const UNIVERSE_VALUES = ['noir', 'ivory', 'nordic', 'terra', 'mono'] as const;
-export const SURFACE_VALUES  = ['base', 'elevated', 'inverted', 'cinematic'] as const;
+export const SURFACE_VALUES  = ['transparent', 'base', 'surface', 'surfaceAlt', 'image', 'gradient', 'elevated', 'inverted', 'cinematic'] as const;
 export const MOTION_VALUES   = ['none', 'subtle', 'cinematic'] as const;
 export const SPACING_VALUES  = ['compact', 'standard', 'generous'] as const;
 

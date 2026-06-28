@@ -14,6 +14,16 @@ export const GALLERY_ASSETS = [
   'assets/references/emovel-reference-zimage-00009.png',
 ] as const;
 
+// ── Logo pool for TrustStrip ─────────────────────────────────────────────────
+
+const TRUST_LOGOS = [
+  { name: 'Acme Corp',  imageUrl: '' },
+  { name: 'Globex',     imageUrl: '' },
+  { name: 'Initech',    imageUrl: '' },
+  { name: 'Umbrella',   imageUrl: '' },
+  { name: 'Vandelay',   imageUrl: '' },
+] as const;
+
 // ── Navigation labels per page type ──────────────────────────────────────────
 
 const NAV_LINKS_BY_PAGE_TYPE: Record<PageType, Array<{ label: string; href: string }>> = {
@@ -117,8 +127,8 @@ function buildNavigationBar(profile: ComposerStrategyProfile): Record<string, un
     ctaHref:          profile.primaryCTA.href,
     position:         'sticky',
     width:            'contained',
+    surface:          'transparent',
     backgroundImageUrl: '',
-    // surface intentionally omitted — Puck default 'surface' is not a Registry value
   };
 }
 
@@ -142,7 +152,88 @@ function buildHeroSection(profile: ComposerStrategyProfile): Record<string, unkn
     backgroundImageUrl:  '',
     brandImageUrl:       '',
     width:               'contained',
-    // surface intentionally omitted — Puck default 'transparent' is not a Registry value
+    surface:             'transparent',
+  };
+}
+
+function buildTrustStrip(profile: ComposerStrategyProfile): Record<string, unknown> {
+  const eyebrowByTone: Record<string, string> = {
+    premium:   'Trusted by leading teams',
+    technical: 'Backed by industry leaders',
+    direct:    'Join thousands using ' + profile.brand.name,
+  };
+
+  return {
+    eyebrow:  eyebrowByTone[profile.tone],
+    logos:    [...TRUST_LOGOS],
+    width:    'contained',
+    surface:  'transparent',
+    backgroundImageUrl: '',
+  };
+}
+
+function buildFeatureGrid(profile: ComposerStrategyProfile): Record<string, unknown> {
+  return {
+    variant:        'solid',
+    title:          `${profile.brand.name} — built for ${profile.audience}.`,
+    body:           `A premium card highlighting the core value proposition of ${profile.brand.name}. Every detail refined for the exact needs of ${profile.audience}.`,
+    eyebrow:        'Feature Highlight',
+    cardImageUrl:   '',
+    objectImageUrl: '',
+    ctaLabel:       'Learn more',
+    ctaHref:        '#features',
+    width:          'contained',
+    surface:        'transparent',
+    backgroundImageUrl: '',
+  };
+}
+
+function buildFAQSection(profile: ComposerStrategyProfile): Record<string, unknown> {
+  return {
+    eyebrow:     'FAQ',
+    headline:    'Questions, answered.',
+    subheadline: '',
+    items: [
+      { question: `What makes ${profile.brand.name} different?`,       answer: `A specific, honest answer that addresses the real concern behind the question for ${profile.audience}.` },
+      { question: 'How long does setup take?',                         answer: `Most users are up and running within minutes. ${profile.brand.name} is designed to minimize friction.` },
+      { question: 'Is there a free trial?',                            answer: 'Yes. Start free and explore every feature before committing.' },
+      { question: 'What support do you offer?',                        answer: 'Priority support for all plans. Enterprise customers get a dedicated account manager.' },
+    ],
+    layout:   'accordion',
+    width:    'contained',
+    surface:  'transparent',
+    backgroundImageUrl: '',
+  };
+}
+
+function buildEditorialSection(profile: ComposerStrategyProfile): Record<string, unknown> {
+  return {
+    eyebrow:       'How it works',
+    headline:      `Designed for ${profile.audience}.`,
+    body:          `${profile.brand.name} delivers a focused experience that puts the most important capabilities front and center. Every interaction is intentional, every detail refined.`,
+    ctaLabel:      'Learn more',
+    ctaHref:       '#features',
+    imageUrl:      '',
+    imageAlt:      `${profile.brand.name} editorial visual`,
+    imagePosition: 'right',
+    width:         'contained',
+    surface:       'transparent',
+    backgroundImageUrl: '',
+  };
+}
+
+function buildProductShowcase(profile: ComposerStrategyProfile): Record<string, unknown> {
+  return {
+    sectionTitle:       `The ${profile.brand.name} collection`,
+    sectionDescription: `Modular offerings, each refined to a finished standard for ${profile.audience}.`,
+    products: [
+      { title: 'Core',       description: 'The essential capabilities that power every workflow.', status: 'available',    cta: 'View' },
+      { title: 'Pro',        description: 'Advanced features for teams that need more depth.',      status: 'available',    cta: 'View' },
+      { title: 'Enterprise', description: 'Custom deployments with dedicated support and SLAs.',     status: 'early_access', cta: 'Join' },
+    ],
+    width:    'contained',
+    surface:  'transparent',
+    backgroundImageUrl: '',
   };
 }
 
@@ -176,8 +267,8 @@ function buildGalleryShowcase(profile: ComposerStrategyProfile): Record<string, 
       },
     ],
     width:              'contained',
+    surface:            'transparent',
     backgroundImageUrl: '',
-    // surface intentionally omitted — Puck default 'transparent' is not a Registry value
   };
 }
 
@@ -213,8 +304,8 @@ function buildTestimonialSection(profile: ComposerStrategyProfile): Record<strin
     ],
     layout:             'grid',
     width:              'contained',
+    surface:            'transparent',
     backgroundImageUrl: '',
-    // surface intentionally omitted — Puck default 'surfaceAlt' is not a Registry value
   };
 }
 
@@ -261,8 +352,8 @@ function buildPricingSection(profile: ComposerStrategyProfile): Record<string, u
       },
     ],
     width:              'contained',
+    surface:            'transparent',
     backgroundImageUrl: '',
-    // surface intentionally omitted — inherits page universe via SectionSurface
   };
 }
 
@@ -274,7 +365,7 @@ function buildCTASection(profile: ComposerStrategyProfile): Record<string, unkno
     primaryAction:   profile.primaryCTA.label,
     secondaryAction: profile.secondaryCTA.label,
     supportText:     'No commitment required.',
-    surface:         'inverted',  // valid Registry value; creates conversion contrast
+    surface:         'inverted',
     width:           'contained',
     backgroundImageUrl: '',
   };
@@ -290,8 +381,8 @@ function buildLeadCapture(profile: ComposerStrategyProfile): Record<string, unkn
     privacyNote:      'No spam. Unsubscribe anytime.',
     layout:           'centered',
     width:            'contained',
+    surface:          'transparent',
     backgroundImageUrl: '',
-    // surface intentionally omitted — Puck default 'surface' is not a Registry value
   };
 }
 
@@ -301,14 +392,14 @@ function buildFooterSection(profile: ComposerStrategyProfile): Record<string, un
     logoText:    profile.brand.name,
     tagline:     taglineFn(profile.brand.name, profile.audience),
     linkGroups:  FOOTER_LINK_GROUPS_BY_PAGE_TYPE[profile.pageType],
-    copyright:   `© ${new Date().getFullYear()} ${profile.brand.name}. All rights reserved.`,
+    copyright:   `\u00a9 ${new Date().getFullYear()} ${profile.brand.name}. All rights reserved.`,
     socialLinks: [
       { label: 'Twitter',  href: '#' },
       { label: 'LinkedIn', href: '#' },
     ],
     width:              'contained',
+    surface:            'transparent',
     backgroundImageUrl: '',
-    // surface intentionally omitted — Puck default 'surface' is not a Registry value
   };
 }
 
@@ -322,8 +413,13 @@ export function buildSectionProps(
   switch (registryName) {
     case 'NavigationBar':      return buildNavigationBar(profile);
     case 'HeroSection':        return buildHeroSection(profile);
+    case 'TrustStrip':         return buildTrustStrip(profile);
+    case 'FeatureGrid':        return buildFeatureGrid(profile);
+    case 'ProductShowcase':    return buildProductShowcase(profile);
     case 'GalleryShowcase':    return buildGalleryShowcase(profile);
     case 'TestimonialSection': return buildTestimonialSection(profile);
+    case 'EditorialSection':   return buildEditorialSection(profile);
+    case 'FAQSection':         return buildFAQSection(profile);
     case 'PricingSection':     return buildPricingSection(profile);
     case 'CTASection':         return buildCTASection(profile);
     case 'LeadCapture':        return buildLeadCapture(profile);

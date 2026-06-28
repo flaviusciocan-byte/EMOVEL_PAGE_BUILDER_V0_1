@@ -199,12 +199,12 @@ describe('planPageStructure — FooterSection placement', () => {
 // ── Exclusions ────────────────────────────────────────────────────────────────
 
 describe('planPageStructure — never-emit exclusions', () => {
-  it('never emits FeatureGrid', () => {
+  it('emits FeatureGrid when relevant prompt is given', () => {
     const plan = planPageStructure(
       classifyIntent('feature grid section with cards'),
       manifest,
     );
-    expect(plan.some(s => s.registryName === 'FeatureGrid')).toBe(false);
+    expect(plan.some(s => s.registryName === 'FeatureGrid')).toBe(true);
   });
 
   it('never emits OfferSection', () => {

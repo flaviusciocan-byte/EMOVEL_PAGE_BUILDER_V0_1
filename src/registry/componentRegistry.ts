@@ -151,7 +151,7 @@ export const componentRegistry: Readonly<Record<string, ComponentRegistryEntry>>
     status: 'implemented',
     category: 'gallery',
     requiresAssets: true,
-    notes: 'Existing ScreenshotGallerySection is upgraded and adopted as GalleryShowcase using real local imageUrl assets. Advanced aspect/layout/lightbox/captionMode controls are deferred.',
+    notes: 'Existing ScreenshotGallerySection is upgraded and adopted as GalleryShowcase using real local imageUrl assets. Advanced aspect/layout/lightbox/captionMode controls are deferred. Empty-state policy: requires at least one shot with non-empty imageUrl.',
   },
 
   LeadCapture: {

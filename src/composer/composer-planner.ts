@@ -10,9 +10,8 @@ export interface PlannedSection {
 }
 
 // These components are excluded regardless of manifest status.
-// FeatureGrid: maps to CardSection (single card); props are incompatible with a feature grid.
 // OfferSection: Puck-only component, not in Registry manifest.
-const NEVER_EMIT = new Set(['FeatureGrid', 'OfferSection']);
+const NEVER_EMIT = new Set(['OfferSection']);
 
 function isImplemented(name: string, manifest: ValidatorManifest): boolean {
   return manifest.components.some(
@@ -37,6 +36,10 @@ export function planPageStructure(
   add('NavigationBar', 'Primary navigation — anchors every page; sticky for persistent access to the primary CTA.');
   add('HeroSection',   'Above-the-fold impact — establishes brand identity and frames the primary conversion intent.');
 
+  // ── Brand trust signals ─────────────────────────────────────────────────────
+
+  add('TrustStrip', 'Brand trust band — logos of partners or clients build credibility early in the page.');
+
   // ── Conditional content sections ────────────────────────────────────────────
 
   if (profile.hasGallery) {
@@ -49,10 +52,28 @@ export function planPageStructure(
       'Testimonials/social proof detected — reduces buyer hesitation before the conversion section.');
   }
 
+  // FeatureGrid (CardSection) is always useful for feature highlights
+  add('FeatureGrid',
+    'Feature highlight — single premium card showcasing a key capability or value proposition.');
+
+  // EditorialSection (FeatureSplitSection) — image + copy layout
+  add('EditorialSection',
+    'Editorial layout — image paired with copy for storytelling and feature deep-dive.');
+
+  // ProductShowcase (ProductGridSection) — product card grid
+  if (profile.pageType === 'product' || profile.pageType === 'saas') {
+    add('ProductShowcase',
+      'Product showcase — card grid displaying products or offerings with status and CTAs.');
+  }
+
   if (profile.hasPricing) {
     add('PricingSection',
       'Pricing detected — transparent plan comparison helps visitors self-select before the CTA.');
   }
+
+  // FAQSection — always useful for objection handling
+  add('FAQSection',
+    'FAQ — addresses common objections and reduces buyer hesitation before the conversion.');
 
   // ── Conversion anchor ───────────────────────────────────────────────────────
   // CTASection always appears, after any content sections, before any lead capture.

@@ -402,9 +402,9 @@ describe('buildRegistryPageSchema — PricingSection', () => {
 // ── Exclusions ────────────────────────────────────────────────────────────────
 
 describe('buildRegistryPageSchema — exclusions', () => {
-  it('never includes FeatureGrid', () => {
+  it('includes FeatureGrid when relevant prompt is given', () => {
     const schema = buildRegistryPageSchema('feature grid cards section', manifest);
-    expect(schema.components.some(c => c.registryName === 'FeatureGrid')).toBe(false);
+    expect(schema.components.some(c => c.registryName === 'FeatureGrid')).toBe(true);
   });
 
   it('no gallery prompt excludes GalleryShowcase', () => {
